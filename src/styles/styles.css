@@ -82,22 +82,22 @@
 
 :root { --navy:#123b72; --navy-2:#0b2b57; --blue:#2c9bf0; --cyan:#b9eaf6; --teal:#15b7a1; --mint:#dff6f0; --yellow:#ffd35a; --cream:#f8fbfd; --ice:#eef7fb; --ink:#173653; --muted:#6d8497; --line:#dcebf3; --white:#fff; --shadow:0 18px 48px rgba(19,59,114,.10); --radius:22px; --display:'Baloo 2', 'Arial Rounded MT Bold', sans-serif; --body:'Be Vietnam Pro', 'Segoe UI', sans-serif; --type-hero:clamp(56px,4.5vw,64px); --type-h1:clamp(40px,4vw,52px); --type-h2:clamp(36px,3.5vw,44px); --type-h3:24px; --type-body-lg:18px; --type-body:16px; --type-body-sm:14px; --type-button-lg:16px; --type-button:14px; --type-navigation:14px; --type-label:12px; --type-caption:11px; --type-price:clamp(26px,3vw,34px); --type-badge:12px; --type-speech:14px; }
 * { box-sizing:border-box; }
-html { scroll-behavior:smooth; }
-body { margin:0; color:var(--ink); background:var(--cream); font-family:var(--body); -webkit-font-smoothing:antialiased; }
+html { scroll-behavior:smooth; overflow-x:hidden; max-width:100%; }
+body { margin:0; color:var(--ink); background:var(--cream); font-family:var(--body); -webkit-font-smoothing:antialiased; overflow-x:hidden; max-width:100%; position:relative; }
 body, button, a { font-family:var(--body); }
 a { color:inherit; text-decoration:none; }
 button { border:0; cursor:pointer; }
 .container { width:min(1160px, calc(100% - 48px)); margin:0 auto; }
 .section-space { padding:112px 0; }
-.site-shell { overflow-x:clip; overflow-y:visible; }
+.site-shell { overflow-x:hidden; max-width:100%; width:100%; }
 .site-header { position:sticky; top:0; z-index:20; background:rgba(255,255,255,.92); backdrop-filter:blur(18px); border-bottom:1px solid rgba(220,235,243,.75); }
-.header-inner { height:80px; display:flex; align-items:center; gap:30px; }
+.header-inner { height:80px; display:flex; align-items:center; justify-content:space-between; gap:clamp(10px, 1.5vw, 22px); }
 .brand { display:inline-flex; align-items:center; gap:11px; flex:none; }
 .brand-name { color:var(--navy); font-family:var(--display); font-size:21px; font-weight:700; letter-spacing:.12em; }
-.main-nav { display:flex; align-items:center; justify-content:center; gap:24px; margin-left:auto; }
+.main-nav { display:flex; align-items:center; justify-content:center; gap:clamp(10px, 1.3vw, 18px); margin-left:auto; margin-right:clamp(4px, 1vw, 12px); }
 .main-nav a { color:#557188; font-size:13px; font-weight:600; transition:color .2s ease; white-space:nowrap; }
 .main-nav a:hover, .footer-links a:hover { color:var(--blue); }
-.header-actions { display:flex; align-items:center; gap:10px; margin-left:auto; flex-shrink:0; }
+.header-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
 .cart-pill { display:flex; gap:7px; align-items:center; color:var(--navy); font-size:12px; font-weight:700; white-space:nowrap; }
 .cart-pill b { display:grid; place-items:center; width:20px; height:20px; border-radius:50%; background:var(--yellow); font-size:11px; }
 .cart-icon { font-size:20px; line-height:1; transform:rotate(-22deg); display:inline-block; }
@@ -4941,6 +4941,7 @@ body.shop-overlay-open { overflow:hidden; }
   gap: 6px;
   padding: 8px 14px;
   height: 38px;
+  max-width: 150px;
   background: var(--ice, #eef7fb);
   color: var(--navy, #123b72);
   border: 1.5px solid var(--line, #dcebf3);
@@ -4966,37 +4967,46 @@ body.shop-overlay-open { overflow:hidden; }
 .account-pill .account-icon {
   font-size: 15px;
   display: inline-block;
+  flex-shrink: 0;
+}
+.account-pill span[data-account-label] {
+  max-width: 88px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  vertical-align: middle;
 }
 .header-cta {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 6px !important;
-  padding: 8px 18px !important;
-  height: 38px !important;
-  font-family: var(--body, 'Be Vietnam Pro', sans-serif) !important;
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  border-radius: 12px !important;
-  white-space: nowrap !important;
-  flex-shrink: 0 !important;
-  text-transform: none !important;
-  letter-spacing: 0 !important;
-  background: var(--blue, #2c9bf0) !important;
-  color: #fff !important;
-  box-shadow: 0 8px 18px rgba(44, 155, 240, 0.22) !important;
-  line-height: 1 !important;
-  box-sizing: border-box !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 18px;
+  height: 38px;
+  font-family: var(--body, 'Be Vietnam Pro', sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-transform: none;
+  letter-spacing: 0;
+  background: var(--blue, #2c9bf0);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(44, 155, 240, 0.22);
+  line-height: 1;
+  box-sizing: border-box;
 }
 .header-cta:hover {
-  background: #1989df !important;
-  box-shadow: 0 10px 22px rgba(44, 155, 240, 0.28) !important;
-  transform: translateY(-2px) !important;
+  background: #1989df;
+  box-shadow: 0 10px 22px rgba(44, 155, 240, 0.28);
+  transform: translateY(-2px);
 }
 .header-cta span {
-  font-size: 15px !important;
-  line-height: 1 !important;
-  margin-left: 2px !important;
+  font-size: 15px;
+  line-height: 1;
+  margin-left: 2px;
 }
 /* ==========================================================================
    2-COLUMN CUSTOMER AUTH MODAL WITH TIGORI MASCOT VIDEO (GORISE DESIGN SYSTEM)
@@ -5338,31 +5348,112 @@ body.shop-overlay-open { overflow:hidden; }
   cursor: pointer;
 }
 
-/* Responsive Modal */
+/* Responsive Modal & Mobile Optimization */
+@media (max-width: 1080px) {
+  .header-cta {
+    display: none !important;
+  }
+}
+
 @media (max-width: 768px) {
+  .customer-modal-overlay {
+    padding: 12px;
+    align-items: center;
+  }
   .customer-modal-card {
     grid-template-columns: 1fr;
-    max-width: 440px;
+    max-width: 430px;
+    width: 100%;
+    margin: auto 0;
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    border-radius: 22px;
   }
   .customer-modal-media {
-    padding: 20px 16px;
+    padding: 18px 16px 14px;
     flex-direction: row;
+    align-items: center;
+    justify-content: center;
     gap: 12px;
+    text-align: left;
   }
   .tigori-video-wrapper {
-    width: 90px;
-    height: 100px;
+    width: 75px;
+    height: 85px;
     margin: 0;
+    flex-shrink: 0;
   }
   .tigori-bubble {
     font-size: 12px;
-    max-width: 180px;
+    max-width: 220px;
+    padding: 8px 12px;
+    border-radius: 14px 14px 14px 4px;
   }
   .tigori-badge {
     display: none;
   }
   .customer-modal-content {
-    padding: 24px 20px;
+    padding: 20px 18px 24px;
+  }
+  .customer-modal-heading h3 {
+    font-size: 22px;
+  }
+  .customer-modal-heading p {
+    font-size: 12px;
+  }
+  .customer-tabs {
+    margin: 14px 0 16px;
+  }
+  .customer-form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .customer-form-group {
+    margin-bottom: 11px;
+  }
+  .customer-form-group input {
+    font-size: 16px !important; /* Prevents auto-zoom on iOS */
+    padding: 10px 14px;
+    min-height: 44px;
+  }
+  .input-icon-wrapper input {
+    padding-left: 38px !important;
+  }
+  .customer-submit-btn {
+    min-height: 46px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 600px) {
+  .account-pill {
+    padding: 6px 10px;
+    height: 36px;
+    font-size: 12px;
+    gap: 4px;
+  }
+  .account-pill span[data-account-label] {
+    max-width: 60px;
+  }
+  .header-actions {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 420px) {
+  .account-pill span[data-account-label] {
+    display: none;
+  }
+  .account-pill {
+    padding: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    justify-content: center;
+  }
+  .cart-pill {
+    min-width: 36px;
+    height: 36px;
   }
 }
 .customer-dropdown {

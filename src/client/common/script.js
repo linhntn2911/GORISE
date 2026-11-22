@@ -1249,7 +1249,15 @@
       const phones = document.querySelectorAll('[data-dropdown-phone]');
 
       if (customer) {
-        labels.forEach((l) => (l.textContent = (customer.isAdmin ? '👑 ' : '') + (customer.fullName || customer.username)));
+        labels.forEach((l) => {
+          if (customer.isAdmin) {
+            l.textContent = '👑 Admin';
+          } else {
+            const name = customer.fullName || customer.username || '';
+            const shortName = name.length > 12 ? (name.split(' ').slice(-1)[0] || name) : name;
+            l.textContent = shortName;
+          }
+        });
         names.forEach((n) => (n.textContent = (customer.isAdmin ? '👑 ' : '') + (customer.fullName || customer.username)));
         phones.forEach((p) => (p.textContent = customer.isAdmin ? 'Quản trị viên hệ thống' : (customer.phone ? ('📞 ' + customer.phone) : ('@' + customer.username))));
       } else {

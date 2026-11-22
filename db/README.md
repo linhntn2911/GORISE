@@ -17,7 +17,8 @@ db/
 │   ├── 003_20261122_create_customers_and_addresses_tables.sql
 │   ├── 004_20261122_add_username_to_customers.sql
 │   ├── 005_20261122_allow_null_email_for_username_auth.sql
-│   └── 006_20261122_sync_admin_to_customers.sql
+│   ├── 006_20261122_sync_admin_to_customers.sql
+│   └── 007_20261122_fix_vietnamese_encoding.sql
 │
 └── README.md                          # Tài liệu hướng dẫn quy ước đặt tên và thực thi
 ```
@@ -43,6 +44,8 @@ db/
    - Cho phép nhiều khách hàng đăng ký chỉ bằng `username` + `password` (email để trống NULL) mà không bị lỗi trùng khóa trong SQL Server.
 6. **`006_20261122_sync_admin_to_customers.sql`**:
    - Đồng bộ tài khoản `admin` vào bảng `customers` để tài khoản quản trị có thể đăng nhập xuyên suốt ở cả trang chủ và trang quản trị `/quan-ly/`.
+7. **`007_20261122_fix_vietnamese_encoding.sql`**:
+   - Sửa lỗi mã hóa font tiếng Việt (Mojibake) cho tên Quản trị viên trong `admin_users` và `customers` thành chuẩn Unicode `N'Quản trị viên GORISE'`.
 
 ---
 
