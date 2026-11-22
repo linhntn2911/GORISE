@@ -149,13 +149,15 @@
       wrapper.style.alignItems = 'center';
       wrapper.innerHTML = `
         <button class="account-pill" type="button" aria-label="Tài khoản khách hàng" data-account-btn>
-          <span class="account-icon" aria-hidden="true">👤</span>
+          <span class="account-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
           <span data-account-label>Đăng nhập</span>
         </button>
         <div class="customer-dropdown" data-account-dropdown style="display: none;">
           <div class="user-name" data-dropdown-name>Khách hàng</div>
           <div class="user-phone" data-dropdown-phone></div>
-          <button type="button" data-customer-logout-btn>Đăng xuất</button>
+          <a href="/tai-khoan/don-hang/" class="customer-dropdown-item">Đơn hàng của tôi</a>
+          <a href="/tai-khoan/" class="customer-dropdown-item">Thông tin cá nhân</a>
+          <button type="button" class="customer-dropdown-logout" data-customer-logout-btn>Đăng xuất</button>
         </div>
       `;
       const cartPill = headerActions.querySelector('.cart-pill');
@@ -217,7 +219,7 @@
       modal.classList.add('is-open');
       modal.setAttribute('aria-hidden', 'false');
       const vid = modal.querySelector('video');
-      if (vid) vid.play().catch(() => {});
+      if (vid) vid.play().catch(() => { });
     };
 
     const closeModal = () => {
@@ -255,8 +257,11 @@
       const labels = document.querySelectorAll('[data-account-label]');
       const names = document.querySelectorAll('[data-dropdown-name]');
       const phones = document.querySelectorAll('[data-dropdown-phone]');
+      const adminLinks = document.querySelectorAll('[data-admin-link]');
 
       if (customer) {
+        const isAdmin = Boolean(customer.isAdmin || customer.username === 'admin' || customer.role === 'super_admin' || customer.role === 'admin');
+        customer.isAdmin = isAdmin;
         labels.forEach((l) => {
           if (customer.isAdmin) {
             l.textContent = '👑 Admin';
@@ -266,12 +271,15 @@
             l.textContent = shortName;
           }
         });
-        names.forEach((n) => (n.textContent = (customer.isAdmin ? '👑 ' : '') + (customer.fullName || customer.username)));
-        phones.forEach((p) => (p.textContent = customer.isAdmin ? 'Quản trị viên hệ thống' : (customer.phone ? ('📞 ' + customer.phone) : ('@' + customer.username))));
+        names.forEach((n) => (n.textContent = customer.fullName || customer.username));
+        phones.forEach((p) => (p.textContent = customer.phone || ('@' + customer.username)));
       } else {
         labels.forEach((l) => (l.textContent = 'Đăng nhập'));
         names.forEach((n) => (n.textContent = 'Khách hàng'));
         phones.forEach((p) => (p.textContent = ''));
+        adminLinks.forEach((a) => {
+          a.style.display = 'none';
+        });
       }
 
       Gorise.emit('gorise-auth-change', { customer });
@@ -306,7 +314,8 @@
       if (!logoutBtn) return;
       e.preventDefault();
       try {
-        await fetch('/api/customer/logout', { method: 'POST' });
+        await fetch('/api/customer/logout', { method: 'POST', credentials: 'include' });
+        await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => { });
       } catch (err) {
         console.error('Logout error:', err);
       }
@@ -317,6 +326,9 @@
         dropdown.style.display = 'none';
       }
       Gorise.toast?.('Đã đăng xuất tài khoản.');
+      setTimeout(() => {
+        window.location.reload();
+      }, 250);
     });
 
     // Kiểm tra phiên đăng nhập đã có qua Cookie
@@ -325,9 +337,11 @@
       .then((data) => {
         if (data && data.authenticated && data.customer) {
           updateAuthUI(data.customer);
+        } else {
+          updateAuthUI(null);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
 
     // Mắt ẩn / hiện mật khẩu
     modal.querySelectorAll('[data-toggle-password]').forEach((btn) => {

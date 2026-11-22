@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
-import { getPool } from './db.js';
+import sql from 'mssql';
+import { getPool, getSqlPool } from './db.js';
 
 const decode = (value, fallback = null) => {
   if (value == null) return fallback;
@@ -30,7 +31,81 @@ export async function deleteArticle(id) { const [result] = await getPool().execu
 const productColumns = 'id, product_name, sku, description, short_description, price_vnd, sale_price_vnd, sale_start, sale_end, category, age_range, components_json, specs_json, availability, stock_quantity, status, version_name, gallery_json, video_url, shipping_json, payment_json, images_json, product_url, seo_json, updated_at';
 const mapProduct = (row) => ({ id: row.id, productName: row.product_name, sku: row.sku || '', description: row.description || '', shortDescription: row.short_description || '', price: row.price_vnd == null ? null : Number(row.price_vnd), salePrice: row.sale_price_vnd == null ? null : Number(row.sale_price_vnd), saleStart: row.sale_start, saleEnd: row.sale_end, category: row.category || '', ageRange: row.age_range || '', components: decode(row.components_json, []), specs: decode(row.specs_json, {}), availability: row.availability || '', stockQuantity: row.stock_quantity == null ? null : Number(row.stock_quantity), status: row.status || 'draft', versionName: row.version_name || '', gallery: decode(row.gallery_json, []), videoUrl: row.video_url || '', images: decode(row.images_json, []), productUrl: row.product_url || '/kham-pha-tro-choi/', seo: decode(row.seo_json, {}), updatedAt: iso(row.updated_at) });
 export async function listAdminProducts() { const [rows] = await getPool().query(`SELECT ${productColumns} FROM products ORDER BY updated_at DESC LIMIT 100`); return rows.map(mapProduct); }
-export async function saveProduct(item) { const id = item.id || crypto.randomUUID(); await getPool().execute(`INSERT INTO products (id, product_name, sku, description, short_description, price_vnd, sale_price_vnd, sale_start, sale_end, category, age_range, components_json, specs_json, availability, stock_quantity, status, version_name, gallery_json, video_url, images_json, product_url, seo_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE product_name=VALUES(product_name), sku=VALUES(sku), description=VALUES(description), short_description=VALUES(short_description), price_vnd=VALUES(price_vnd), sale_price_vnd=VALUES(sale_price_vnd), sale_start=VALUES(sale_start), sale_end=VALUES(sale_end), category=VALUES(category), age_range=VALUES(age_range), components_json=VALUES(components_json), specs_json=VALUES(specs_json), availability=VALUES(availability), stock_quantity=VALUES(stock_quantity), status=VALUES(status), version_name=VALUES(version_name), gallery_json=VALUES(gallery_json), video_url=VALUES(video_url), images_json=VALUES(images_json), product_url=VALUES(product_url), seo_json=VALUES(seo_json)`, [id, item.productName, item.sku || '', item.description || '', item.shortDescription || '', item.price ?? null, item.salePrice ?? null, item.saleStart || null, item.saleEnd || null, item.category || '', item.ageRange || '', JSON.stringify(item.components || []), JSON.stringify(item.specs || {}), item.availability || '', item.stockQuantity ?? null, ['selling', 'out_of_stock', 'stopped', 'draft'].includes(item.status) ? item.status : 'draft', item.versionName || '', JSON.stringify(item.gallery || []), item.videoUrl || '', JSON.stringify(item.images || []), item.productUrl || '/kham-pha-tro-choi/', JSON.stringify(item.seo || {})]); return getProductById(id); }
+export async function saveProduct(item) {
+  const id = item.id || crypto.randomUUID();
+  const status = ['selling', 'out_of_stock', 'stopped', 'draft'].includes(item.status) ? item.status : 'draft';
+  const pool = await getSqlPool();
+  const request = pool.request();
+
+  request.input('id', sql.NVarChar(64), id);
+  request.input('productName', sql.NVarChar(255), String(item.productName || '').trim());
+  request.input('sku', sql.NVarChar(120), item.sku || '');
+  request.input('description', sql.NVarChar(sql.MAX), item.description || '');
+  request.input('shortDescription', sql.NVarChar(sql.MAX), item.shortDescription || '');
+  request.input('price', sql.BigInt, item.price ?? null);
+  request.input('salePrice', sql.BigInt, item.salePrice ?? null);
+  request.input('saleStart', sql.Date, item.saleStart ? new Date(item.saleStart) : null);
+  request.input('saleEnd', sql.Date, item.saleEnd ? new Date(item.saleEnd) : null);
+  request.input('category', sql.NVarChar(150), item.category || '');
+  request.input('ageRange', sql.NVarChar(150), item.ageRange || '');
+  request.input('componentsJson', sql.NVarChar(sql.MAX), JSON.stringify(item.components || []));
+  request.input('specsJson', sql.NVarChar(sql.MAX), JSON.stringify(item.specs || {}));
+  request.input('availability', sql.NVarChar(150), item.availability || '');
+  request.input('stockQuantity', sql.Int, item.stockQuantity ?? null);
+  request.input('status', sql.NVarChar(32), status);
+  request.input('versionName', sql.NVarChar(120), item.versionName || '');
+  request.input('galleryJson', sql.NVarChar(sql.MAX), JSON.stringify(item.gallery || []));
+  request.input('videoUrl', sql.NVarChar(500), item.videoUrl || '');
+  request.input('imagesJson', sql.NVarChar(sql.MAX), JSON.stringify(item.images || []));
+  request.input('productUrl', sql.NVarChar(255), item.productUrl || '/kham-pha-tro-choi/');
+  request.input('seoJson', sql.NVarChar(sql.MAX), JSON.stringify(item.seo || {}));
+
+  await request.query(`
+    IF EXISTS (SELECT 1 FROM products WHERE id = @id)
+    BEGIN
+      UPDATE products SET
+        product_name = @productName,
+        sku = @sku,
+        description = @description,
+        short_description = @shortDescription,
+        price_vnd = @price,
+        sale_price_vnd = @salePrice,
+        sale_start = @saleStart,
+        sale_end = @saleEnd,
+        category = @category,
+        age_range = @ageRange,
+        components_json = @componentsJson,
+        specs_json = @specsJson,
+        availability = @availability,
+        stock_quantity = @stockQuantity,
+        status = @status,
+        version_name = @versionName,
+        gallery_json = @galleryJson,
+        video_url = @videoUrl,
+        images_json = @imagesJson,
+        product_url = @productUrl,
+        seo_json = @seoJson,
+        updated_at = GETDATE()
+      WHERE id = @id;
+    END
+    ELSE
+    BEGIN
+      INSERT INTO products (
+        id, product_name, sku, description, short_description, price_vnd, sale_price_vnd,
+        sale_start, sale_end, category, age_range, components_json, specs_json, availability,
+        stock_quantity, status, version_name, gallery_json, video_url, images_json,
+        product_url, seo_json, updated_at
+      ) VALUES (
+        @id, @productName, @sku, @description, @shortDescription, @price, @salePrice,
+        @saleStart, @saleEnd, @category, @ageRange, @componentsJson, @specsJson, @availability,
+        @stockQuantity, @status, @versionName, @galleryJson, @videoUrl, @imagesJson,
+        @productUrl, @seoJson, GETDATE()
+      );
+    END
+  `);
+
+  return getProductById(id);
+}
 async function getProductById(id) { const [rows] = await getPool().execute(`SELECT ${productColumns} FROM products WHERE id = ? LIMIT 1`, [id]); return rows[0] ? mapProduct(rows[0]) : null; }
 export async function deleteProduct(id) { const [result] = await getPool().execute('UPDATE products SET status = \'stopped\', updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id]); return result.affectedRows > 0; }
 export async function dashboardStats() { const db = getPool(); const [[video]] = await db.query('SELECT COUNT(*) count FROM situation_videos WHERE deleted_at IS NULL'); const [[publishedVideos]] = await db.query('SELECT COUNT(*) count FROM situation_videos WHERE deleted_at IS NULL AND is_active = 1'); const [[article]] = await db.query('SELECT COUNT(*) count FROM cms_articles WHERE deleted_at IS NULL'); const [[publishedArticles]] = await db.query("SELECT COUNT(*) count FROM cms_articles WHERE deleted_at IS NULL AND status = 'published'"); const [[product]] = await db.query('SELECT COUNT(*) count FROM products'); const [[drafts]] = await db.query("SELECT (SELECT COUNT(*) FROM cms_articles WHERE deleted_at IS NULL AND status='draft') + (SELECT COUNT(*) FROM products WHERE status='draft') count"); return { videos: Number(video.count), publishedVideos: Number(publishedVideos.count), articles: Number(article.count), publishedArticles: Number(publishedArticles.count), products: Number(product.count), drafts: Number(drafts.count) }; }

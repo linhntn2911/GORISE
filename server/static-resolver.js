@@ -13,6 +13,8 @@ const pages = new Set([
   '/thu-thach',
   '/lien-he',
   '/gio-hang',
+  '/tai-khoan',
+  '/tai-khoan/don-hang',
   '/quan-ly',
   '/quan-ly-builder',
   '/quan-ly-phase3',
@@ -97,6 +99,7 @@ export function resolveStaticFile(pathname) {
     resolve(root, sanitized),
     resolve(root, 'public', sanitized),
     resolve(root, 'public/assets', sanitized),
+    resolve(root, 'gorise-play/game', sanitized),
   ];
 
   for (const candidate of directCandidates) {

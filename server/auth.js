@@ -67,11 +67,20 @@ export function verifyJwt(token) {
 export function setCookie(res, name, value, options = {}) {
   const attributes = [`${name}=${encodeURIComponent(value)}`, 'Path=/', 'HttpOnly', 'SameSite=Lax'];
   if (options.maxAge != null) attributes.push(`Max-Age=${options.maxAge}`);
-  res.setHeader('Set-Cookie', [...(res.getHeader('Set-Cookie') || []), attributes.join('; ')]);
+  if (options.expires) attributes.push(`Expires=${options.expires.toUTCString()}`);
+
+  const existing = res.getHeader('Set-Cookie');
+  const list = Array.isArray(existing) ? existing : (existing ? [String(existing)] : []);
+  const filtered = list.filter((c) => !c.startsWith(`${name}=`));
+  res.setHeader('Set-Cookie', [...filtered, attributes.join('; ')]);
 }
 
 export function clearCookie(res, name) {
-  setCookie(res, name, '', { maxAge: 0 });
+  const expired = `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; HttpOnly; SameSite=Lax`;
+  const existing = res.getHeader('Set-Cookie');
+  const list = Array.isArray(existing) ? existing : (existing ? [String(existing)] : []);
+  const filtered = list.filter((c) => !c.startsWith(`${name}=`));
+  res.setHeader('Set-Cookie', [...filtered, expired]);
 }
 
 function publicOrigin(req) {
@@ -189,19 +198,37 @@ export async function loginAdmin(identifier, password) {
 export async function getIdentity(req) {
   const cookies = parseCookies(req.headers.cookie || '');
   const token = cookies[COOKIE_NAME] || cookies['webdev_app_session'];
-  if (!token) return null;
+  if (token) {
+    const claims = verifyJwt(token);
+    if (claims) {
+      return {
+        id: claims.id,
+        username: claims.username || 'admin',
+        email: claims.email || ADMIN_EMAIL,
+        name: claims.name || 'Quản trị viên GORISE',
+        role: claims.role || 'super_admin',
+        isAdmin: true,
+      };
+    }
+  }
 
-  const claims = verifyJwt(token);
-  if (!claims) return null;
+  // Nhận diện phiên admin nếu đã đăng nhập qua cổng khách hàng
+  const custToken = cookies['gorise_customer_session'];
+  if (custToken) {
+    const claims = verifyJwt(custToken);
+    if (claims && (claims.isAdmin || claims.username === 'admin' || claims.role === 'super_admin' || claims.role === 'admin')) {
+      return {
+        id: claims.id,
+        username: claims.username || 'admin',
+        email: ADMIN_EMAIL,
+        name: claims.fullName || 'Quản trị viên GORISE',
+        role: 'super_admin',
+        isAdmin: true,
+      };
+    }
+  }
 
-  return {
-    id: claims.id,
-    username: claims.username || 'admin',
-    email: claims.email || ADMIN_EMAIL,
-    name: claims.name || 'Quản trị viên GORISE',
-    role: claims.role || 'super_admin',
-    isAdmin: true,
-  };
+  return null;
 }
 
 export async function exchangeCode() {

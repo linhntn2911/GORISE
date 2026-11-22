@@ -37,7 +37,7 @@
 
   const formatVnd = Gorise.formatVnd || ((amount) => `${new Intl.NumberFormat('vi-VN').format(amount)}₫`);
   const subtotal = () => cartItems * 299000;
-  const shipping = () => (cartItems > 0 ? 30000 : 0);
+  const shipping = () => (cartItems > 0 ? 35000 : 0);
   const total = () => subtotal() + shipping();
 
   // 2. Cập nhật số lượng trên các badge giỏ hàng
@@ -193,8 +193,33 @@
       setStep('info');
     });
 
-    // Submit form thông tin nhận hàng
-    document.querySelector('[data-shipping-form]')?.addEventListener('submit', (event) => {
+    // QUẢN LÝ THANH TOÁN SEPAY & TPBANK VIETQR
+    let activePaymentPoll = null;
+    let activeCreatedOrder = null;
+
+    const startPaymentPolling = (orderCode) => {
+      if (activePaymentPoll) clearInterval(activePaymentPoll);
+      activePaymentPoll = setInterval(async () => {
+        try {
+          const res = await fetch('/api/customer/orders');
+          if (!res.ok) return;
+          const data = await res.json();
+          const match = (data.orders || []).find(o => o.order_code === orderCode || o.orderCode === orderCode);
+          if (match && (match.payment_status === 'paid' || match.paymentStatus === 'paid')) {
+            clearInterval(activePaymentPoll);
+            activePaymentPoll = null;
+            Gorise.toast?.('Thanh toán thành công! SePay đã xác nhận đơn hàng.');
+            cartItems = 0;
+            storeCart(cartItems);
+            updateCartUi();
+            setStep('success');
+          }
+        } catch(e) {}
+      }, 3000);
+    };
+
+    // Submit form thông tin nhận hàng -> Tự động tạo đơn & render VietQR TPBank
+    document.querySelector('[data-shipping-form]')?.addEventListener('submit', async (event) => {
       event.preventDefault();
       if (!Gorise.currentCustomer) {
         Gorise.toast?.('Vui lòng đăng nhập để tiếp tục đặt hàng.');
@@ -202,25 +227,12 @@
         return;
       }
       orderTotal = total();
-      setStep('payment');
-    });
 
-    document.querySelectorAll('[data-back-step]').forEach((button) => {
-      button.addEventListener('click', () => setStep(button.dataset.backStep));
-    });
-
-    // XÁC NHẬN ĐẶT HÀNG & TẠO ĐƠN VÀO CSDL THỰC TẾ
-    document.querySelector('[data-go-success]')?.addEventListener('click', async () => {
-      if (!Gorise.currentCustomer) {
-        Gorise.toast?.('Vui lòng đăng nhập tài khoản để hoàn tất đơn hàng!');
-        if (typeof Gorise.openAuthModal === 'function') Gorise.openAuthModal('login');
-        return;
-      }
-
-      orderTotal = total();
+      const submitBtn = event.target.querySelector('button[type="submit"]');
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Đang khởi tạo đơn hàng…'; }
 
       try {
-        const shippingForm = document.querySelector('[data-shipping-form]');
+        const shippingForm = event.target;
         const recipientName = shippingForm?.querySelector('input[name="name"], [data-shipping-name]')?.value || Gorise.currentCustomer.fullName || 'Khách hàng';
         const recipientPhone = shippingForm?.querySelector('input[name="phone"], [data-shipping-phone]')?.value || Gorise.currentCustomer.phone || '0900000000';
         const shippingAddress = shippingForm?.querySelector('textarea[name="address"], [data-shipping-address]')?.value || 'Nhận tại địa chỉ đăng ký';
@@ -240,24 +252,58 @@
         });
 
         const data = await res.json();
-        if (res.ok && data.success) {
-          const codeEl = document.querySelector('[data-order-code]');
-          if (codeEl) codeEl.textContent = data.order.orderCode;
-          Gorise.toast?.(`Đã tạo đơn hàng ${data.order.orderCode} vào hệ thống!`);
+        if (res.ok && data.success && data.order) {
+          activeCreatedOrder = data.order;
+          const orderCode = data.order.orderCode;
+          orderTotal = data.order.totalAmount || orderTotal;
+
+          const bankAccount = '00000807788';
+          const accountName = 'BUI THI NGOC ANH';
+          const bankName = 'TPBank (Ngân hàng Tiên Phong)';
+          const transferMemo = `GORISE ${orderCode}`;
+
+          // Cập nhật thông tin trên màn hình thanh toán
+          const qrImg = document.querySelector('[data-qr-image]');
+          if (qrImg) {
+            qrImg.src = `https://img.vietqr.io/image/tpbank-${bankAccount}-compact2.png?amount=${orderTotal}&addInfo=${encodeURIComponent(transferMemo)}&accountName=${encodeURIComponent(accountName)}`;
+          }
+          const bankEl = document.querySelector('[data-transfer-bank]');
+          if (bankEl) bankEl.textContent = bankName;
+
+          const accEl = document.querySelector('[data-transfer-account]');
+          if (accEl) accEl.textContent = bankAccount;
+
+          const nameEl = document.querySelector('[data-transfer-name]');
+          if (nameEl) nameEl.textContent = accountName;
+
+          const contentEl = document.querySelector('[data-transfer-content]');
+          if (contentEl) contentEl.textContent = transferMemo;
+
+          document.querySelectorAll('[data-copy-type="account"]').forEach(b => b.setAttribute('data-copy', bankAccount));
+          document.querySelectorAll('[data-copy-type="content"]').forEach(b => b.setAttribute('data-copy', transferMemo));
+
+          document.querySelectorAll('[data-order-code]').forEach(n => n.textContent = '#' + orderCode);
+          document.querySelectorAll('[data-payment-total]').forEach(n => n.textContent = formatVnd(orderTotal));
+          document.querySelectorAll('[data-success-total]').forEach(n => n.textContent = formatVnd(orderTotal));
+
+          startPaymentPolling(orderCode);
+          setStep('payment');
+        } else {
+          Gorise.toast?.(data.error || 'Không thể tạo đơn hàng lúc này.');
         }
       } catch (err) {
         console.error('Order creation error:', err);
+        setStep('payment');
+      } finally {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = 'Tiếp tục thanh toán <span>→</span>'; }
       }
+    });
 
-      document.querySelectorAll('[data-success-total]').forEach((node) => {
-        node.textContent = formatVnd(orderTotal);
+    document.querySelectorAll('[data-back-step]').forEach((button) => {
+      button.addEventListener('click', () => {
+        if (activePaymentPoll) { clearInterval(activePaymentPoll); activePaymentPoll = null; }
+        setStep(button.dataset.backStep);
       });
-
-      cartItems = 0;
-      storeCart(cartItems);
-      updateCart();
-      renderCart();
-      setStep('success');
     });
 
     document.querySelector('[data-reset-order]')?.addEventListener('click', () => {
@@ -271,7 +317,11 @@
         const value = button.dataset.copy;
         try {
           await navigator.clipboard.writeText(value);
-          Gorise.toast?.('Đã sao chép thông tin chuyển khoản.');
+          Gorise.toast?.('Đã sao chép: ' + value);
+          button.classList.add('is-copied');
+          setTimeout(() => {
+            button.classList.remove('is-copied');
+          }, 1500);
         } catch {
           Gorise.toast?.('Không sao chép được. Hãy chọn và sao chép thông tin thủ công.');
         }

@@ -13,6 +13,17 @@
     <link rel="icon" href="/gorise-official.png" type="image/png" />
     <link rel="stylesheet" href="/styles.css" />
     <title>GORISE Play — Sân chơi tương tác</title>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      <script>
+      try {
+        const _n = localStorage.getItem('gorise_customer_name');
+        if (_n) {
+          document.write('<style>[data-account-label]{display:none!important;}.account-pill::after{content:"' + _n.replace(/"/g, '') + '";color:var(--navy,#123b72);font-weight:700;font-size:13px;display:inline;}</style>');
+        }
+      } catch(e) {}
+    </script>
   </head>
   <body class="play-page">
     <div class="site-shell">
@@ -24,14 +35,21 @@
           <button class="menu-toggle" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="site-menu" data-menu-toggle>
             <span></span><span></span><span></span>
           </button>
-          <nav class="main-nav" aria-label="Điều hướng chính" id="site-menu" data-nav>
-            <a href="/">Trang chủ</a>
-            <a href="/ve-gorise/">Về GORISE</a>
-            <a href="/kham-pha-tro-choi/">Shop</a><a class="is-active" href="/gorise-play/" aria-current="page">GORISE Play</a>
-            <a href="/video-tinh-huong/">Tình huống</a><a href="/tin-tuc/">Tin tức</a>
-            <a href="/lien-he/">Liên hệ</a>
-          <a class="button button-primary mobile-nav-cta" href="/kham-pha-tro-choi/">Khám phá GORISE <span>↗</span></a></nav>
+          <nav class="main-nav" aria-label="Điều hướng chính" id="site-menu" data-nav><a href="/">Trang chủ</a><a href="/ve-gorise/">Về GORISE</a><a href="/kham-pha-tro-choi/">Sản phẩm</a><a class="is-active" aria-current="page" href="/gorise-play/">GORISE Play</a><a href="/video-tinh-huong/">Tình huống</a><a href="/tin-tuc/">Tin tức</a><a href="/lien-he/">Liên hệ</a><a class="button button-primary mobile-nav-cta" href="/kham-pha-tro-choi/">Khám phá GORISE <span>↗</span></a></nav>
           <div class="header-socials" aria-label="Mạng xã hội GORISE"><a class="social-icon social-facebook" href="https://www.facebook.com/profile.php?id=61594921829509" target="_blank" rel="noreferrer" aria-label="GORISE trên Facebook" title="Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8h3V4h-3c-3.1 0-5 1.9-5 5v3H6v4h3v6h4v-6h3l1-4h-4V9c0-.7.3-1 1-1Z"/></svg></a><a class="social-icon social-tiktok" href="https://www.tiktok.com/@goriseproperty?_r=1&amp;_t=ZS-9AOsh9NnjSH" target="_blank" rel="noreferrer" aria-label="GORISE trên TikTok" title="TikTok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h3.1c.3 1.8 1.3 3.2 2.9 4.1v3.2c-1.3 0-2.6-.4-3.7-1.1v6.2c0 3.7-2.6 5.8-5.9 5.8A5.4 5.4 0 0 1 6 15.8c0-3.2 2.6-5.7 5.7-5.7.3 0 .7 0 1 .1v3.2a2.7 2.7 0 1 0 1.6 2.5V3.1Z"/></svg></a></div><div class="header-actions">
+                        <div class="account-wrapper" style="position: relative; display: inline-flex; align-items: center;">
+              <button class="account-pill" type="button" aria-label="Tài khoản khách hàng" data-account-btn>
+                <span class="account-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                <span data-account-label>Đăng nhập</span>
+              </button>
+              <div class="customer-dropdown" data-account-dropdown style="display: none;">
+                <div class="user-name" data-dropdown-name>Khách hàng</div>
+                <div class="user-phone" data-dropdown-phone></div>
+                <a href="/tai-khoan/don-hang/" class="dropdown-item">Đơn hàng của tôi</a>
+                <a href="/tai-khoan/" class="dropdown-item">Thông tin cá nhân</a>
+                <button type="button" class="dropdown-logout" data-customer-logout-btn>Đăng xuất</button>
+              </div>
+            </div>
             <a class="cart-pill" href="/gio-hang/" aria-label="Giỏ hàng, 0 sản phẩm" data-cart-label>
               <span class="cart-icon" aria-hidden="true">⌁</span>
               <span>Giỏ hàng</span>
@@ -72,7 +90,47 @@
               <div><span class="section-kicker light-kicker"><span aria-hidden="true">✦</span> TRÒ CHƠI ĐẦU TIÊN</span><h2 id="safe-home-digital-title">SAFE HOME <span>DIGITAL</span></h2></div>
               <p>Chơi trực tiếp trên trình duyệt: di chuyển, khám phá các khu vực trong nhà và cùng TIGORI đưa ra lựa chọn an toàn.</p>
             </div>
-            <div class="play-game-frame-wrap reveal"><iframe class="play-game-frame" src="/gorise-play/game/" title="GORISE Safe Home Digital" loading="eager" allow="autoplay"></iframe></div>
+
+            <!-- Màn hình khóa bản quyền (Hiển thị khi chưa mở khóa) -->
+            <div class="play-gate-lock" id="playGateLockScreen">
+              <div class="play-gate-icon-badge">🔒</div>
+              <span class="play-gate-kicker">ĐẶC QUYỀN BOARD GAME SAFE HOME</span>
+              <h3 class="play-gate-title">MỞ KHÓA SÂN CHƠI GORISE PLAY</h3>
+              <p class="play-gate-desc">GORISE Play là không gian trò chơi tương tác số độc quyền dành riêng cho khách hàng sở hữu bộ Board Game Safe Home. Vui lòng nhập mã kích hoạt trên thẻ cào trong hộp game để bắt đầu chơi!</p>
+
+              <div class="play-code-box">
+                <!-- Khi chưa đăng nhập -->
+                <div id="playGateAuthRequired" style="display:none;">
+                  <p style="color:#fde68a; font-size:14px; margin-bottom:14px; font-weight:600;">Bạn cần đăng nhập tài khoản trước khi nhập mã kích hoạt.</p>
+                  <button type="button" class="button button-yellow play-gate-btn" id="btnGateLogin">Đăng nhập tài khoản ↗</button>
+                </div>
+
+                <!-- Khi đã đăng nhập -> Form nhập mã -->
+                <form id="playActivateForm" style="display:none;">
+                  <div class="play-code-input-group">
+                    <input type="text" id="playCodeInput" class="play-code-input-field" placeholder="MÃ CÀO: GORISE-XXXX-YYYY" maxlength="18" autocomplete="off" spellcheck="false" required />
+                    <button type="submit" id="btnSubmitPlayCode" class="button button-yellow play-gate-btn">Mở khóa ngay ↗</button>
+                  </div>
+                  <div id="playActivateFeedback" style="font-size:13px; font-weight:700; margin-top:10px; display:none;"></div>
+                </form>
+
+                <div class="play-gate-links">
+                  <span>Chưa sở hữu bộ Board Game Safe Home?</span>
+                  <a href="/kham-pha-tro-choi/">Đặt mua ngay để nhận thẻ kích hoạt ↗</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Game Frame Wrap (Chỉ mở khi đã kích hoạt) -->
+            <div id="playGameWrap" style="display:none; width: 100%;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;">
+                <span class="play-vip-badge"><span>✓</span> Đã mở khóa đặc quyền GORISE Play</span>
+                <span style="font-size:13px; color:rgba(255,255,255,0.75);">Chúc bạn và gia đình có những giờ phút trải nghiệm thú vị!</span>
+              </div>
+              <div class="play-game-frame-wrap" style="width:100%; border-radius:24px; overflow:hidden; border:1px solid rgba(255,255,255,0.2); box-shadow:0 20px 60px rgba(0,0,0,0.35);">
+                <iframe class="play-game-frame" id="playGameIframe" src="/gorise-play/game/" title="GORISE Safe Home Digital" loading="eager" allow="autoplay" style="width:100%; height:820px; min-height:760px; border:none; display:block; background:#071429;"></iframe>
+              </div>
+            </div>
           </div>
         </section>
         <section class="section-space play-coming" id="play-coming-soon" aria-labelledby="play-coming-title">
@@ -104,5 +162,159 @@
     </div>
     <div class="toast" data-toast role="status" aria-live="polite"></div>
     <script src="/script.js" defer></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+        const lockScreen = document.getElementById('playGateLockScreen');
+        const gameWrap = document.getElementById('playGameWrap');
+        const gameIframe = document.getElementById('playGameIframe');
+        const authReqArea = document.getElementById('playGateAuthRequired');
+        const activateForm = document.getElementById('playActivateForm');
+        const codeInput = document.getElementById('playCodeInput');
+        const feedbackEl = document.getElementById('playActivateFeedback');
+        const btnLogin = document.getElementById('btnGateLogin');
+
+        // Pháo hoa ăn mừng khi mở khóa thành công
+        function launchConfetti() {
+          const canvas = document.createElement('canvas');
+          canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:99999;';
+          document.body.appendChild(canvas);
+          const ctx = canvas.getContext('2d');
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+          const particles = Array.from({ length: 90 }, () => ({
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            vx: (Math.random() - 0.5) * 16,
+            vy: (Math.random() - 0.8) * 18,
+            size: Math.random() * 8 + 4,
+            color: ['#f59e0b', '#38bdf8', '#10b981', '#ec4899', '#8b5cf6'][Math.floor(Math.random() * 5)],
+            gravity: 0.35,
+            opacity: 1
+          }));
+          let frame = 0;
+          function step() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+              p.x += p.vx;
+              p.y += p.vy;
+              p.vy += p.gravity;
+              p.opacity -= 0.012;
+              ctx.fillStyle = p.color;
+              ctx.globalAlpha = Math.max(0, p.opacity);
+              ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+            frame++;
+            if (frame < 90) requestAnimationFrame(step);
+            else canvas.remove();
+          }
+          requestAnimationFrame(step);
+        }
+
+        const unlockGame = () => {
+          if (lockScreen) lockScreen.style.display = 'none';
+          if (gameWrap) {
+            gameWrap.style.display = 'block';
+            if (gameIframe && (!gameIframe.src || !gameIframe.src.includes('/gorise-play/game/'))) {
+              gameIframe.src = '/gorise-play/game/';
+            }
+          }
+        };
+
+        try {
+          const res = await fetch('/api/customer/play-status', { credentials: 'include' });
+          const data = await res.json().catch(() => ({}));
+
+          if (data.unlocked) {
+            unlockGame();
+            return;
+          }
+
+          // Chưa mở khóa -> Kiểm tra trạng thái đăng nhập
+          if (lockScreen) lockScreen.style.display = 'block';
+          if (gameWrap) gameWrap.style.display = 'none';
+
+          if (!data.authenticated) {
+            if (authReqArea) authReqArea.style.display = 'block';
+            if (activateForm) activateForm.style.display = 'none';
+          } else {
+            if (authReqArea) authReqArea.style.display = 'none';
+            if (activateForm) activateForm.style.display = 'block';
+          }
+        } catch (e) {
+          if (lockScreen) lockScreen.style.display = 'block';
+        }
+
+        // Đăng nhập nhanh từ Gate
+        btnLogin?.addEventListener('click', () => {
+          const accBtn = document.querySelector('[data-account-btn]');
+          if (accBtn) accBtn.click();
+          else window.location.href = '/?auth=login';
+        });
+
+        // Định dạng mã cào tự động khi gõ
+        codeInput?.addEventListener('input', (e) => {
+          let val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+          if (val.startsWith('GORISE')) {
+            let rest = val.slice(6);
+            if (rest.length > 4) {
+              val = 'GORISE-' + rest.slice(0, 4) + '-' + rest.slice(4, 8);
+            } else if (rest.length > 0) {
+              val = 'GORISE-' + rest;
+            }
+          }
+          e.target.value = val;
+        });
+
+        // Gửi kích hoạt mã
+        activateForm?.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const submitBtn = document.getElementById('btnSubmitPlayCode');
+          const codeVal = codeInput?.value.trim();
+          if (!codeVal) return;
+
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Đang kiểm tra mã…';
+          }
+          if (feedbackEl) {
+            feedbackEl.style.display = 'none';
+          }
+
+          try {
+            const res = await fetch('/api/customer/activate-code', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ code: codeVal }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || 'Mã kích hoạt không đúng.');
+
+            // Thành công!
+            if (feedbackEl) {
+              feedbackEl.style.display = 'block';
+              feedbackEl.style.color = '#34d399';
+              feedbackEl.textContent = '✓ ' + (data.message || 'Kích hoạt thành công!');
+            }
+            launchConfetti();
+
+            setTimeout(() => {
+              unlockGame();
+            }, 1200);
+          } catch (err) {
+            if (feedbackEl) {
+              feedbackEl.style.display = 'block';
+              feedbackEl.style.color = '#f87171';
+              feedbackEl.textContent = '✕ ' + err.message;
+            }
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'Mở khóa ngay ↗';
+            }
+          }
+        });
+      });
+    </script>
   </body>
 </html>

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex,nofollow" />
   <link rel="icon" href="/gorise-official.png" type="image/png" />
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles.css?v=20261122_admin_cms_v2" />
   <title>GORISE Studio — Hệ thống Quản trị & Điều hành</title>
 </head>
 <body class="admin-page cms-admin-page">
@@ -21,6 +21,7 @@
       <button data-tab="transactions">💳 <span>Giao dịch & Đơn</span></button>
       <button data-tab="income">📈 <span>Báo cáo Thu nhập</span></button>
       <button data-tab="reviews">⭐ <span>Đánh giá sản phẩm</span></button>
+      <button data-tab="activation-codes">🔑 <span>Mã GORISE Play</span></button>
       <button data-tab="products">◇ <span>Sản phẩm Shop</span></button>
       <button data-tab="articles">▤ <span>Bài viết tin tức</span></button>
       <button data-tab="videos">▣ <span>Video tình huống</span></button>
@@ -29,8 +30,8 @@
       <a href="/quan-ly-phase3/">✧ <span>Phase 3 Advanced</span></a>
     </nav>
     <div class="cms-sidebar-foot">
-      <a href="/" class="button button-small button-ghost">Về website ↗</a>
-      <button class="text-button" data-logout>Đăng xuất</button>
+      <a href="/" class="cms-sidebar-btn-home">🌐 Về website ↗</a>
+      <button type="button" class="cms-sidebar-btn-logout" data-logout>🚪 Đăng xuất</button>
     </div>
   </aside>
 
@@ -43,37 +44,8 @@
       <div class="admin-identity" data-identity>Đang kiểm tra phiên đăng nhập…</div>
     </header>
 
-    <!-- FORM ĐĂNG NHẬP ADMIN NẾU CHƯA XÁC THỰC -->
-    <section class="admin-login-card cms-login" data-login-card hidden>
-      <div class="admin-lock">🔐</div>
-      <div style="max-width: 420px; width: 100%;">
-        <h2>Đăng nhập GORISE Studio</h2>
-        <p>Vui lòng nhập tài khoản quản trị viên để truy cập bảng điều khiển.</p>
-        <form data-login-form style="display: flex; flex-direction: column; gap: 14px; margin-top: 16px; text-align: left;">
-          <div>
-            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Tên đăng nhập hoặc Email</label>
-            <input type="text" data-login-username required placeholder="admin hoặc admin@gorise.vn" style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px;" value="admin" />
-          </div>
-          <div>
-            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Mật khẩu</label>
-            <input type="password" data-login-password required placeholder="••••••••" style="width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px;" value="Admin@123456" />
-          </div>
-          <div data-login-error style="color: #ef4444; font-size: 13px; font-weight: 500;" hidden></div>
-          <button type="submit" class="button button-primary" style="margin-top: 6px; padding: 12px; font-size: 15px; font-weight: bold; width: 100%;">Đăng nhập hệ thống <span>→</span></button>
-          <div style="font-size: 12px; color: #6b7280; text-align: center; margin-top: 4px;">
-            Tài khoản mặc định: <b>admin</b> | Mật khẩu: <b>Admin@123456</b>
-          </div>
-        </form>
-      </div>
-    </section>
-
-    <section class="admin-denied-card cms-login" data-denied-card hidden>
-      <div class="admin-lock">!</div>
-      <div><h2>Tài khoản chưa được cấp quyền</h2><p data-denied-copy></p></div>
-    </section>
-
     <!-- KHÔNG GIAN LÀM VIỆC CHÍNH -->
-    <div class="cms-workspace" data-workspace hidden>
+    <div class="cms-workspace" data-workspace>
 
       <!-- 1. TAB TỔNG QUAN (DASHBOARD) -->
       <section class="cms-panel is-active" data-panel="overview">
@@ -114,32 +86,31 @@
           </article>
         </div>
 
-        <!-- 2 bảng tóm tắt: Đơn hàng mới & Đánh giá gần đây -->
-        <div class="cms-two-col">
-          <div class="cms-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-              <h3 style="margin: 0; color: var(--navy); font-size: 18px;">Giao dịch gần đây</h3>
-              <button class="text-button" data-switch="transactions" style="padding: 0;">Xem tất cả ↗</button>
+        <!-- SƠ ĐỒ BÁO CÁO DOANH THU 7 NGÀY / 14 NGÀY / 30 NGÀY -->
+        <div class="cms-chart-card">
+          <div class="cms-chart-header">
+            <div>
+              <span class="section-kicker">PHÂN TÍCH TÀI CHÍNH</span>
+              <h3 style="margin: 4px 0 0; color: var(--navy); font-size: 20px;">Sơ đồ Báo cáo Doanh thu</h3>
+              <p style="margin: 4px 0 0; color: var(--muted); font-size: 13px;">Theo dõi biến động dòng tiền và số lượng đơn hàng theo chu kỳ ngày.</p>
             </div>
-            <div class="cms-table-wrap">
-              <table class="cms-table">
-                <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Số tiền</th><th>Thanh toán</th><th>Trạng thái</th></tr></thead>
-                <tbody data-dash-orders-list><tr><td colspan="5" class="cms-empty-cell">Chưa có giao dịch phát sinh.</td></tr></tbody>
-              </table>
+            <div class="cms-chart-actions">
+              <div class="cms-btn-group" data-range-group>
+                <button type="button" class="cms-chip is-active" data-chart-days="7">7 ngày qua</button>
+                <button type="button" class="cms-chip" data-chart-days="14">14 ngày qua</button>
+                <button type="button" class="cms-chip" data-chart-days="30">30 ngày qua</button>
+              </div>
             </div>
           </div>
 
-          <div class="cms-card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-              <h3 style="margin: 0; color: var(--navy); font-size: 18px;">Đánh giá mới nhất</h3>
-              <button class="text-button" data-switch="reviews" style="padding: 0;">Xem tất cả ↗</button>
-            </div>
-            <div class="cms-table-wrap">
-              <table class="cms-table">
-                <thead><tr><th>Khách hàng</th><th>Đánh giá</th><th>Nội dung</th><th>Trạng thái</th></tr></thead>
-                <tbody data-dash-reviews-list><tr><td colspan="4" class="cms-empty-cell">Chưa có đánh giá nào.</td></tr></tbody>
-              </table>
-            </div>
+          <div class="cms-chart-summary">
+            <div><span>Doanh thu chu kỳ</span><strong data-chart-sum-revenue>0₫</strong></div>
+            <div><span>Đơn phát sinh</span><strong data-chart-sum-orders>0 đơn</strong></div>
+            <div><span>Trung bình / ngày</span><strong data-chart-avg-revenue>0₫</strong></div>
+          </div>
+
+          <div class="cms-chart-viewport" data-revenue-chart-container>
+            <div style="display: grid; place-items: center; height: 100%; color: var(--muted); font-size: 13px;">Đang tải biểu đồ doanh thu…</div>
           </div>
         </div>
 
@@ -198,6 +169,7 @@
             </tbody>
           </table>
         </div>
+        <div class="cms-pagination-wrap" data-pagination-accounts></div>
       </section>
 
       <!-- 3. TAB QUẢN LÝ GIAO DỊCH & ĐƠN HÀNG -->
@@ -214,11 +186,12 @@
           <div style="display: flex; gap: 8px; flex-wrap: wrap;">
             <select data-filter-order-status>
               <option value="">Tất cả trạng thái đơn</option>
-              <option value="new">Đơn mới</option>
-              <option value="processing">Đang xử lý</option>
-              <option value="shipping">Đang giao hàng</option>
-              <option value="completed">Đã hoàn thành</option>
-              <option value="cancelled">Đã hủy</option>
+              <option value="new">Chờ xác nhận</option>
+              <option value="confirmed">Xác nhận đơn</option>
+              <option value="preparing">Chuẩn bị đơn</option>
+              <option value="shipping">Giao hàng</option>
+              <option value="completed">Hoàn thành đơn</option>
+              <option value="cancelled">Hủy đơn</option>
             </select>
             <select data-filter-payment-status>
               <option value="">Tất cả thanh toán</option>
@@ -249,6 +222,7 @@
             </tbody>
           </table>
         </div>
+        <div class="cms-pagination-wrap" data-pagination-transactions></div>
       </section>
 
       <!-- 4. TAB BÁO CÁO THU NHẬP -->
@@ -322,7 +296,7 @@
           <div>
             <span class="section-kicker">PHẢN HỒI KHÁCH HÀNG</span>
             <h2>Quản lý Đánh giá</h2>
-            <p>Kiểm duyệt các nhận xét, xếp hạng sao từ khách hàng và gửi phản hồi từ đội ngũ GORISE.</p>
+            <p>Kiểm duyệt các nhận xét và xếp hạng sao từ khách hàng thực tế trên website.</p>
           </div>
         </div>
 
@@ -334,16 +308,111 @@
                 <th>Sản phẩm</th>
                 <th>Xếp hạng</th>
                 <th>Nội dung nhận xét</th>
-                <th>Phản hồi của Admin</th>
                 <th>Trạng thái</th>
                 <th>Ngày gửi</th>
                 <th>Hành động</th>
               </tr>
             </thead>
             <tbody data-reviews-list>
-              <tr><td colspan="8" class="cms-empty-cell">Chưa có đánh giá nào từ khách hàng.</td></tr>
+              <tr><td colspan="7" class="cms-empty-cell">Chưa có đánh giá nào từ khách hàng.</td></tr>
             </tbody>
           </table>
+        </div>
+        <div class="cms-pagination-wrap" data-pagination-reviews></div>
+      </section>
+
+      <!-- 5B. TAB QUẢN LÝ MÃ KÍCH HOẠT GORISE PLAY -->
+      <section class="cms-panel" data-panel="activation-codes">
+        <div class="cms-section-heading">
+          <div>
+            <span class="section-kicker">HỆ THỐNG MÃ CÀO BOARD GAME</span>
+            <h2>Mã kích hoạt GORISE Play</h2>
+            <p>Quản lý các mã kích hoạt in trên thẻ cào bỏ vào hộp board game để mở khóa sân chơi GORISE Play.</p>
+          </div>
+          <div class="cms-quick-actions">
+            <button type="button" class="button button-primary" id="btnOpenCreateBatchModal">➕ Tạo lô mã mới</button>
+            <button type="button" class="button button-ghost" id="btnExportCodesCsv">📥 Xuất Excel/CSV xưởng in</button>
+          </div>
+        </div>
+
+        <!-- 3 Thẻ thống kê mã -->
+        <div class="cms-stat-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 24px;">
+          <article>
+            <span>Tổng số mã phát hành</span>
+            <strong data-act-stat="total">0</strong>
+            <small>Đã sinh vào hệ thống</small>
+          </article>
+          <article>
+            <span>Mã chưa dùng (Sẵn sàng in)</span>
+            <strong data-act-stat="unused" style="color: #0284c7;">0</strong>
+            <small>Chưa được kích hoạt</small>
+          </article>
+          <article>
+            <span>Mã đã kích hoạt</span>
+            <strong data-act-stat="used" style="color: #15803d;">0</strong>
+            <small>Khách hàng đang trải nghiệm</small>
+          </article>
+        </div>
+
+        <!-- Thanh bộ lọc & tìm kiếm -->
+        <div class="cms-filter-row" style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:16px; align-items:center;">
+          <input type="search" id="actSearchInput" placeholder="Tìm mã hoặc tên khách..." class="cms-search-input" style="padding:8px 14px; border:1px solid #cbd5e1; border-radius:10px; font-size:13px; min-width:240px;" />
+          <select id="actStatusSelect" class="cms-select" style="padding:8px 12px; border:1px solid #cbd5e1; border-radius:10px; font-size:13px; background:#fff;">
+            <option value="all">Tất cả trạng thái</option>
+            <option value="unused">Chưa sử dụng</option>
+            <option value="used">Đã kích hoạt</option>
+          </select>
+          <select id="actBatchSelect" class="cms-select" style="padding:8px 12px; border:1px solid #cbd5e1; border-radius:10px; font-size:13px; background:#fff;">
+            <option value="">Tất cả các đợt phát hành</option>
+          </select>
+        </div>
+
+        <div class="cms-table-wrap">
+          <table class="cms-table">
+            <thead>
+              <tr>
+                <th>STT</th>
+                <th>Mã kích hoạt</th>
+                <th>Đợt phát hành</th>
+                <th>Trạng thái</th>
+                <th>Người kích hoạt</th>
+                <th>Thời gian kích hoạt</th>
+                <th>Ngày tạo</th>
+              </tr>
+            </thead>
+            <tbody id="activationCodesTableBody">
+              <tr><td colspan="7" class="cms-empty-cell">Đang tải danh sách mã kích hoạt…</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="cms-pagination-wrap" id="activationCodesPagination"></div>
+
+        <!-- Modal Tạo lô mã mới -->
+        <div id="batchCodesModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(18,59,114,0.45); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:16px;">
+          <div style="background:#fff; width:100%; max-width:460px; border-radius:20px; box-shadow:0 20px 50px rgba(18,59,114,0.25); padding:28px 24px; position:relative;">
+            <button type="button" id="btnCloseBatchModal" style="position:absolute; top:20px; right:20px; width:32px; height:32px; border-radius:50%; border:none; background:#f1f5f9; color:#64748b; font-size:18px; cursor:pointer;">×</button>
+            <h3 style="margin:0 0 6px; font-size:18px; color:var(--navy,#123b72);">Tạo lô mã kích hoạt mới</h3>
+            <p style="margin:0 0 18px; font-size:13px; color:#64748b;">Hệ thống sẽ sinh mã độc nhất không trùng lặp (ví dụ: GORISE-XXXX-YYYY).</p>
+            <form id="createBatchCodesForm">
+              <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:13px; font-weight:700; color:#1e293b; margin-bottom:6px;">Tên đợt phát hành / Lô in</label>
+                <input type="text" id="batchNameInput" required placeholder="VD: Lô in đợt 1 - Tháng 11/2026" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; font-size:13px; box-sizing:border-box;" />
+              </div>
+              <div style="margin-bottom:14px;">
+                <label style="display:block; font-size:13px; font-weight:700; color:#1e293b; margin-bottom:6px;">Số lượng mã cần tạo</label>
+                <input type="number" id="batchCountInput" required min="1" max="2000" value="100" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; font-size:13px; box-sizing:border-box;" />
+                <small style="color:#64748b; font-size:12px;">Tối đa 2.000 mã mỗi lần sinh.</small>
+              </div>
+              <div style="margin-bottom:20px;">
+                <label style="display:block; font-size:13px; font-weight:700; color:#1e293b; margin-bottom:6px;">Tiền tố mã (Prefix)</label>
+                <input type="text" id="batchPrefixInput" value="GORISE" maxlength="8" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:10px; font-size:13px; box-sizing:border-box; text-transform:uppercase;" />
+              </div>
+              <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button type="button" id="btnCancelBatchModal" class="button button-ghost" style="padding:8px 16px;">Hủy</button>
+                <button type="submit" id="btnSubmitCreateBatch" class="button button-primary" style="padding:8px 20px;">Xác nhận tạo mã ↗</button>
+              </div>
+            </form>
+          </div>
         </div>
       </section>
 
@@ -367,10 +436,22 @@
             <label>Phiên bản<select data-product-status><option value="selling">Đang bán</option><option value="out_of_stock">Hết hàng</option><option value="stopped">Ngừng bán</option><option value="draft">Bản nháp</option></select></label>
             <label>Tồn kho<input type="number" min="0" data-product-stock /></label>
             <label>Độ tuổi phù hợp<input data-product-age /></label>
-            <label>Số người chơi / thông số<input data-product-specs /></label>
-            <label>Ảnh sản phẩm URL<input type="url" placeholder="/manus-storage/..." data-product-image /></label>
-            <label>Gallery ảnh, cách nhau bằng dấu phẩy<input data-product-gallery placeholder="/anh-1.webp, /anh-2.webp" /></label>
-            <label>Video sản phẩm URL<input type="url" placeholder="https://... hoặc /manus-storage/..." data-product-video /></label>
+            <label>Số người chơi / thông số<input data-product-specs placeholder="Số người chơi: 2–6 người" /></label>
+            <label>Ảnh chính sản phẩm
+              <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-product-image-file />
+              <input type="hidden" data-product-image />
+              <small data-product-image-name>Chưa chọn ảnh.</small>
+            </label>
+            <label>Gallery ảnh
+              <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-product-gallery-files multiple />
+              <input type="hidden" data-product-gallery />
+              <small data-product-gallery-name>Chưa chọn ảnh gallery.</small>
+            </label>
+            <label>Video sản phẩm
+              <input type="file" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo" data-product-video-file />
+              <input type="hidden" data-product-video />
+              <small data-product-video-name>Chưa chọn video.</small>
+            </label>
           </div>
           <label>Mô tả ngắn<textarea rows="2" data-product-short></textarea></label>
           <label>Mô tả chi tiết<textarea rows="7" data-product-description></textarea></label>
@@ -386,6 +467,7 @@
             <tbody data-product-list><tr><td colspan="6">Đang tải…</td></tr></tbody>
           </table>
         </div>
+        <div class="cms-pagination-wrap" data-pagination-products></div>
       </section>
 
       <!-- 7. TAB BÀI VIẾT TIN TỨC (GIỮ NGUYÊN) -->
@@ -433,6 +515,7 @@
             <tbody data-article-list><tr><td colspan="5">Đang tải…</td></tr></tbody>
           </table>
         </div>
+        <div class="cms-pagination-wrap" data-pagination-articles></div>
       </section>
 
       <!-- 8. TAB VIDEO TÌNH HUỐNG (GIỮ NGUYÊN) -->

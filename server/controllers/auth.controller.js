@@ -15,6 +15,7 @@ export async function handleAuth(req, res, pathname, requestUrl) {
       }
 
       setCookie(res, cookieName(), result.token, { maxAge: 60 * 60 * 24 * 30 });
+      setCookie(res, 'gorise_customer_session', result.token, { maxAge: 60 * 60 * 24 * 30 });
       return json(res, 200, {
         success: true,
         user: result.user,
@@ -34,8 +35,10 @@ export async function handleAuth(req, res, pathname, requestUrl) {
   // 3. Logout (POST /api/auth/logout)
   if (pathname === '/api/auth/logout' && req.method === 'POST') {
     clearCookie(res, cookieName());
+    clearCookie(res, 'gorise_admin_session');
+    clearCookie(res, 'gorise_customer_session');
     clearCookie(res, 'webdev_app_session');
-    return json(res, 200, { ok: true });
+    return json(res, 200, { ok: true, message: 'Đã đăng xuất tài khoản.' });
   }
 
   // 4. Session Status (GET /api/auth/me)

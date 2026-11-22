@@ -35,9 +35,29 @@ export async function handleVideos(req, res, pathname) {
 
   if (pathname === '/api/videos' && req.method === 'GET') {
     try {
-      json(res, 200, { videos: await listPublicVideos() });
+      let videos = await listPublicVideos();
+      if (!videos || !videos.length) {
+        const { readFileSync } = await import('node:fs');
+        const { resolve, dirname } = await import('node:path');
+        const { fileURLToPath } = await import('node:url');
+        const __dirname = dirname(fileURLToPath(import.meta.url));
+        const seedPath = resolve(__dirname, '../video-seed.json');
+        const seed = JSON.parse(readFileSync(seedPath, 'utf8'));
+        videos = seed.videos || [];
+      }
+      json(res, 200, { videos });
     } catch {
-      json(res, 503, { error: 'Không thể tải video tình huống lúc này.' });
+      try {
+        const { readFileSync } = await import('node:fs');
+        const { resolve, dirname } = await import('node:path');
+        const { fileURLToPath } = await import('node:url');
+        const __dirname = dirname(fileURLToPath(import.meta.url));
+        const seedPath = resolve(__dirname, '../video-seed.json');
+        const seed = JSON.parse(readFileSync(seedPath, 'utf8'));
+        json(res, 200, { videos: seed.videos || [] });
+      } catch {
+        json(res, 503, { error: 'Không thể tải video tình huống lúc này.' });
+      }
     }
     return true;
   }

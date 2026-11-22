@@ -4,6 +4,7 @@ import { json } from './utils/http.js';
 import { handleAuth } from './controllers/auth.controller.js';
 import { handleCustomerAuth } from './controllers/customer-auth.controller.js';
 import { handleAdminManagement } from './controllers/admin-management.controller.js';
+import { handleSepayWebhook } from './controllers/sepay.controller.js';
 import { handleDashboard } from './controllers/dashboard.controller.js';
 import { handlePhase3 } from './controllers/phase3.controller.js';
 import { handleBuilder } from './controllers/builder.controller.js';
@@ -38,6 +39,8 @@ export async function requestHandler(req, res) {
   if (await handleAuth(req, res, pathname, requestUrl)) return;
   if (res.headersSent) return;
   if (await handleCustomerAuth(req, res, pathname)) return;
+  if (res.headersSent) return;
+  if (await handleSepayWebhook(req, res, pathname)) return;
   if (res.headersSent) return;
   if (await handleAdminManagement(req, res, pathname)) return;
   if (res.headersSent) return;

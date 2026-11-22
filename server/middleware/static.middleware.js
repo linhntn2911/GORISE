@@ -6,6 +6,14 @@ import { resolveStaticFile } from '../static-resolver.js';
 import { MIME_TYPES, json } from '../utils/http.js';
 
 export async function serveStatic(req, res, pathname) {
+  if (pathname.startsWith('/manus-storage/')) {
+    res.writeHead(302, {
+      Location: `https://gorisevn.manus.space${pathname}`,
+    });
+    res.end();
+    return true;
+  }
+
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     json(res, 405, { error: 'Method not allowed' });
     return true;

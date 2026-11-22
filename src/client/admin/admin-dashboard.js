@@ -2,8 +2,6 @@
   const $ = (s, root = document) => root.querySelector(s);
   const $$ = (s, root = document) => [...root.querySelectorAll(s)];
 
-  const login = $('[data-login-card]');
-  const denied = $('[data-denied-card]');
   const workspace = $('[data-workspace]');
   const identity = $('[data-identity]');
 
@@ -17,7 +15,7 @@
 
   const esc = (value) => String(value ?? '').replace(/[&<>'"]/g, (c) => ({ '&':'&#38;', '<':'&#60;', '>':'&#62;', "'":'&#39;', '"':'&#34;' }[c]));
   const money = (value) => value == null || value === '' ? '0₫' : `${Number(value).toLocaleString('vi-VN')}₫`;
-  const date = (value) => value ? new Date(value).toLocaleDateString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' }) : '—';
+  const date = (value) => value ? new Date(value).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Asia/Ho_Chi_Minh' }) : '—';
   const number = (value) => Number(value || 0).toLocaleString('vi-VN');
 
   async function api(url, options = {}) {
@@ -27,23 +25,91 @@
     return data;
   }
 
+  async function uploadProductMedia(file, slot) {
+    const query = new URLSearchParams({ name: file.name, size: String(file.size), slot });
+    const uploaded = await api(`/api/media/upload?${query.toString()}`, {
+      method: 'POST',
+      headers: { 'Content-Type': file.type },
+      body: file
+    });
+    return uploaded.media.stableUrl;
+  }
+
+  // =========================================================================
+  // BỘ PHÂN TRANG CHUNG (UNIVERSAL PAGINATION)
+  // =========================================================================
+  const pagination = {
+    accounts: { page: 1, size: 8 },
+    transactions: { page: 1, size: 8 },
+    reviews: { page: 1, size: 8 },
+    activationCodes: { page: 1, size: 50 },
+    products: { page: 1, size: 8 },
+    articles: { page: 1, size: 8 }
+  };
+
+  function renderPagination(containerSelector, totalItems, currentPage, pageSize, onPageChange) {
+    const container = typeof containerSelector === 'string' ? $(containerSelector) : containerSelector;
+    if (!container) return;
+    const totalPages = Math.ceil(totalItems / pageSize) || 1;
+    if (totalItems <= pageSize) {
+      container.innerHTML = '';
+      return;
+    }
+
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(totalPages, startPage + 4);
+    if (endPage - startPage < 4) {
+      startPage = Math.max(1, endPage - 4);
+    }
+
+    let pagesHtml = '';
+    for (let p = startPage; p <= endPage; p++) {
+      pagesHtml += `<button type="button" class="cms-page-number ${p === currentPage ? 'is-active' : ''}" data-page="${p}">${p}</button>`;
+    }
+
+    container.innerHTML = `
+      <div style="font-size: 13px; color: var(--muted); font-weight: 500;">
+        Trang <b>${currentPage}</b> / <b>${totalPages}</b> (Tổng <b>${totalItems}</b> mục)
+      </div>
+      <div class="cms-page-numbers" style="display: flex; align-items: center; gap: 6px;">
+        <button type="button" class="cms-page-btn" data-page-btn="prev" ${currentPage <= 1 ? 'disabled' : ''}>← Trước</button>
+        <div style="display: flex; gap: 4px;">${pagesHtml}</div>
+        <button type="button" class="cms-page-btn" data-page-btn="next" ${currentPage >= totalPages ? 'disabled' : ''}>Sau →</button>
+      </div>
+    `;
+
+    container.querySelectorAll('[data-page]').forEach((b) => {
+      b.onclick = () => onPageChange(Number(b.dataset.page));
+    });
+    container.querySelector('[data-page-btn="prev"]')?.addEventListener('click', () => {
+      if (currentPage > 1) onPageChange(currentPage - 1);
+    });
+    container.querySelector('[data-page-btn="next"]')?.addEventListener('click', () => {
+      if (currentPage < totalPages) onPageChange(currentPage + 1);
+    });
+  }
+
   // Chuyển tab trong CMS
   function showPanel(name) {
     $$('.cms-nav [data-tab]').forEach((b) => b.classList.toggle('is-active', b.dataset.tab === name));
     $$('.cms-panel').forEach((p) => p.classList.toggle('is-active', p.dataset.panel === name));
 
-    if (name === 'overview') loadDashboardStats();
+    if (name === 'overview') {
+      loadDashboardStats();
+      loadRevenueChart(currentChartDays);
+    }
     if (name === 'accounts') loadAccounts();
     if (name === 'transactions') loadTransactions();
     if (name === 'income') loadIncome();
     if (name === 'reviews') loadReviews();
+    if (name === 'activation-codes') loadActivationCodes();
     if (name === 'articles') loadArticles();
     if (name === 'products') loadProducts();
     if (name === 'videos') loadAnalytics();
   }
 
   // =========================================================================
-  // 1. DASHBOARD & STATS
+  // 1A. DASHBOARD & STATS
   // =========================================================================
   async function loadDashboardStats() {
     try {
@@ -59,40 +125,190 @@
       $('[data-dash="activeCustomers"]')?.replaceChildren(document.createTextNode(number(stats.activeCustomers)));
       $('[data-dash="avgRating"]')?.replaceChildren(document.createTextNode(`${stats.avgRating} ★`));
       $('[data-dash="totalReviews"]')?.replaceChildren(document.createTextNode(number(stats.totalReviews)));
-
-      // Render 5 giao dịch gần đây
-      const ordersList = $('[data-dash-orders-list]');
-      if (ordersList) {
-        ordersList.innerHTML = stats.recentOrders?.length ? stats.recentOrders.map((o) => `
-          <tr>
-            <td><b>${esc(o.order_code)}</b></td>
-            <td>${esc(o.customer_name)}<small>${esc(o.customer_phone)}</small></td>
-            <td><strong>${money(o.total_amount)}</strong></td>
-            <td><span class="cms-status cms-status-${esc(o.payment_status)}">${o.payment_status === 'paid' ? 'Đã thanh toán' : 'Chờ thanh toán'}</span></td>
-            <td><span class="cms-status cms-status-${esc(o.order_status)}">${getOrderStatusName(o.order_status)}</span></td>
-          </tr>
-        `).join('') : '<tr><td colspan="5" class="cms-empty-cell">Chưa có giao dịch phát sinh.</td></tr>';
-      }
-
-      // Render 5 đánh giá gần đây
-      const reviewsList = $('[data-dash-reviews-list]');
-      if (reviewsList) {
-        reviewsList.innerHTML = stats.recentReviews?.length ? stats.recentReviews.map((r) => `
-          <tr>
-            <td><b>${esc(r.customer_name)}</b></td>
-            <td><span class="cms-stars">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</span></td>
-            <td><div style="max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${esc(r.comment)}</div></td>
-            <td><span class="cms-status cms-status-${esc(r.status)}">${r.status === 'approved' ? 'Hiển thị' : 'Đã ẩn'}</span></td>
-          </tr>
-        `).join('') : '<tr><td colspan="4" class="cms-empty-cell">Chưa có đánh giá nào.</td></tr>';
-      }
     } catch (err) {
       toast('Lỗi tải Dashboard: ' + err.message);
     }
   }
 
   // =========================================================================
-  // 2. QUẢN LÝ TÀI KHOẢN KHÁCH HÀNG
+  // 1B. SƠ ĐỒ BÁO CÁO DOANH THU (BIỂU ĐỒ ĐƯỜNG LIÊN TỤC)
+  // =========================================================================
+  let currentChartDays = 7;
+  async function loadRevenueChart(days = 7) {
+    currentChartDays = days;
+    const container = $('[data-revenue-chart-container]');
+    if (container) {
+      container.innerHTML = '<div style="display: grid; place-items: center; height: 100%; color: var(--muted); font-size: 13px;">Đang tải biểu đồ doanh thu…</div>';
+    }
+    try {
+      const res = await api(`/api/admin/dashboard/chart?days=${days}`);
+      renderRevenueLineChart(res.dailyChart || [], days);
+    } catch (err) {
+      if (container) {
+        container.innerHTML = `<div style="display: grid; place-items: center; height: 100%; color: #dc2626; font-size: 13px;">Lỗi tải biểu đồ: ${esc(err.message)}</div>`;
+      }
+    }
+  }
+
+  function renderRevenueLineChart(dbRows, days) {
+    const container = $('[data-revenue-chart-container]');
+    if (!container) return;
+
+    // 1. Tạo chuỗi liên tục các ngày trong quá khứ
+    const rowMap = new Map();
+    (dbRows || []).forEach((r) => {
+      if (r.date) rowMap.set(String(r.date).slice(0, 10), r);
+    });
+
+    const series = [];
+    const today = new Date();
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const iso = d.toISOString().slice(0, 10);
+      const match = rowMap.get(iso);
+      series.push({
+        date: iso,
+        label: `${d.getDate()}/${d.getMonth() + 1}`,
+        revenue: match ? Number(match.revenue || 0) : 0,
+        ordersCount: match ? Number(match.ordersCount || 0) : 0
+      });
+    }
+
+    // 2. Cập nhật các chỉ số tổng hợp
+    const sumRevenue = series.reduce((acc, s) => acc + s.revenue, 0);
+    const sumOrders = series.reduce((acc, s) => acc + s.ordersCount, 0);
+    const avgRevenue = Math.round(sumRevenue / days);
+
+    const sumRevEl = $('[data-chart-sum-revenue]');
+    if (sumRevEl) sumRevEl.textContent = money(sumRevenue);
+    const sumOrdEl = $('[data-chart-sum-orders]');
+    if (sumOrdEl) sumOrdEl.textContent = `${number(sumOrders)} đơn`;
+    const avgRevEl = $('[data-chart-avg-revenue]');
+    if (avgRevEl) avgRevEl.textContent = money(avgRevenue);
+
+    // 3. Tính toán thông số vẽ SVG Line Chart
+    const maxVal = Math.max(...series.map((s) => s.revenue), 1000000);
+    const ceiling = Math.ceil(maxVal * 1.15);
+
+    const W = 800;
+    const H = 240;
+    const padL = 82;
+    const padR = 30;
+    const padT = 25;
+    const padB = 35;
+    const chartW = W - padL - padR;
+    const chartH = H - padT - padB;
+
+    const n = series.length;
+    const points = series.map((s, idx) => {
+      const x = padL + (n > 1 ? (idx / (n - 1)) * chartW : chartW / 2);
+      const y = padT + chartH - (s.revenue / ceiling) * chartH;
+      return { x, y, ...s };
+    });
+
+    // Đường line path và area fill
+    const linePathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+    const areaPathD = `${linePathD} L ${points[points.length - 1].x.toFixed(1)} ${(padT + chartH).toFixed(1)} L ${points[0].x.toFixed(1)} ${(padT + chartH).toFixed(1)} Z`;
+
+    // 4 vạch lưới ngang trục Y (0%, 33%, 66%, 100%)
+    const gridLines = [0, 0.33, 0.66, 1].map((pct) => {
+      const y = padT + chartH - pct * chartH;
+      const val = Math.round(pct * ceiling);
+      const label = val >= 1000000 ? `${(val / 1000000).toFixed(1)}tr` : val >= 1000 ? `${Math.round(val / 1000)}k` : `${val}₫`;
+      return `
+        <line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#e8eff5" stroke-dasharray="3,3" stroke-width="1" />
+        <text x="${padL - 14}" y="${y + 4}" fill="#8fa2b4" font-size="11" font-weight="600" text-anchor="end">${label}</text>
+      `;
+    }).join('');
+
+    // Nhãn ngày trục X - Đảm bảo khoảng cách giữa 2 nhãn >= 46px để không bao giờ bị đè số
+    let lastLabelX = -999;
+    const xLabels = points.map((p, idx) => {
+      const isLast = idx === n - 1;
+      const isStep = (days === 30 && idx % 5 === 0) || (days === 14 && idx % 2 === 0) || (days === 7);
+      if (!isStep && !isLast) return '';
+      if (p.x - lastLabelX < 46) return '';
+      lastLabelX = p.x;
+      return `<text x="${p.x}" y="${H - 10}" fill="#64748b" font-size="11" font-weight="600" text-anchor="middle">${p.label}</text>`;
+    }).join('');
+
+    // Điểm nút tròn và vùng tương tác tooltip
+    const dotsAndHover = points.map((p, idx) => `
+      <g class="cms-chart-node" data-node-idx="${idx}">
+        <circle cx="${p.x}" cy="${p.y}" r="4.5" fill="#ffffff" stroke="#2c9bf0" stroke-width="2.5" class="cms-chart-dot" />
+        <circle cx="${p.x}" cy="${p.y}" r="16" fill="transparent" style="cursor: pointer;" data-tooltip-date="${p.date}" data-tooltip-rev="${money(p.revenue)}" data-tooltip-orders="${p.ordersCount}" />
+      </g>
+    `).join('');
+
+    container.innerHTML = `
+      <div style="position: relative; width: 100%; height: 100%;">
+        <svg viewBox="0 0 ${W} ${H}" class="cms-line-chart-svg" preserveAspectRatio="none" style="width: 100%; height: 100%; display: block; overflow: visible;">
+          <defs>
+            <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2c9bf0" stop-opacity="0.32" />
+              <stop offset="85%" stop-color="#2c9bf0" stop-opacity="0.02" />
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+          ${gridLines}
+          <path d="${areaPathD}" fill="url(#revenueGrad)" />
+          <path d="${linePathD}" fill="none" stroke="#2c9bf0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          ${dotsAndHover}
+          ${xLabels}
+        </svg>
+        <div class="cms-chart-tooltip" style="display: none; position: absolute; pointer-events: none; background: #082b57; color: #fff; padding: 7px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; white-space: nowrap; box-shadow: 0 4px 14px rgba(0,0,0,0.2); transform: translate(-50%, -125%); z-index: 10;"></div>
+      </div>
+    `;
+
+    // Tooltip tương tác chuột
+    const tooltip = container.querySelector('.cms-chart-tooltip');
+    container.querySelectorAll('[data-tooltip-date]').forEach((hit) => {
+      hit.addEventListener('mouseenter', () => {
+        const dateStr = hit.dataset.tooltipDate;
+        const rev = hit.dataset.tooltipRev;
+        const orders = hit.dataset.tooltipOrders;
+        const rect = container.getBoundingClientRect();
+        const hitRect = hit.getBoundingClientRect();
+        const left = hitRect.left - rect.left + hitRect.width / 2;
+        const top = hitRect.top - rect.top;
+
+        tooltip.innerHTML = `<div>📅 ${dateStr}</div><div style="color: #ffd35a; font-weight: 800; margin-top: 2px;">💰 ${rev}</div><div style="color: #a8d5fa; font-size: 11px;">📦 ${orders} đơn hàng</div>`;
+        tooltip.style.left = `${left}px`;
+        tooltip.style.top = `${top}px`;
+        tooltip.style.display = 'block';
+
+        const dot = hit.parentElement.querySelector('.cms-chart-dot');
+        if (dot) {
+          dot.setAttribute('r', '7');
+          dot.setAttribute('fill', '#ffd35a');
+          dot.setAttribute('stroke', '#123b72');
+        }
+      });
+
+      hit.addEventListener('mouseleave', () => {
+        tooltip.style.display = 'none';
+        const dot = hit.parentElement.querySelector('.cms-chart-dot');
+        if (dot) {
+          dot.setAttribute('r', '4.5');
+          dot.setAttribute('fill', '#ffffff');
+          dot.setAttribute('stroke', '#2c9bf0');
+        }
+      });
+    });
+  }
+
+  // Lắng nghe click các chip lọc ngày (7, 14, 30 ngày)
+  document.addEventListener('click', (e) => {
+    const chip = e.target.closest('[data-chart-days]');
+    if (!chip) return;
+    const days = Number(chip.dataset.chartDays) || 7;
+    $$('[data-chart-days]').forEach((c) => c.classList.toggle('is-active', c === chip));
+    loadRevenueChart(days);
+  });
+
+  // =========================================================================
+  // 2. QUẢN LÝ TÀI KHOẢN KHÁCH HÀNG (CÓ PHÂN TRANG)
   // =========================================================================
   let cachedAccounts = [];
   async function loadAccounts() {
@@ -101,6 +317,7 @@
       if (target) target.innerHTML = '<tr><td colspan="8" class="cms-empty-cell">Đang tải danh sách tài khoản…</td></tr>';
       const { accounts } = await api('/api/admin/accounts');
       cachedAccounts = accounts || [];
+      pagination.accounts.page = 1;
       renderAccountsList(cachedAccounts);
     } catch (err) {
       toast('Lỗi tải danh sách tài khoản: ' + err.message);
@@ -115,30 +332,46 @@
 
     if (!list.length) {
       target.innerHTML = '<tr><td colspan="8" class="cms-empty-cell">Không tìm thấy tài khoản khách hàng nào.</td></tr>';
+      renderPagination('[data-pagination-accounts]', 0, 1, pagination.accounts.size, () => {});
       return;
     }
 
-    target.innerHTML = list.map((a) => `
-      <tr>
-        <td><b>@${esc(a.username || 'user')}</b></td>
-        <td>${esc(a.full_name || '—')}</td>
-        <td>${esc(a.phone || a.email || '—')}</td>
-        <td><strong>${number(a.orders_count)}</strong> đơn</td>
-        <td>${money(a.total_spent)}</td>
-        <td>${date(a.created_at)}</td>
-        <td><span class="cms-status cms-status-${a.is_active ? 'active' : 'locked'}">${a.is_active ? 'Hoạt động' : 'Đang khóa'}</span></td>
-        <td class="cms-row-actions">
-          <button data-toggle-account="${esc(a.id)}" data-current-active="${a.is_active ? '1' : '0'}" style="color: ${a.is_active ? '#dc2626' : '#16a34a'};">
+    const { page, size } = pagination.accounts;
+    const start = (page - 1) * size;
+    const pageItems = list.slice(start, start + size);
+
+    target.innerHTML = pageItems.map((a) => {
+      const isAdminAccount = a.username === 'admin' || a.role === 'super_admin' || a.role === 'admin';
+      const actionHtml = isAdminAccount
+        ? '<span style="color: var(--muted); font-size: 12px; font-weight: 600;">Hệ thống</span>'
+        : `<button data-toggle-account="${esc(a.id)}" data-current-active="${a.is_active ? '1' : '0'}" style="color: ${a.is_active ? '#dc2626' : '#16a34a'}; font-weight: 700; cursor: pointer;">
             ${a.is_active ? 'Khóa' : 'Mở khóa'}
-          </button>
-        </td>
-      </tr>
-    `).join('');
+          </button>`;
+
+      return `
+        <tr>
+          <td><b>@${esc(a.username || 'user')}</b></td>
+          <td>${esc(a.full_name || '—')}</td>
+          <td>${esc(a.phone || a.email || '—')}</td>
+          <td><strong>${number(a.orders_count)}</strong> đơn</td>
+          <td>${money(a.total_spent)}</td>
+          <td>${date(a.created_at)}</td>
+          <td><span class="cms-status cms-status-${a.is_active ? 'active' : 'locked'}">${a.is_active ? 'Hoạt động' : 'Đang khóa'}</span></td>
+          <td class="cms-row-actions">${actionHtml}</td>
+        </tr>
+      `;
+    }).join('');
+
+    renderPagination('[data-pagination-accounts]', list.length, page, size, (newPage) => {
+      pagination.accounts.page = newPage;
+      renderAccountsList(list);
+    });
   }
 
   // Tìm kiếm tài khoản
   $('[data-account-search]')?.addEventListener('input', (e) => {
     const q = e.target.value.trim().toLowerCase();
+    pagination.accounts.page = 1;
     if (!q) {
       renderAccountsList(cachedAccounts);
       return;
@@ -152,15 +385,17 @@
   });
 
   // =========================================================================
-  // 3. QUẢN LÝ GIAO DỊCH & ĐƠN HÀNG
+  // 3. QUẢN LÝ GIAO DỊCH & ĐƠN HÀNG (CÓ PHÂN TRANG)
   // =========================================================================
   let cachedOrders = [];
   const getOrderStatusName = (s) => ({
-    new: 'Đơn mới',
-    processing: 'Đang xử lý',
-    shipping: 'Đang giao hàng',
-    completed: 'Đã hoàn thành',
-    cancelled: 'Đã hủy'
+    new: 'Chờ xác nhận',
+    confirmed: 'Xác nhận đơn',
+    preparing: 'Chuẩn bị đơn',
+    processing: 'Chuẩn bị đơn',
+    shipping: 'Giao hàng',
+    completed: 'Hoàn thành đơn',
+    cancelled: 'Hủy đơn'
   }[s] || s);
 
   async function loadTransactions() {
@@ -169,6 +404,7 @@
       if (target) target.innerHTML = '<tr><td colspan="8" class="cms-empty-cell">Đang tải danh sách giao dịch…</td></tr>';
       const { transactions } = await api('/api/admin/transactions');
       cachedOrders = transactions || [];
+      pagination.transactions.page = 1;
       renderTransactionsList(cachedOrders);
     } catch (err) {
       toast('Lỗi tải danh sách giao dịch: ' + err.message);
@@ -183,10 +419,15 @@
 
     if (!list.length) {
       target.innerHTML = '<tr><td colspan="8" class="cms-empty-cell">Chưa có giao dịch / đơn hàng nào.</td></tr>';
+      renderPagination('[data-pagination-transactions]', 0, 1, pagination.transactions.size, () => {});
       return;
     }
 
-    target.innerHTML = list.map((o) => `
+    const { page, size } = pagination.transactions;
+    const start = (page - 1) * size;
+    const pageItems = list.slice(start, start + size);
+
+    target.innerHTML = pageItems.map((o) => `
       <tr>
         <td><b>${esc(o.order_code)}</b></td>
         <td><b>${esc(o.customer_name)}</b><small>📞 ${esc(o.customer_phone)}</small></td>
@@ -198,15 +439,20 @@
         <td class="cms-row-actions">
           <select data-change-order-status="${esc(o.id)}" style="font-size: 12px; padding: 4px 6px; border-radius: 6px; border: 1px solid #d1d5db;">
             <option value="" disabled selected>Cập nhật...</option>
-            <option value="paid_completed">✓ Đã thu tiền & Xong</option>
-            <option value="mark_paid">Xác nhận Đã thanh toán</option>
-            <option value="mark_shipping">Đang giao hàng</option>
+            <option value="confirm_order">Xác nhận đơn</option>
+            <option value="prepare_order">Chuẩn bị đơn</option>
+            <option value="mark_shipping">Giao hàng</option>
             <option value="mark_completed">Hoàn thành đơn</option>
-            <option value="mark_cancelled">Hủy đơn hàng</option>
+            <option value="mark_cancelled">Hủy đơn</option>
           </select>
         </td>
       </tr>
     `).join('');
+
+    renderPagination('[data-pagination-transactions]', list.length, page, size, (newPage) => {
+      pagination.transactions.page = newPage;
+      renderTransactionsList(list);
+    });
   }
 
   // Bộ lọc trạng thái đơn hàng & thanh toán
@@ -217,8 +463,15 @@
     const orderStatus = $('[data-filter-order-status]')?.value;
     const paymentStatus = $('[data-filter-payment-status]')?.value;
 
+    pagination.transactions.page = 1;
     let filtered = cachedOrders;
-    if (orderStatus) filtered = filtered.filter((o) => o.order_status === orderStatus);
+    if (orderStatus) {
+      filtered = filtered.filter((o) => (
+        orderStatus === 'preparing'
+          ? ['preparing', 'processing'].includes(o.order_status)
+          : o.order_status === orderStatus
+      ));
+    }
     if (paymentStatus) filtered = filtered.filter((o) => o.payment_status === paymentStatus);
     renderTransactionsList(filtered);
   }
@@ -265,40 +518,136 @@
   }
 
   // =========================================================================
-  // 5. QUẢN LÝ ĐÁNH GIÁ SẢN PHẨM
+  // 5. QUẢN LÝ ĐÁNH GIÁ SẢN PHẨM (CÓ PHÂN TRANG)
   // =========================================================================
+  let cachedReviews = [];
   async function loadReviews() {
     try {
       const target = $('[data-reviews-list]');
-      if (target) target.innerHTML = '<tr><td colspan="8" class="cms-empty-cell">Đang tải danh sách đánh giá…</td></tr>';
+      if (target) target.innerHTML = '<tr><td colspan="7" class="cms-empty-cell">Đang tải danh sách đánh giá…</td></tr>';
       const { reviews } = await api('/api/admin/reviews');
-      const list = reviews || [];
+      cachedReviews = reviews || [];
+      pagination.reviews.page = 1;
+      renderReviewsList(cachedReviews);
+    } catch (err) {
+      toast('Lỗi tải đánh giá: ' + err.message);
+    }
+  }
 
-      if (!list.length) {
-        target.innerHTML = '<tr><td colspan="8" class="cms-empty-cell">Chưa có đánh giá nào từ khách hàng.</td></tr>';
+  function renderReviewsList(list) {
+    const target = $('[data-reviews-list]');
+    if (!target) return;
+
+    if (!list.length) {
+      target.innerHTML = '<tr><td colspan="7" class="cms-empty-cell">Chưa có đánh giá nào từ khách hàng.</td></tr>';
+      renderPagination('[data-pagination-reviews]', 0, 1, pagination.reviews.size, () => {});
+      return;
+    }
+
+    const { page, size } = pagination.reviews;
+    const start = (page - 1) * size;
+    const pageItems = list.slice(start, start + size);
+
+    target.innerHTML = pageItems.map((r) => `
+      <tr>
+        <td><b>${esc(r.customer_name)}</b><small>${esc(r.customer_phone || '—')}</small></td>
+        <td>${esc(r.product_name || 'GORISE Board Game')}</td>
+        <td><span class="cms-stars">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</span></td>
+        <td><div style="max-width: 320px; line-height: 1.45;">${esc(r.comment)}</div></td>
+        <td><span class="cms-status cms-status-${esc(r.status)}">${r.status === 'approved' ? 'Hiển thị' : 'Đã ẩn'}</span></td>
+        <td><small>${date(r.created_at)}</small></td>
+        <td class="cms-row-actions">
+          <button data-toggle-review="${esc(r.id)}" data-current-status="${esc(r.status)}">
+            ${r.status === 'approved' ? 'Ẩn' : 'Duyệt'}
+          </button>
+          <button data-delete-review="${esc(r.id)}">Xóa</button>
+        </td>
+      </tr>
+    `).join('');
+
+    renderPagination('[data-pagination-reviews]', list.length, page, size, (newPage) => {
+      pagination.reviews.page = newPage;
+      renderReviewsList(list);
+    });
+  }
+
+  // =========================================================================
+  // 5B. QUẢN LÝ MÃ KÍCH HOẠT GORISE PLAY
+  // =========================================================================
+  async function loadActivationCodes() {
+    const tableBody = $('#activationCodesTableBody');
+    if (!tableBody) return;
+
+    const page = pagination.activationCodes.page;
+    const size = pagination.activationCodes.size;
+    const search = $('#actSearchInput')?.value.trim() || '';
+    const status = $('#actStatusSelect')?.value || 'all';
+    const batch = $('#actBatchSelect')?.value || '';
+
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(size),
+      status,
+      search,
+      batch
+    });
+
+    try {
+      const data = await api(`/api/admin/activation-codes?${params.toString()}`);
+      const codes = data.codes || [];
+      const stats = data.stats || {};
+      const batches = data.batches || [];
+
+      // Cập nhật thẻ KPI
+      $('[data-act-stat="total"]')?.replaceChildren(document.createTextNode(number(stats.totalAll)));
+      $('[data-act-stat="unused"]')?.replaceChildren(document.createTextNode(number(stats.unusedCount)));
+      $('[data-act-stat="used"]')?.replaceChildren(document.createTextNode(number(stats.usedCount)));
+
+      // Điền danh sách các đợt phát hành vào dropdown nếu chưa có
+      const batchSelect = $('#actBatchSelect');
+      if (batchSelect && batchSelect.options.length <= 1) {
+        batches.forEach(b => {
+          const opt = document.createElement('option');
+          opt.value = b;
+          opt.textContent = b;
+          batchSelect.appendChild(opt);
+        });
+        if (batch) batchSelect.value = batch;
+      }
+
+      if (codes.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="7" class="cms-empty-cell">Không tìm thấy mã kích hoạt nào.</td></tr>';
+        $('#activationCodesPagination')?.replaceChildren();
         return;
       }
 
-      target.innerHTML = list.map((r) => `
-        <tr>
-          <td><b>${esc(r.customer_name)}</b><small>${esc(r.customer_phone || '—')}</small></td>
-          <td>${esc(r.product_name || 'GORISE Board Game')}</td>
-          <td><span class="cms-stars">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</span></td>
-          <td><div style="max-width: 280px; line-height: 1.45;">${esc(r.comment)}</div></td>
-          <td><small style="color: var(--blue); max-width: 220px; display: block;">${r.admin_reply ? '💬 ' + esc(r.admin_reply) : '<i>Chưa phản hồi</i>'}</small></td>
-          <td><span class="cms-status cms-status-${esc(r.status)}">${r.status === 'approved' ? 'Hiển thị' : 'Đã ẩn'}</span></td>
-          <td><small>${date(r.created_at)}</small></td>
-          <td class="cms-row-actions">
-            <button data-toggle-review="${esc(r.id)}" data-current-status="${esc(r.status)}">
-              ${r.status === 'approved' ? 'Ẩn' : 'Duyệt'}
-            </button>
-            <button data-reply-review="${esc(r.id)}" style="color: var(--blue);">Phản hồi</button>
-            <button data-delete-review="${esc(r.id)}">Xóa</button>
-          </td>
-        </tr>
-      `).join('');
+      tableBody.innerHTML = codes.map((c, idx) => {
+        const stt = (page - 1) * size + idx + 1;
+        const statusBadge = c.status === 'used'
+          ? '<span style="background:#dcfce7; color:#15803d; font-size:12px; font-weight:700; padding:4px 10px; border-radius:99px;">Đã kích hoạt</span>'
+          : (c.status === 'revoked'
+            ? '<span style="background:#fee2e2; color:#b91c1c; font-size:12px; font-weight:700; padding:4px 10px; border-radius:99px;">Đã hủy</span>'
+            : '<span style="background:#e0f2fe; color:#0369a1; font-size:12px; font-weight:700; padding:4px 10px; border-radius:99px;">Chưa sử dụng</span>');
+
+        return `
+          <tr>
+            <td>${stt}</td>
+            <td><strong style="font-family:monospace; font-size:14px; letter-spacing:0.05em; color:var(--navy,#123b72);">${esc(c.code)}</strong></td>
+            <td><span style="font-size:13px; color:#475569;">${esc(c.batch_name || '—')}</span></td>
+            <td>${statusBadge}</td>
+            <td>${c.activated_by_name ? `<b style="color:#0f172a;">${esc(c.activated_by_name)}</b>` : '<span style="color:#94a3b8;">—</span>'}</td>
+            <td>${c.activated_at ? `<span style="font-size:12px; color:#475569;">${date(c.activated_at)}</span>` : '<span style="color:#94a3b8;">—</span>'}</td>
+            <td><span style="font-size:12px; color:#64748b;">${date(c.created_at)}</span></td>
+          </tr>
+        `;
+      }).join('');
+
+      renderPagination('#activationCodesPagination', data.total, page, size, (newPage) => {
+        pagination.activationCodes.page = newPage;
+        loadActivationCodes();
+      });
     } catch (err) {
-      toast('Lỗi tải đánh giá: ' + err.message);
+      tableBody.innerHTML = `<tr><td colspan="7" class="cms-empty-cell" style="color:#dc2626;">Lỗi tải mã: ${esc(err.message)}</td></tr>`;
     }
   }
 
@@ -387,9 +736,9 @@
       return;
     }
 
-    // 5. Bài viết và sản phẩm (giữ nguyên chức năng hiện có)
+    // 5. Bài viết và sản phẩm
     const editA = e.target.closest('[data-edit-article]');
-    if (editA) fillArticle(window.__articles.find((a) => a.id === editA.dataset.editArticle));
+    if (editA) fillArticle((window.__articles || []).find((a) => a.id === editA.dataset.editArticle));
     const delA = e.target.closest('[data-delete-article]');
     if (delA && confirm('Ẩn bài viết này khỏi website?')) {
       await api(`/api/articles/${delA.dataset.deleteArticle}`, { method: 'DELETE' });
@@ -398,7 +747,7 @@
       await loadStats();
     }
     const editP = e.target.closest('[data-edit-product]');
-    if (editP) fillProduct(window.__products.find((p) => p.id === editP.dataset.editProduct));
+    if (editP) fillProduct((window.__products || []).find((p) => p.id === editP.dataset.editProduct));
     const delP = e.target.closest('[data-delete-product]');
     if (delP && confirm('Đưa sản phẩm về trạng thái ngừng bán?')) {
       await api(`/api/products/admin/${delP.dataset.deleteProduct}`, { method: 'DELETE' });
@@ -418,10 +767,10 @@
     if (!action) return;
 
     let payload = {};
-    if (action === 'paid_completed') {
-      payload = { paymentStatus: 'paid', orderStatus: 'completed' };
-    } else if (action === 'mark_paid') {
-      payload = { paymentStatus: 'paid' };
+    if (action === 'confirm_order') {
+      payload = { orderStatus: 'confirmed' };
+    } else if (action === 'prepare_order') {
+      payload = { orderStatus: 'preparing' };
     } else if (action === 'mark_shipping') {
       payload = { orderStatus: 'shipping' };
     } else if (action === 'mark_completed') {
@@ -443,6 +792,7 @@
       toast('Đã cập nhật trạng thái đơn hàng thành công!');
       await loadTransactions();
       await loadDashboardStats();
+      await loadRevenueChart(currentChartDays);
     } catch (err) {
       toast(err.message);
     } finally {
@@ -451,7 +801,7 @@
   });
 
   // =========================================================================
-  // 7. ARTICLES, PRODUCTS, VIDEO ANALYTICS (GIỮ NGUYÊN)
+  // 7. ARTICLES, PRODUCTS, VIDEO ANALYTICS (CÓ PHÂN TRANG)
   // =========================================================================
   async function loadStats() {
     try {
@@ -476,6 +826,7 @@
   const articleForm = $('[data-article-form]');
   function clearArticle() { articleForm.reset(); $('[data-article-id]').value = ''; articleForm.hidden = true; }
   function fillArticle(article) {
+    if (!article) return;
     $('[data-article-id]').value = article.id;
     $('[data-article-title]').value = article.title;
     $('[data-article-slug]').value = article.slug;
@@ -484,22 +835,72 @@
     $('[data-article-summary]').value = article.summary;
     $('[data-article-content]').value = article.content;
     $('[data-article-image]').value = article.thumbnailUrl;
-    $('[data-article-tags]').value = article.tags.join(', ');
-    $('[data-article-seo-title]').value = article.seoTitle;
-    $('[data-article-seo-description]').value = article.seoDescription;
+    $('[data-article-tags]').value = (article.tags || []).join(', ');
+    $('[data-article-seo-title]').value = article.seoTitle || '';
+    $('[data-article-seo-description]').value = article.seoDescription || '';
     articleForm.hidden = false;
     articleForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  window.__articles = [];
   async function loadArticles() {
-    const { articles } = await api('/api/articles/admin');
-    $('[data-article-list]').innerHTML = articles.length ? articles.map((a) => `<tr><td><b>${esc(a.title)}</b><small>/${esc(a.slug)}</small></td><td>${esc(a.category)}</td><td><span class="cms-status cms-status-${esc(a.status)}">${a.status === 'published' ? 'Đã xuất bản' : a.status === 'hidden' ? 'Đã ẩn' : 'Bản nháp'}</span></td><td>${date(a.updatedAt)}</td><td class="cms-row-actions"><button data-edit-article="${esc(a.id)}">Sửa</button><a href="/tin-tuc/${encodeURIComponent(a.slug)}/" target="_blank">Xem</a><button data-delete-article="${esc(a.id)}">Xóa</button></td></tr>`).join('') : '<tr><td colspan="5" class="cms-empty-cell">Chưa có bài viết CMS.</td></tr>';
-    window.__articles = articles;
+    try {
+      const { articles } = await api('/api/articles/admin');
+      window.__articles = articles || [];
+      pagination.articles.page = 1;
+      renderArticlesList(window.__articles);
+    } catch (err) {
+      toast('Lỗi tải bài viết: ' + err.message);
+    }
+  }
+
+  function renderArticlesList(list) {
+    const target = $('[data-article-list]');
+    if (!target) return;
+    if (!list.length) {
+      target.innerHTML = '<tr><td colspan="5" class="cms-empty-cell">Chưa có bài viết CMS.</td></tr>';
+      renderPagination('[data-pagination-articles]', 0, 1, pagination.articles.size, () => {});
+      return;
+    }
+    const { page, size } = pagination.articles;
+    const start = (page - 1) * size;
+    const pageItems = list.slice(start, start + size);
+
+    target.innerHTML = pageItems.map((a) => `
+      <tr>
+        <td><b>${esc(a.title)}</b><small>/${esc(a.slug)}</small></td>
+        <td>${esc(a.category)}</td>
+        <td><span class="cms-status cms-status-${esc(a.status)}">${a.status === 'published' ? 'Đã xuất bản' : a.status === 'hidden' ? 'Đã ẩn' : 'Bản nháp'}</span></td>
+        <td>${date(a.updatedAt)}</td>
+        <td class="cms-row-actions">
+          <button data-edit-article="${esc(a.id)}">Sửa</button>
+          <a href="/tin-tuc/${encodeURIComponent(a.slug)}/" target="_blank">Xem</a>
+          <button data-delete-article="${esc(a.id)}">Xóa</button>
+        </td>
+      </tr>
+    `).join('');
+
+    renderPagination('[data-pagination-articles]', list.length, page, size, (newPage) => {
+      pagination.articles.page = newPage;
+      renderArticlesList(list);
+    });
   }
 
   const productForm = $('[data-product-form]');
-  function clearProduct() { productForm.reset(); $('[data-product-id]').value = ''; productForm.hidden = true; }
+  function clearProduct() {
+    productForm.reset();
+    $('[data-product-id]').value = '';
+    $('[data-product-image]').value = '';
+    $('[data-product-gallery]').value = '';
+    $('[data-product-video]').value = '';
+    $('[data-product-image-name]').textContent = 'Chưa chọn ảnh.';
+    $('[data-product-gallery-name]').textContent = 'Chưa chọn ảnh gallery.';
+    $('[data-product-video-name]').textContent = 'Chưa chọn video.';
+    $('[data-product-status-text]').textContent = '';
+    productForm.hidden = true;
+  }
   function fillProduct(p) {
+    if (!p) return;
     $('[data-product-id]').value = p.id;
     $('[data-product-name]').value = p.productName;
     $('[data-product-sku]').value = p.sku;
@@ -512,16 +913,57 @@
     $('[data-product-image]').value = p.images?.[0] || '';
     $('[data-product-gallery]').value = (p.gallery || []).join(', ');
     $('[data-product-video]').value = p.videoUrl || '';
+    $('[data-product-image-name]').textContent = p.images?.[0] ? `Đang dùng: ${p.images[0]}` : 'Chưa có ảnh chính.';
+    $('[data-product-gallery-name]').textContent = p.gallery?.length ? `Đang dùng ${p.gallery.length} ảnh gallery.` : 'Chưa có ảnh gallery.';
+    $('[data-product-video-name]').textContent = p.videoUrl ? `Đang dùng: ${p.videoUrl}` : 'Chưa có video.';
     $('[data-product-short]').value = p.shortDescription;
     $('[data-product-description]').value = p.description;
     productForm.hidden = false;
     productForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  window.__products = [];
   async function loadProducts() {
-    const { products } = await api('/api/products/admin');
-    $('[data-product-list]').innerHTML = products.length ? products.map((p) => `<tr><td><b>${esc(p.productName)}</b><small>${esc(p.versionName || p.category)}</small></td><td>${esc(p.sku || '—')}</td><td>${money(p.salePrice ?? p.price)}</td><td><span class="cms-status">${p.status === 'selling' ? 'Đang bán' : p.status === 'out_of_stock' ? 'Hết hàng' : p.status === 'stopped' ? 'Ngừng bán' : 'Bản nháp'}</span></td><td>${date(p.updatedAt)}</td><td class="cms-row-actions"><button data-edit-product="${esc(p.id)}">Sửa</button><button data-delete-product="${esc(p.id)}">Ẩn</button></td></tr>`).join('') : '<tr><td colspan="6" class="cms-empty-cell">Chưa có sản phẩm.</td></tr>';
-    window.__products = products;
+    try {
+      const { products } = await api('/api/products/admin');
+      window.__products = products || [];
+      pagination.products.page = 1;
+      renderProductsList(window.__products);
+    } catch (err) {
+      toast('Lỗi tải sản phẩm: ' + err.message);
+    }
+  }
+
+  function renderProductsList(list) {
+    const target = $('[data-product-list]');
+    if (!target) return;
+    if (!list.length) {
+      target.innerHTML = '<tr><td colspan="6" class="cms-empty-cell">Chưa có sản phẩm.</td></tr>';
+      renderPagination('[data-pagination-products]', 0, 1, pagination.products.size, () => {});
+      return;
+    }
+    const { page, size } = pagination.products;
+    const start = (page - 1) * size;
+    const pageItems = list.slice(start, start + size);
+
+    target.innerHTML = pageItems.map((p) => `
+      <tr>
+        <td><b>${esc(p.productName)}</b><small>${esc(p.versionName || p.category)}</small></td>
+        <td>${esc(p.sku || '—')}</td>
+        <td>${money(p.salePrice ?? p.price)}</td>
+        <td><span class="cms-status">${p.status === 'selling' ? 'Đang bán' : p.status === 'out_of_stock' ? 'Hết hàng' : p.status === 'stopped' ? 'Ngừng bán' : 'Bản nháp'}</span></td>
+        <td>${date(p.updatedAt)}</td>
+        <td class="cms-row-actions">
+          <button data-edit-product="${esc(p.id)}">Sửa</button>
+          <button data-delete-product="${esc(p.id)}">Ẩn</button>
+        </td>
+      </tr>
+    `).join('');
+
+    renderPagination('[data-pagination-products]', list.length, page, size, (newPage) => {
+      pagination.products.page = newPage;
+      renderProductsList(list);
+    });
   }
 
   $$('.cms-nav [data-tab]').forEach((button) => button.addEventListener('click', () => showPanel(button.dataset.tab)));
@@ -531,6 +973,57 @@
   $('[data-cancel-article]')?.addEventListener('click', clearArticle);
   $('[data-new-product]')?.addEventListener('click', () => { clearProduct(); productForm.hidden = false; productForm.scrollIntoView({ behavior:'smooth' }); });
   $('[data-cancel-product]')?.addEventListener('click', clearProduct);
+
+  $('[data-product-image-file]')?.addEventListener('change', async (event) => {
+    const [file] = event.target.files;
+    if (!file) return;
+    const status = $('[data-product-status-text]');
+    try {
+      status.textContent = `Đang tải ảnh chính ${file.name}…`;
+      const url = await uploadProductMedia(file, 'product-main');
+      $('[data-product-image]').value = url;
+      $('[data-product-image-name]').textContent = `Đã tải: ${file.name}`;
+      status.textContent = 'Ảnh chính đã tải xong. Nhấn “Lưu sản phẩm” để áp dụng.';
+    } catch (error) {
+      status.textContent = error.message;
+      toast(error.message);
+    }
+  });
+
+  $('[data-product-gallery-files]')?.addEventListener('change', async (event) => {
+    const files = [...event.target.files];
+    if (!files.length) return;
+    const status = $('[data-product-status-text]');
+    const uploaded = [];
+    try {
+      for (const [index, file] of files.entries()) {
+        status.textContent = `Đang tải ảnh gallery ${index + 1}/${files.length}: ${file.name}…`;
+        uploaded.push(await uploadProductMedia(file, 'product-gallery'));
+      }
+      $('[data-product-gallery]').value = uploaded.join(', ');
+      $('[data-product-gallery-name]').textContent = `Đã tải ${uploaded.length} ảnh gallery.`;
+      status.textContent = 'Gallery đã tải xong. Nhấn “Lưu sản phẩm” để áp dụng.';
+    } catch (error) {
+      status.textContent = error.message;
+      toast(error.message);
+    }
+  });
+
+  $('[data-product-video-file]')?.addEventListener('change', async (event) => {
+    const [file] = event.target.files;
+    if (!file) return;
+    const status = $('[data-product-status-text]');
+    try {
+      status.textContent = `Đang tải video ${file.name}…`;
+      const url = await uploadProductMedia(file, 'product-video');
+      $('[data-product-video]').value = url;
+      $('[data-product-video-name]').textContent = `Đã tải: ${file.name}`;
+      status.textContent = 'Video đã tải xong. Nhấn “Lưu sản phẩm” để áp dụng.';
+    } catch (error) {
+      status.textContent = error.message;
+      toast(error.message);
+    }
+  });
 
   articleForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -560,6 +1053,8 @@
   productForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = $('[data-product-id]').value;
+    const specsText = $('[data-product-specs]').value.trim();
+    const specPairs = specsText.split(',').map((x) => x.split(':').map((v) => v.trim())).filter((x) => x.length === 2 && x[0] && x[1]);
     const body = {
       id: id || undefined,
       productName: $('[data-product-name]').value,
@@ -574,7 +1069,7 @@
       images: $('[data-product-image]').value ? [$('[data-product-image]').value] : [],
       gallery: $('[data-product-gallery]').value.split(',').map((x) => x.trim()).filter(Boolean),
       videoUrl: $('[data-product-video]').value,
-      specs: Object.fromEntries($('[data-product-specs]').value.split(',').map((x) => x.split(':').map((v) => v.trim())).filter((x) => x.length === 2))
+      specs: specPairs.length ? Object.fromEntries(specPairs) : (specsText ? { 'Số người chơi': specsText } : {})
     };
     try {
       await api('/api/products/admin', { method: id ? 'PATCH' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
@@ -585,61 +1080,124 @@
     } catch (error) { toast(error.message); }
   });
 
-  // Login & Logout
-  const loginForm = $('[data-login-form]');
-  loginForm?.addEventListener('submit', async (e) => {
+  // Đăng xuất admin: xóa sạch phiên và chuyển ngay về trang chủ website
+  $$('[data-logout]').forEach((b) => b.addEventListener('click', async (e) => {
     e.preventDefault();
-    const username = $('[data-login-username]').value.trim();
-    const password = $('[data-login-password]').value;
-    const errorEl = $('[data-login-error]');
-    if (errorEl) errorEl.hidden = true;
     try {
-      await api('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-      toast('Đăng nhập thành công!');
-      login.hidden = true;
-      await boot();
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      await fetch('/api/customer/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
     } catch (err) {
-      if (errorEl) {
-        errorEl.textContent = err.message;
-        errorEl.hidden = false;
-      } else {
-        toast(err.message);
-      }
+      console.error('Logout error:', err);
     }
-  });
-
-  $$('[data-logout]').forEach((b) => b.addEventListener('click', async () => {
-    await api('/api/auth/logout', { method:'POST' });
-    location.reload();
+    try {
+      localStorage.removeItem('gorise_customer_name');
+      localStorage.removeItem('gorise_customer_data');
+    } catch {}
+    toast('Đã đăng xuất.');
+    setTimeout(() => {
+      window.location.replace('/');
+    }, 150);
   }));
 
   $('[data-refresh-analytics]')?.addEventListener('click', () => loadAnalytics().then(() => toast('Đã cập nhật thống kê video.')).catch((error) => toast(error.message)));
 
-  // Boot CMS
+  // Sự kiện quản lý Mã kích hoạt GORISE Play
+  const modalBatch = $('#batchCodesModal');
+  $('#btnOpenCreateBatchModal')?.addEventListener('click', () => {
+    if (modalBatch) modalBatch.style.display = 'flex';
+  });
+  $('#btnCloseBatchModal')?.addEventListener('click', () => {
+    if (modalBatch) modalBatch.style.display = 'none';
+  });
+  $('#btnCancelBatchModal')?.addEventListener('click', () => {
+    if (modalBatch) modalBatch.style.display = 'none';
+  });
+  modalBatch?.addEventListener('click', (e) => {
+    if (e.target === modalBatch) modalBatch.style.display = 'none';
+  });
+
+  $('#createBatchCodesForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = $('#btnSubmitCreateBatch');
+    const count = parseInt($('#batchCountInput')?.value, 10) || 100;
+    const batchName = $('#batchNameInput')?.value.trim();
+    const prefix = $('#batchPrefixInput')?.value.trim() || 'GORISE';
+
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Đang sinh mã…';
+    }
+
+    try {
+      const res = await api('/api/admin/activation-codes/batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ count, batchName, prefix })
+      });
+      toast(res.message || 'Tạo lô mã thành công!');
+      if (modalBatch) modalBatch.style.display = 'none';
+      $('#createBatchCodesForm')?.reset();
+      pagination.activationCodes.page = 1;
+      await loadActivationCodes();
+    } catch (err) {
+      toast('Lỗi: ' + err.message);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Xác nhận tạo mã ↗';
+      }
+    }
+  });
+
+  $('#btnExportCodesCsv')?.addEventListener('click', () => {
+    const batch = $('#actBatchSelect')?.value || '';
+    const status = $('#actStatusSelect')?.value || 'all';
+    const params = new URLSearchParams({ batch, status });
+    window.open(`/api/admin/activation-codes/export?${params.toString()}`, '_blank');
+  });
+
+  let actSearchTimeout;
+  $('#actSearchInput')?.addEventListener('input', () => {
+    clearTimeout(actSearchTimeout);
+    actSearchTimeout = setTimeout(() => {
+      pagination.activationCodes.page = 1;
+      loadActivationCodes();
+    }, 300);
+  });
+  $('#actStatusSelect')?.addEventListener('change', () => {
+    pagination.activationCodes.page = 1;
+    loadActivationCodes();
+  });
+  $('#actBatchSelect')?.addEventListener('change', () => {
+    pagination.activationCodes.page = 1;
+    loadActivationCodes();
+  });
+
+  // Boot CMS: Bắt buộc đã đăng nhập quyền admin; nếu chưa -> chuyển thẳng về trang chủ website
   async function boot() {
     try {
       const auth = await api('/api/auth/me');
-      if (!auth.authenticated) {
-        login.hidden = false;
-        workspace.hidden = true;
+      if (!auth.authenticated || !auth.identity || !auth.identity.isAdmin) {
+        window.location.replace('/');
         return;
       }
       identity.textContent = `${auth.identity.name} · ${auth.identity.email}`;
       $('[data-admin-name]').textContent = auth.identity.name || 'Admin';
-      if (!auth.identity.isAdmin) {
-        denied.hidden = false;
-        denied.querySelector('[data-denied-copy]').textContent = 'Tài khoản hiện tại không có quyền quản trị viên.';
-        return;
+
+      if (workspace) {
+        workspace.style.display = '';
+        workspace.hidden = false;
       }
-      workspace.hidden = false;
-      await Promise.all([loadDashboardStats(), loadAnalytics(), loadArticles(), loadProducts()]);
+
+      // Nạp dữ liệu các tab (độc lập, không để lỗi nhỏ làm sập màn hình)
+      loadDashboardStats().catch((e) => console.warn('Stats load err:', e));
+      loadRevenueChart(7).catch((e) => console.warn('Chart load err:', e));
+      loadAccounts().catch((e) => console.warn('Accounts load err:', e));
+      loadAnalytics().catch((e) => console.warn('Analytics load err:', e));
+      loadArticles().catch((e) => console.warn('Articles load err:', e));
+      loadProducts().catch((e) => console.warn('Products load err:', e));
     } catch (error) {
-      toast(error.message);
-      login.hidden = false;
+      window.location.replace('/');
     }
   }
 

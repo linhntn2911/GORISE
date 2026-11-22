@@ -17,6 +17,8 @@ export const MIME_TYPES = {
   '.gif': 'image/gif',
   '.mp4': 'video/mp4',
   '.webm': 'video/webm',
+  '.mov': 'video/quicktime',
+  '.avi': 'video/x-msvideo',
   '.woff2': 'font/woff2',
 };
 

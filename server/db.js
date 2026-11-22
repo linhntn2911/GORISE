@@ -11,6 +11,7 @@ export const mssqlConfig = {
   options: {
     encrypt: false,
     trustServerCertificate: true,
+    useUTC: false,
   },
   pool: {
     max: 10,
@@ -48,9 +49,11 @@ const normalizeProduct = (row) => ({
   category: row.category,
   ageRange: row.age_range,
   components: decodeJson(row.components_json) || [],
+  specs: decodeJson(row.specs_json) || {},
   availability: row.availability,
   stockQuantity: row.stock_quantity == null ? null : Number(row.stock_quantity),
   status: row.status || 'selling',
+  versionName: row.version_name || '',
   sku: row.sku || '',
   gallery: decodeJson(row.gallery_json) || [],
   videoUrl: row.video_url || '',

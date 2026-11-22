@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#123b72" />
+    <meta name="description" content="Danh sách đơn hàng của bạn tại GORISE: theo dõi trạng thái đơn, chi tiết sản phẩm và lịch sử mua sắm." />
+    <link rel="icon" href="/gorise-official.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css?v=20261122_account_blue" />
+    <title>Đơn hàng của tôi — GORISE</title>
+      <script>
+      (function(){
+        try {
+          var _n = localStorage.getItem('gorise_customer_name');
+          var _raw = localStorage.getItem('gorise_customer_data');
+          var _d = _raw ? JSON.parse(_raw) : null;
+          var fullName = (_d && (_d.fullName || _d.name || _d.username)) || _n;
+          var pillName = _n || (fullName ? (fullName.length > 10 ? (fullName.trim().split(/\s+/).slice(-1)[0] || fullName) : fullName) : '');
+          var css = '';
+          if (pillName) {
+            css += '[data-account-label]{display:none!important;}.account-pill::after{content:"' + pillName.replace(/"/g, '') + '";color:var(--navy,#123b72);font-weight:700;font-size:13px;display:inline-block;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;}';
+          }
+          if (fullName) {
+            var letter = fullName.charAt(0).toUpperCase();
+            var phone = (_d && _d.phone) ? _d.phone : '';
+            css += '[data-acc-avatar]{font-size:0!important;}[data-acc-avatar]::before{content:"' + letter + '"!important;font-size:22px!important;}';
+            css += '[data-acc-name]{font-size:0!important;}[data-acc-name]::before{content:"' + fullName.replace(/"/g, '') + '"!important;font-size:16px!important;}';
+            if (phone) {
+              css += '[data-acc-phone]{font-size:0!important;}[data-acc-phone]::before{content:"' + phone + '"!important;font-size:13px!important;}';
+            }
+          }
+          if (css) {
+            document.write('<style id="gorise-instant-acc-style">' + css + '</style>');
+          }
+        } catch(e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="site-shell">
+      <header class="site-header" data-header>
+        <div class="container header-inner">
+          <a class="brand" href="/" aria-label="GORISE — Trang chủ">
+            <img class="brand-logo" src="/gorise-official.png" alt="GORISE" width="40" height="40" decoding="async" />
+          </a>
+          <button class="menu-toggle" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="site-menu" data-menu-toggle>
+            <span></span><span></span><span></span>
+          </button>
+          <nav class="main-nav" aria-label="Điều hướng chính" id="site-menu" data-nav><a href="/">Trang chủ</a><a href="/ve-gorise/">Về GORISE</a><a href="/kham-pha-tro-choi/">Sản phẩm</a><a href="/gorise-play/">GORISE Play</a><a href="/video-tinh-huong/">Tình huống</a><a href="/tin-tuc/">Tin tức</a><a href="/lien-he/">Liên hệ</a><a class="button button-primary mobile-nav-cta" href="/kham-pha-tro-choi/">Khám phá GORISE <span>↗</span></a></nav>
+          <div class="header-socials" aria-label="Mạng xã hội GORISE">
+            <a class="social-icon social-facebook" href="https://www.facebook.com/profile.php?id=61594921829509" target="_blank" rel="noreferrer" aria-label="GORISE trên Facebook" title="Facebook">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8h3V4h-3c-3.1 0-5 1.9-5 5v3H6v4h3v6h4v-6h3l1-4h-4V9c0-.7.3-1 1-1Z"/></svg>
+            </a>
+            <a class="social-icon social-tiktok" href="https://www.tiktok.com/@goriseproperty?_r=1&amp;_t=ZS-9AOsh9NnjSH" target="_blank" rel="noreferrer" aria-label="GORISE trên TikTok" title="TikTok">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h3.1c.3 1.8 1.3 3.2 2.9 4.1v3.2c-1.3 0-2.6-.4-3.7-1.1v6.2c0 3.7-2.6 5.8-5.9 5.8A5.4 5.4 0 0 1 6 15.8c0-3.2 2.6-5.7 5.7-5.7.3 0 .7 0 1 .1v3.2a2.7 2.7 0 1 0 1.6 2.5V3.1Z"/></svg>
+            </a>
+          </div>
+          <div class="header-actions">
+            <div class="account-wrapper" style="position: relative; display: inline-flex; align-items: center;">
+              <button class="account-pill" type="button" aria-label="Tài khoản khách hàng" data-account-btn>
+                <span class="account-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                <span data-account-label>Đăng nhập</span>
+              </button>
+              <div class="customer-dropdown" data-account-dropdown style="display: none;">
+                <div class="user-name" data-dropdown-name>Khách hàng</div>
+                <div class="user-phone" data-dropdown-phone></div>
+                <a href="/tai-khoan/don-hang/" class="dropdown-item">Đơn hàng của tôi</a>
+                <a href="/tai-khoan/" class="dropdown-item">Thông tin cá nhân</a>
+                <button type="button" class="dropdown-logout" data-customer-logout-btn>Đăng xuất</button>
+              </div>
+            </div>
+            <a class="cart-pill" href="/gio-hang/" aria-label="Giỏ hàng, 0 sản phẩm" data-cart-label>
+              <span class="cart-icon" aria-hidden="true">⌁</span>
+              <span>Giỏ hàng</span>
+              <b data-cart-count>0</b>
+            </a>
+            <a class="button button-small button-primary header-cta" href="/kham-pha-tro-choi/">Khám phá GORISE <span>↗</span></a>
+          </div>
+        </div>
+      </header>
+
+      <main class="account-page-main">
+        <div class="container">
+          <nav class="account-breadcrumb" aria-label="Đường dẫn">
+            <a href="/">Trang chủ</a>
+            <span>›</span>
+            <a href="/tai-khoan/">Tài khoản</a>
+            <span>›</span>
+            <strong>Đơn hàng của tôi</strong>
+          </nav>
+
+          <div class="account-layout">
+            <!-- SIDEBAR -->
+            <aside class="account-sidebar-card">
+              <div class="account-profile-summary">
+                <div class="account-avatar" data-acc-avatar>G</div>
+                <div>
+                  <div class="account-user-name" data-acc-name>Khách hàng</div>
+                  <div class="account-user-phone" data-acc-phone>Đang tải…</div>
+                </div>
+              </div>
+              <nav class="account-nav-menu" aria-label="Menu tài khoản">
+                <a href="/tai-khoan/" class="account-nav-item">Thông tin cá nhân</a>
+                <a href="/tai-khoan/don-hang/" class="account-nav-item is-active">Đơn hàng của tôi</a>
+                <button type="button" class="account-nav-item account-logout-item" data-acc-logout>Đăng xuất</button>
+              </nav>
+            </aside>
+
+            <!-- MAIN CONTENT -->
+            <div class="account-content">
+              <section class="account-card">
+                <div class="account-card-head">
+                  <h2>Lịch sử đơn hàng</h2>
+                  <p>Theo dõi tiến độ giao hàng và danh sách sản phẩm bạn đã đặt mua.</p>
+                </div>
+                <div id="ordersListWrap">
+                  <div style="text-align: center; padding: 40px; color: var(--muted, #6d8497);">Đang tải danh sách đơn hàng…</div>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer class="site-footer site-footer-boardgame">
+        <div class="container footer-top">
+          <div class="footer-brand footer-brand-boardgame">
+            <a class="brand brand-light" href="/" aria-label="GORISE — Trang chủ">
+              <img loading="lazy" decoding="async" class="brand-logo" src="/gorise-official.png" alt="Logo GORISE chính thức" width="122" height="122" />
+            </a>
+            <p class="footer-slogan">Move Forward Through Every Challenge</p>
+            <p class="footer-intro">GORISE mang đến những trải nghiệm giáo dục tương tác, giúp trẻ khám phá kỹ năng an toàn và kỹ năng sống thông qua vui chơi, quan sát và đưa ra quyết định.</p>
+          </div>
+          <div class="footer-column">
+            <h3><span aria-hidden="true">♕</span> KHÁM PHÁ</h3>
+            <a href="/ve-gorise/">Về GORISE</a>
+            <a href="/kham-pha-tro-choi/">Safe Home</a>
+            <a href="/gorise-play/">GORISE Play</a>
+            <a href="/video-tinh-huong/">Tình huống</a>
+            <a href="/tin-tuc/">Tin tức</a>
+          </div>
+          <div class="footer-column">
+            <h3><span aria-hidden="true">☏</span> HỖ TRỢ</h3>
+            <a href="/lien-he/">Liên hệ</a>
+            <a href="/lien-he/#faq">Câu hỏi thường gặp</a>
+            <a href="/lien-he/#policies">Chính sách</a>
+            <a href="/kham-pha-tro-choi/">Hướng dẫn mua hàng</a>
+          </div>
+          <div class="footer-column footer-connect">
+            <h3><span aria-hidden="true">⌘</span> KẾT NỐI</h3>
+            <a href="https://www.facebook.com/profile.php?id=61594921829509" target="_blank" rel="noreferrer"><i class="footer-social-icon footer-social-facebook" aria-hidden="true">f</i>Facebook</a>
+            <a href="https://instagram.com" target="_blank" rel="noreferrer"><i class="footer-social-icon footer-social-instagram" aria-hidden="true">◎</i>Instagram</a>
+            <a href="https://www.tiktok.com/@goriseproperty?_r=1&amp;_t=ZS-9AOsh9NnjSH" target="_blank" rel="noreferrer"><i class="footer-social-icon footer-social-tiktok" aria-hidden="true">♪</i>TikTok</a>
+            <a href="mailto:gorisecompany@gmail.com"><i class="footer-social-icon footer-social-email" aria-hidden="true">✉</i>gorisecompany@gmail.com</a>
+          </div>
+          <div class="footer-mascot-boardgame" aria-hidden="true">
+            <div class="footer-mascot-glow"></div>
+            <span class="footer-mascot-spark">✦</span>
+            <img loading="lazy" decoding="async" src="/tigori-mascot.png" alt="" />
+          </div>
+        </div>
+        <div class="container footer-bottom">
+          <span>© 2026 GORISE. Bảo lưu mọi quyền.</span>
+          <span><b>✦</b> Học qua trải nghiệm – Trưởng thành qua thử thách.</span>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Modal Đánh giá sản phẩm -->
+    <div id="reviewModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(18, 59, 114, 0.45); backdrop-filter:blur(4px); align-items:center; justify-content:center; padding:16px;">
+      <div style="background:#fff; width:100%; max-width:480px; border-radius:24px; box-shadow:0 24px 60px rgba(18,59,114,0.2); padding:28px 24px; position:relative;">
+        <button type="button" id="closeReviewModalBtn" aria-label="Đóng" style="position:absolute; top:20px; right:20px; width:34px; height:34px; border-radius:50%; border:none; background:#f1f5f9; color:#64748b; font-size:20px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s ease;">×</button>
+        
+        <div style="margin-bottom:18px;">
+          <span style="font-size:12px; font-weight:700; color:#0284c7; text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:4px;">Đánh giá trải nghiệm</span>
+          <h3 style="margin:0; font-size:20px; font-weight:800; color:#123b72;">Cảm nhận của bạn về sản phẩm</h3>
+          <p style="margin:6px 0 0; font-size:13px; color:#64748b;">Đánh giá của bạn giúp cộng đồng phụ huynh và GORISE không ngừng nâng cao chất lượng.</p>
+        </div>
+
+        <form id="reviewSubmitForm">
+          <input type="hidden" id="reviewOrderCode" value="" />
+          <input type="hidden" id="reviewProductId" value="gorise-board-game" />
+
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:16px; padding:16px; text-align:center; margin-bottom:18px;">
+            <div id="starPickerContainer" style="display:flex; justify-content:center; gap:8px; font-size:32px; cursor:pointer; user-select:none;">
+              <span data-star-val="1" style="color:#f59e0b; transition:transform .15s ease;">★</span>
+              <span data-star-val="2" style="color:#f59e0b; transition:transform .15s ease;">★</span>
+              <span data-star-val="3" style="color:#f59e0b; transition:transform .15s ease;">★</span>
+              <span data-star-val="4" style="color:#f59e0b; transition:transform .15s ease;">★</span>
+              <span data-star-val="5" style="color:#f59e0b; transition:transform .15s ease;">★</span>
+            </div>
+            <div id="starRatingDesc" style="font-size:13px; font-weight:700; color:#b45309; margin-top:6px;">Tuyệt vời (5 sao)</div>
+          </div>
+
+          <div style="margin-bottom:20px;">
+            <label for="reviewCommentText" style="display:block; font-size:13px; font-weight:700; color:#1e293b; margin-bottom:6px;">Nhận xét chi tiết</label>
+            <textarea id="reviewCommentText" rows="4" placeholder="Chia sẻ cảm nhận của bạn về chất lượng bàn chơi, thẻ tình huống, trải nghiệm của bé khi chơi cùng gia đình..." required style="width:100%; border:1.5px solid #cbd5e1; border-radius:14px; padding:12px; font-family:inherit; font-size:14px; color:#1e293b; resize:vertical; outline:none; transition:border-color .2s; box-sizing:border-box;"></textarea>
+          </div>
+
+          <div style="display:flex; gap:12px; justify-content:flex-end;">
+            <button type="button" onclick="document.getElementById('reviewModal').style.display='none'" style="padding:10px 18px; border-radius:99px; border:1.5px solid #cbd5e1; background:#fff; color:#64748b; font-weight:700; font-size:13px; cursor:pointer;">Hủy</button>
+            <button type="submit" id="submitReviewActionBtn" style="padding:10px 24px; border-radius:99px; border:none; background:linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color:#fff; font-weight:700; font-size:13px; cursor:pointer; box-shadow:0 4px 14px rgba(2,132,199,0.35); transition:all .2s ease;">Gửi đánh giá ↗</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="toast" role="status" aria-live="polite" data-toast></div>
+    <script src="/script.js?v=20261122_fixed_nav_v2" defer></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+        const avatarEl = document.querySelector('[data-acc-avatar]');
+        const nameEl = document.querySelector('[data-acc-name]');
+        const phoneEl = document.querySelector('[data-acc-phone]');
+        const ordersListWrap = document.getElementById('ordersListWrap');
+        const logoutBtn = document.querySelector('[data-acc-logout]');
+
+        // Hydrate instantly from cache before network call
+        try {
+          const rawCached = localStorage.getItem('gorise_customer_data');
+          if (rawCached) {
+            const cached = JSON.parse(rawCached);
+            const initial = (cached.fullName || cached.username || 'G').charAt(0).toUpperCase();
+            if (avatarEl) avatarEl.textContent = initial;
+            if (nameEl) nameEl.textContent = cached.fullName || cached.username;
+            if (phoneEl) phoneEl.textContent = cached.phone || '';
+          }
+        } catch(e) {}
+
+        try {
+          const res = await fetch('/api/customer/me', { credentials: 'include' });
+          const data = await res.json();
+          if (!res.ok || !data.customer) {
+            window.location.href = '/?auth=login';
+            return;
+          }
+          const c = data.customer;
+          const displayInitial = (c.fullName || c.username || 'G').charAt(0).toUpperCase();
+          if (avatarEl) avatarEl.textContent = displayInitial;
+          if (nameEl) nameEl.textContent = c.fullName || c.username;
+          if (phoneEl) phoneEl.textContent = c.phone || '@' + c.username;
+        } catch (e) {
+          console.error(e);
+        }
+
+        // Fetch Orders. Tải lại định kỳ để trạng thái admin vừa cập nhật xuất hiện
+        // trên trang khách hàng mà không cần người dùng tự refresh.
+        const loadOrders = async () => {
+        try {
+          const [ordersRes, reviewsRes] = await Promise.all([
+            fetch('/api/customer/orders', { credentials: 'include' }),
+            fetch('/api/customer/my-reviews', { credentials: 'include' }).catch(() => null),
+          ]);
+          const data = await ordersRes.json();
+          const reviewsData = reviewsRes && reviewsRes.ok ? await reviewsRes.json() : { reviews: [] };
+          const myReviews = reviewsData.reviews || [];
+          const hasReviewed = myReviews.length > 0;
+
+          if (ordersRes.ok && Array.isArray(data.orders)) {
+            if (data.orders.length === 0) {
+              ordersListWrap.innerHTML = `
+                <div class="portal-empty-orders" style="padding: 48px 20px;">
+                  <h4 style="margin: 0 0 8px; font-size: 18px; color: var(--navy, #123b72);">Bạn chưa có đơn hàng nào</h4>
+                  <p style="margin: 0 0 20px; font-size: 14px; color: var(--muted, #6d8497);">Khám phá bộ board game giáo dục Safe Home và các sản phẩm của GORISE ngay hôm nay!</p>
+                  <a href="/kham-pha-tro-choi/" class="account-btn">Khám phá sản phẩm ↗</a>
+                </div>
+              `;
+              return;
+            }
+
+            const statusBadge = (order) => {
+              const ost = order.order_status || order.orderStatus || order.status;
+              if (ost === 'cancelled') return '<span style="background:#fee2e2; color:#b91c1c; font-size:12px; padding:4px 10px; border-radius:99px; font-weight:700;">Hủy đơn</span>';
+              if (ost === 'completed') return '<span style="background:#dcfce7; color:#15803d; font-size:12px; padding:4px 10px; border-radius:99px; font-weight:700;">Hoàn thành đơn</span>';
+              if (ost === 'shipping') return '<span style="background:#e0f2fe; color:#0369a1; font-size:12px; padding:4px 10px; border-radius:99px; font-weight:700;">Giao hàng</span>';
+              if (ost === 'preparing' || ost === 'processing') return '<span style="background:#ede9fe; color:#6d28d9; font-size:12px; padding:4px 10px; border-radius:99px; font-weight:700;">Chuẩn bị đơn</span>';
+              if (ost === 'confirmed') return '<span style="background:#dbeafe; color:#1d4ed8; font-size:12px; padding:4px 10px; border-radius:99px; font-weight:700;">Xác nhận đơn</span>';
+              return '<span style="background:#fef3c7; color:#b45309; font-size:12px; padding:4px 10px; border-radius:99px; font-weight:700;">Chờ xác nhận</span>';
+            };
+
+            const formatMoney = (n) => (Number(n) || 0).toLocaleString('vi-VN') + '₫';
+            const formatDate = (d) => {
+              try {
+                return new Date(d).toLocaleString('vi-VN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' });
+              } catch {
+                return d;
+              }
+            };
+
+            ordersListWrap.innerHTML = data.orders.map((o) => {
+              const canCancel = ['new', 'confirmed', 'preparing', 'processing'].includes(o.order_status || o.orderStatus || o.status);
+              const encodedOrderId = encodeURIComponent(String(o.id || ''));
+              let itemsHtml = '';
+              if (Array.isArray(o.items) && o.items.length > 0) {
+                itemsHtml = o.items.map((item) => `
+                  <div class="account-order-item">
+                    <div>
+                      <strong style="color: var(--navy, #123b72);">${item.name || item.product_name || 'Sản phẩm GORISE'}</strong>
+                      <span style="color: var(--muted, #6d8497); font-size: 13px; margin-left: 8px;">x${item.quantity || 1}</span>
+                    </div>
+                    <span style="font-weight: 600; color: var(--navy, #123b72);">${formatMoney(item.total_price || item.totalPrice || ((item.unit_price || item.unitPrice || item.price || 349000) * (item.quantity || 1)))}</span>
+                  </div>
+                `).join('');
+              } else {
+                itemsHtml = `
+                  <div class="account-order-item">
+                    <strong style="color: var(--navy, #123b72);">Bộ trò chơi giáo dục Safe Home</strong>
+                    <span style="font-weight: 600; color: var(--navy, #123b72);">${formatMoney(o.total_amount)}</span>
+                  </div>
+                `;
+              }
+
+              return `
+                <div class="account-order-card">
+                  <div class="account-order-header">
+                    <div>
+                      <div class="account-order-code">Đơn #${o.order_code || o.orderCode || o.code || o.id}</div>
+                      <div class="account-order-date">${formatDate(o.created_at)}</div>
+                    </div>
+                    <div>
+                      ${statusBadge(o)}
+                    </div>
+                  </div>
+                  <div style="padding: 8px 0;">
+                    ${itemsHtml}
+                  </div>
+                  <div class="account-order-footer">
+                    <span style="color: var(--muted, #6d8497); font-size: 13px;">Tổng thanh toán</span>
+                    <div style="display:flex; align-items:center; justify-content:flex-end; gap:12px; flex-wrap:wrap;">
+                      ${(o.payment_status === 'paid' || o.order_status === 'completed' || o.order_status === 'processing') ? `
+                        <a href="/gorise-play/#safe-home-digital" style="background:#eff6ff; color:#0284c7; border:1px solid #bae6fd; font-size:12px; font-weight:700; padding:6px 12px; border-radius:99px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;"><span>🎮</span> Chơi GORISE Play ↗</a>
+                        ${hasReviewed ? `<span style="background:#dcfce7; color:#15803d; font-size:12px; padding:6px 14px; border-radius:99px; font-weight:700; display:inline-flex; align-items:center; gap:4px;"><span>✓</span> Đã đánh giá</span>` : `<button type="button" class="order-review-btn" data-open-review data-order-code="${o.order_code || ''}" data-product-id="gorise-board-game" style="background:#fffbeb; color:#b45309; border:1.5px solid #f59e0b; font-size:12px; font-weight:700; padding:6px 14px; border-radius:99px; cursor:pointer; display:inline-flex; align-items:center; gap:4px; transition:all .2s ease;"><span>★</span> Đánh giá sản phẩm</button>`}
+                      ` : ''}
+                      ${canCancel && encodedOrderId ? `<button type="button" data-cancel-order="${encodedOrderId}" style="border:1px solid #ef4444; border-radius:9px; padding:8px 12px; background:#fff; color:#b91c1c; font:inherit; font-size:12px; font-weight:700; cursor:pointer;">Hủy đơn</button>` : ''}
+                      <strong class="account-order-total">${formatMoney(o.total_amount)}</strong>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          } else {
+            ordersListWrap.innerHTML = '<div style="text-align: center; padding: 40px; color: #dc2626;">Không thể tải danh sách đơn hàng.</div>';
+          }
+        } catch (err) {
+          ordersListWrap.innerHTML = '<div style="text-align: center; padding: 40px; color: #dc2626;">Lỗi kết nối máy chủ.</div>';
+        }
+        };
+
+        await loadOrders();
+        window.setInterval(() => {
+          if (!document.hidden) loadOrders();
+        }, 15000);
+        document.addEventListener('visibilitychange', () => {
+          if (!document.hidden) loadOrders();
+        });
+
+        // Xử lý mở Modal đánh giá sản phẩm
+        let currentReviewRating = 5;
+        const reviewModal = document.getElementById('reviewModal');
+        const starSpans = document.querySelectorAll('#starPickerContainer span');
+        const starRatingDesc = document.getElementById('starRatingDesc');
+        const starLabels = {
+          1: 'Không hài lòng (1 sao)',
+          2: 'Tạm được (2 sao)',
+          3: 'Bình thường (3 sao)',
+          4: 'Hài lòng (4 sao)',
+          5: 'Tuyệt vời (5 sao)',
+        };
+
+        const updateStars = (val) => {
+          currentReviewRating = val;
+          starSpans.forEach((s) => {
+            const sv = parseInt(s.dataset.starVal, 10);
+            s.style.color = sv <= val ? '#f59e0b' : '#cbd5e1';
+          });
+          if (starRatingDesc) starRatingDesc.textContent = starLabels[val] || `${val} sao`;
+        };
+
+        starSpans.forEach((s) => {
+          s.addEventListener('click', () => updateStars(parseInt(s.dataset.starVal, 10)));
+        });
+
+        ordersListWrap.addEventListener('click', (event) => {
+          const btn = event.target.closest('[data-open-review]');
+          if (!btn) return;
+          const orderCode = btn.dataset.orderCode || '';
+          const prodId = btn.dataset.productId || 'gorise-board-game';
+          const codeInput = document.getElementById('reviewOrderCode');
+          const prodInput = document.getElementById('reviewProductId');
+          if (codeInput) codeInput.value = orderCode;
+          if (prodInput) prodInput.value = prodId;
+          updateStars(5);
+          const commentEl = document.getElementById('reviewCommentText');
+          if (commentEl) commentEl.value = '';
+          if (reviewModal) {
+            reviewModal.style.display = 'flex';
+            setTimeout(() => document.getElementById('reviewCommentText')?.focus(), 150);
+          }
+        });
+
+        document.getElementById('closeReviewModalBtn')?.addEventListener('click', () => {
+          if (reviewModal) reviewModal.style.display = 'none';
+        });
+
+        reviewModal?.addEventListener('click', (e) => {
+          if (e.target === reviewModal) reviewModal.style.display = 'none';
+        });
+
+        document.getElementById('reviewSubmitForm')?.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const submitBtn = document.getElementById('submitReviewActionBtn');
+          const comment = document.getElementById('reviewCommentText')?.value.trim();
+          const productId = document.getElementById('reviewProductId')?.value || 'gorise-board-game';
+
+          if (!comment) return;
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Đang gửi đánh giá…';
+          }
+
+          try {
+            const res = await fetch('/api/customer/reviews', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({
+                productId,
+                rating: currentReviewRating,
+                comment,
+              }),
+            });
+            const resData = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(resData.error || 'Lỗi gửi đánh giá.');
+
+            alert('Cảm ơn bạn! Đánh giá của bạn đã được đăng thành công lên trang sản phẩm.');
+            if (reviewModal) reviewModal.style.display = 'none';
+            await loadOrders();
+          } catch (err) {
+            alert(err.message);
+          } finally {
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'Gửi đánh giá ↗';
+            }
+          }
+        });
+
+        ordersListWrap.addEventListener('click', async (event) => {
+          const button = event.target.closest('[data-cancel-order]');
+          if (!button) return;
+          if (!window.confirm('Bạn chắc chắn muốn hủy đơn hàng này?')) return;
+
+          button.disabled = true;
+          try {
+            const response = await fetch(`/api/customer/orders/${button.dataset.cancelOrder}/cancel`, {
+              method: 'PUT',
+              credentials: 'include',
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.error || 'Không thể hủy đơn hàng.');
+            await loadOrders();
+          } catch (error) {
+            window.alert(error.message);
+            button.disabled = false;
+          }
+        });
+
+        // Logout
+        if (logoutBtn) {
+          logoutBtn.addEventListener('click', async () => {
+            try {
+              await fetch('/api/customer/logout', { method: 'POST', credentials: 'include' });
+            } catch (e) {}
+            window.location.href = '/';
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

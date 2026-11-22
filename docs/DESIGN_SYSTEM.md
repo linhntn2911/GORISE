@@ -81,3 +81,16 @@ Tạo collection `GORISE / Typography` với modes **Desktop**, **Tablet**, **Mo
 ## Quy tắc trang mới
 
 Tái sử dụng class và token trong `styles.css`; không tự thêm bộ font/màu/layout khác. Kiểm tra nội dung ở 375 / 390 / 430 / 768 / 1024 / 1440px; trên mobile không để button vượt container, heading cắt dấu tiếng Việt, card tràn chữ hoặc thao tác chỉ hoạt động khi hover.
+
+## Quy tắc UI, Icon & Không lạm dụng Emoji
+
+- **Nghiêm cấm dùng Emoji trong UI:** Tuyệt đối không tự ý chèn các ký tự emoji màu (ví dụ: 📦, 👤, 🔒, ⚡, 🚪, 🌐, 📞, 👑...) vào trong các nút bấm (buttons), tabs, mục dropdown menu, nhãn form hoặc tiêu đề.
+- **Phong cách Nút & Dropdown:**
+  - Nền trắng chuẩn (`#ffffff`), chữ xanh navy (`#123b72`), viền xám xanh thanh mảnh (`#e2edf4`).
+  - Trạng thái hover: nền xanh nhẹ (`#f0f7fc`), chữ xanh brand (`#2c9bf0`), viền `#badcf5`.
+  - Tuyệt đối không tạo các khối nút màu hồng hoặc cam pastel tự động (tránh cảm giác giao diện chắp vá do AI sinh ra).
+  - Nút cảnh báo / Đăng xuất: nền trắng (`#ffffff`), chữ đỏ (`#dc2626`), viền đỏ nhạt (`#fee2e2`), hover mềm mại (`background: #fef2f2; color: #b91c1c; border-color: #fca5a5;`).
+- **Phông chữ & Đảm bảo không lỗi font tiếng Việt:**
+  - Sử dụng thống nhất **Baloo 2** (Heading) và **Be Vietnam Pro** (Body/UI).
+  - Fallback của `--display` phải luôn là `'Baloo 2', 'Be Vietnam Pro', sans-serif`, tuyệt đối không dùng các font không hỗ trợ tiếng Việt như `Arial Rounded MT Bold` làm fallback, tránh việc các ký tự có dấu tiếng Việt (ă, â, đ, ê, ô, ơ, ư...) bị nhảy font / vỡ glyph.
+  - Tích hợp cả font self-hosted và Google Fonts CDN fallback hỗ trợ đầy đủ subset `vietnamese`.
