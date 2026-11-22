@@ -1249,9 +1249,9 @@
       const phones = document.querySelectorAll('[data-dropdown-phone]');
 
       if (customer) {
-        labels.forEach((l) => (l.textContent = customer.fullName || customer.username));
-        names.forEach((n) => (n.textContent = customer.fullName || customer.username));
-        phones.forEach((p) => (p.textContent = customer.phone ? ('📞 ' + customer.phone) : ('@' + customer.username)));
+        labels.forEach((l) => (l.textContent = (customer.isAdmin ? '👑 ' : '') + (customer.fullName || customer.username)));
+        names.forEach((n) => (n.textContent = (customer.isAdmin ? '👑 ' : '') + (customer.fullName || customer.username)));
+        phones.forEach((p) => (p.textContent = customer.isAdmin ? 'Quản trị viên hệ thống' : (customer.phone ? ('📞 ' + customer.phone) : ('@' + customer.username))));
       } else {
         labels.forEach((l) => (l.textContent = 'Đăng nhập'));
         names.forEach((n) => (n.textContent = 'Khách hàng'));
@@ -1452,12 +1452,19 @@
           });
           const result = await res.json();
           if (res.ok && result.success) {
-            showAlert('Đăng nhập thành công! Đang tải tài khoản...', false);
             updateAuthUI(result.customer);
             loginForm.reset();
-            setTimeout(() => {
-              closeModal();
-            }, 600);
+            if (result.isAdmin) {
+              showAlert('Đăng nhập Quản trị viên thành công! Đang chuyển đến trang quản lý...', false);
+              setTimeout(() => {
+                window.location.href = result.redirect || '/quan-ly/';
+              }, 700);
+            } else {
+              showAlert('Đăng nhập thành công! Đang tải tài khoản...', false);
+              setTimeout(() => {
+                closeModal();
+              }, 600);
+            }
           } else {
             showAlert(result.error || 'Tên đăng nhập hoặc mật khẩu không chính xác.');
           }

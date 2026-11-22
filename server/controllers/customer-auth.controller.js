@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import sql from 'mssql';
 import { getSqlPool } from '../db.js';
 import { json, readJson } from '../utils/http.js';
-import { hashPassword, verifyPassword, setCookie, clearCookie, parseCookies } from '../auth.js';
+import { hashPassword, verifyPassword, setCookie, clearCookie, parseCookies, createSessionToken } from '../auth.js';
 
 const CUSTOMER_COOKIE = 'gorise_customer_session';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'gorise_super_secret_session_key_2026_xyz';
@@ -83,7 +83,11 @@ export async function handleCustomerAuth(req, res, pathname) {
       const pool = await getSqlPool();
       const checkReq = pool.request();
       checkReq.input('username', sql.NVarChar(100), username);
-      const existing = await checkReq.query('SELECT TOP 1 id FROM customers WHERE username = @username');
+      const existing = await checkReq.query(`
+        SELECT TOP 1 id FROM customers WHERE username = @username
+        UNION ALL
+        SELECT TOP 1 id FROM admin_users WHERE username = @username
+      `);
       const exists = existing.recordset.length > 0;
       return json(res, 200, {
         available: !exists,
@@ -124,6 +128,8 @@ export async function handleCustomerAuth(req, res, pathname) {
       checkReq.input('username', sql.NVarChar(100), username);
       const existing = await checkReq.query(`
         SELECT TOP 1 id FROM customers WHERE username = @username
+        UNION ALL
+        SELECT TOP 1 id FROM admin_users WHERE username = @username
       `);
 
       if (existing.recordset.length > 0) {
@@ -189,7 +195,36 @@ export async function handleCustomerAuth(req, res, pathname) {
         WHERE username = @username
       `);
 
-      const user = result.recordset?.[0];
+      let user = result.recordset?.[0];
+      let isAdmin = false;
+
+      // Nếu không tìm thấy trong customers, kiểm tra trong bảng admin_users
+      if (!user) {
+        const adminReq = pool.request();
+        adminReq.input('username', sql.NVarChar(100), username);
+        const adminResult = await adminReq.query(`
+          SELECT TOP 1 id, username, email, password_hash, password_salt, full_name, role, is_active
+          FROM admin_users
+          WHERE username = @username OR email = @username
+        `);
+        const adminUser = adminResult.recordset?.[0];
+        if (adminUser) {
+          user = {
+            id: adminUser.id,
+            username: adminUser.username,
+            full_name: adminUser.full_name,
+            email: adminUser.email,
+            phone: '',
+            password_hash: adminUser.password_hash,
+            password_salt: adminUser.password_salt,
+            is_active: adminUser.is_active,
+            role: adminUser.role,
+            loyalty_points: 0,
+          };
+          isAdmin = true;
+        }
+      }
+
       if (!user) {
         return json(res, 401, { error: 'Tên đăng nhập chưa được đăng ký trong hệ thống. Vui lòng kiểm tra lại hoặc chuyển sang tab Đăng ký!' });
       }
@@ -202,7 +237,44 @@ export async function handleCustomerAuth(req, res, pathname) {
         return json(res, 401, { error: 'Mật khẩu không chính xác. Vui lòng kiểm tra lại!' });
       }
 
-      // Cập nhật last_login_at
+      if (isAdmin) {
+        // Cập nhật last_login_at cho Admin
+        const updateAdminReq = pool.request();
+        updateAdminReq.input('id', sql.NVarChar(64), user.id);
+        await updateAdminReq.query('UPDATE admin_users SET last_login_at = GETDATE() WHERE id = @id');
+
+        // Tạo token phiên quản trị
+        const adminToken = createSessionToken({
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          name: user.full_name,
+          role: user.role,
+          isAdmin: true,
+        });
+        setCookie(res, 'gorise_admin_session', adminToken, { maxAge: 60 * 60 * 24 * 30 });
+
+        const customerProfile = {
+          id: user.id,
+          username: user.username,
+          fullName: user.full_name,
+          phone: '',
+          role: user.role,
+          isAdmin: true,
+        };
+        const custToken = createCustomerToken(customerProfile);
+        setCookie(res, CUSTOMER_COOKIE, custToken, { maxAge: 60 * 60 * 24 * 30 });
+
+        return json(res, 200, {
+          success: true,
+          message: 'Đăng nhập Quản trị viên thành công!',
+          customer: customerProfile,
+          isAdmin: true,
+          redirect: '/quan-ly/',
+        });
+      }
+
+      // Cập nhật last_login_at cho khách hàng thông thường
       const updateReq = pool.request();
       updateReq.input('id', sql.NVarChar(64), user.id);
       await updateReq.query('UPDATE customers SET last_login_at = GETDATE() WHERE id = @id');
@@ -213,6 +285,7 @@ export async function handleCustomerAuth(req, res, pathname) {
         fullName: user.full_name,
         phone: user.phone || '',
         loyaltyPoints: user.loyalty_points || 0,
+        isAdmin: false,
       };
 
       const token = createCustomerToken(customerProfile);
@@ -222,6 +295,7 @@ export async function handleCustomerAuth(req, res, pathname) {
         success: true,
         message: 'Đăng nhập thành công!',
         customer: customerProfile,
+        isAdmin: false,
       });
     } catch (error) {
       console.error('Customer login error:', error.message);
