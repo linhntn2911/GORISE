@@ -1,0 +1,871 @@
+{
+  "source": "styles.css",
+  "generatedAt": "2026-11-22T06:41:01.482Z",
+  "files": [
+    {
+      "file": "review.css",
+      "blocks": [
+        {
+          "title": "Preamble / unlabelled CSS",
+          "startLine": 1,
+          "endLine": 158,
+          "bytes": 33394
+        },
+        {
+          "title": "Multi-page extension",
+          "startLine": 159,
+          "endLine": 197,
+          "bytes": 26710
+        },
+        {
+          "title": "Official logo asset",
+          "startLine": 198,
+          "endLine": 202,
+          "bytes": 296
+        },
+        {
+          "title": "Shared tap targets and collision-safe Tigori (not just narrow-phone overrides).",
+          "startLine": 472,
+          "endLine": 495,
+          "bytes": 1326
+        },
+        {
+          "title": "Readable secondary UI: keep compact labels distinct without 8–10px microcopy.",
+          "startLine": 617,
+          "endLine": 645,
+          "bytes": 1965
+        },
+        {
+          "title": "User-managed section artwork: remains hidden until a slot has an active image.",
+          "startLine": 723,
+          "endLine": 736,
+          "bytes": 1192
+        },
+        {
+          "title": "Danger artwork matches the component tile ratio, so it can fill the frame edge-to-edge.",
+          "startLine": 741,
+          "endLine": 750,
+          "bytes": 657
+        },
+        {
+          "title": "GORISE cinematic hero redesign: Ghé Làng-inspired composition with the supplied logo.",
+          "startLine": 893,
+          "endLine": 933,
+          "bytes": 3690
+        },
+        {
+          "title": "Absolute fill removes the intrinsic image-height gap inside the 4:5 frame.",
+          "startLine": 1020,
+          "endLine": 1024,
+          "bytes": 299
+        },
+        {
+          "title": "Neo dải card theo toàn bộ sân khấu, tránh rơi lên vùng tiêu đề.",
+          "startLine": 1409,
+          "endLine": 1425,
+          "bytes": 545
+        },
+        {
+          "title": "TIGORI chuyển động thật: ưu tiên WebM nền trong suốt, PNG chỉ là fallback.",
+          "startLine": 1881,
+          "endLine": 1889,
+          "bytes": 729
+        },
+        {
+          "title": "Trang Tình huống — card gọn hơn để dễ nhìn và chọn nhanh.",
+          "startLine": 2021,
+          "endLine": 2090,
+          "bytes": 1936
+        },
+        {
+          "title": "Section giá trị từ mỗi tình huống — thay thế banner TIGORI trùng nội dung.",
+          "startLine": 2268,
+          "endLine": 2297,
+          "bytes": 4183
+        },
+        {
+          "title": "Nâng cấp trực quan Section Giá trị — board game pastel nhiều lớp.",
+          "startLine": 2298,
+          "endLine": 2334,
+          "bytes": 7069
+        },
+        {
+          "title": "Section Giá trị dùng ảnh thiết kế tham chiếu nguyên bản.",
+          "startLine": 2335,
+          "endLine": 2340,
+          "bytes": 486
+        },
+        {
+          "title": "Ảnh tham chiếu phủ kín toàn bộ khung Section Giá trị.",
+          "startLine": 2341,
+          "endLine": 2350,
+          "bytes": 633
+        },
+        {
+          "title": "Section Cách chơi — hai phân cảnh ảnh gốc, nối liền bằng hiệu ứng cinematic.",
+          "startLine": 2351,
+          "endLine": 2376,
+          "bytes": 5850
+        },
+        {
+          "title": "Interactive How-to-play — hotspot, popup, nhân vật và hành trình.",
+          "startLine": 2377,
+          "endLine": 2400,
+          "bytes": 6525
+        },
+        {
+          "title": "Tối ưu Section Cách chơi: ảnh có khoảng thở, giữ nguyên tỷ lệ và hotspot theo ảnh.",
+          "startLine": 2401,
+          "endLine": 2419,
+          "bytes": 2477
+        },
+        {
+          "title": "BoardTileAssets: tách từ asset sheet 3D, đồng bộ với các hotspot theo cùng hệ tọa độ phần trăm.",
+          "startLine": 2420,
+          "endLine": 2442,
+          "bytes": 3877
+        },
+        {
+          "title": "Ảnh bàn cờ giữ nguyên trạng thái tĩnh, không phủ hiệu ứng lên artwork gốc.",
+          "startLine": 2443,
+          "endLine": 2454,
+          "bytes": 1092
+        },
+        {
+          "title": "Hai artwork mới có tỷ lệ khác nhau: luôn hiển thị nguyên vẹn, không ép khung 2048/768.",
+          "startLine": 2455,
+          "endLine": 2460,
+          "bytes": 417
+        },
+        {
+          "title": "Section Cách chơi dùng artwork full-bleed, giữ nguyên tỷ lệ và không tạo dải trắng hai bên.",
+          "startLine": 2461,
+          "endLine": 2464,
+          "bytes": 448
+        },
+        {
+          "title": "Điều hướng nhanh giữa các section trên trang chủ.",
+          "startLine": 2465,
+          "endLine": 2477,
+          "bytes": 2727
+        },
+        {
+          "title": "Màu active thay đổi theo section để người dùng nhận biết vị trí hiện tại.",
+          "startLine": 2478,
+          "endLine": 2490,
+          "bytes": 1537
+        },
+        {
+          "title": "Keep the settled page visible and make direct page selection explicit.",
+          "startLine": 2542,
+          "endLine": 2549,
+          "bytes": 899
+        },
+        {
+          "title": "Smoother book-like page turn",
+          "startLine": 2550,
+          "endLine": 2572,
+          "bytes": 1723
+        },
+        {
+          "title": "Trang Tình huống — Hero banner tĩnh theo artwork GORISE mới.",
+          "startLine": 2850,
+          "endLine": 2903,
+          "bytes": 1267
+        },
+        {
+          "title": "Trang Tình huống — announcement marquee nằm sát phía trên Hero.",
+          "startLine": 2918,
+          "endLine": 2966,
+          "bytes": 1903
+        },
+        {
+          "title": "V2 typography hook — nội dung thật của hai card dùng cùng vùng copy full-width.",
+          "startLine": 3668,
+          "endLine": 3696,
+          "bytes": 948
+        },
+        {
+          "title": "Neo artwork theo card thay vì theo khối copy bên trong.",
+          "startLine": 3862,
+          "endLine": 3869,
+          "bytes": 196
+        },
+        {
+          "title": "Section 05 — HTML/CSS responsive, full viewport width, không dùng ảnh chụp toàn section.",
+          "startLine": 3914,
+          "endLine": 4125,
+          "bytes": 6321
+        },
+        {
+          "title": "Section 05 — banner chính thức duy nhất, full viewport và giữ nguyên tỷ lệ.",
+          "startLine": 4126,
+          "endLine": 4150,
+          "bytes": 571
+        },
+        {
+          "title": "Section 05 — nền xanh mờ phía sau, banner chính căn giữa.",
+          "startLine": 4151,
+          "endLine": 4186,
+          "bytes": 919
+        },
+        {
+          "title": "Section 02 reference layout — left 40%, component cards 60%.",
+          "startLine": 4320,
+          "endLine": 4483,
+          "bytes": 5302
+        },
+        {
+          "title": "GORISE Play — future game hub landing page",
+          "startLine": 4827,
+          "endLine": 4852,
+          "bytes": 5407
+        },
+        {
+          "title": "GORISE Play — future game hub landing page",
+          "startLine": 4853,
+          "endLine": 4878,
+          "bytes": 5407
+        },
+        {
+          "title": "Embedded Safe Home Digital game",
+          "startLine": 4879,
+          "endLine": 4889,
+          "bytes": 1276
+        },
+        {
+          "title": "Full-bleed game section: Safe Home Digital owns the entire play area",
+          "startLine": 4890,
+          "endLine": 4928,
+          "bytes": 1029
+        }
+      ]
+    },
+    {
+      "file": "cart.css",
+      "blocks": [
+        {
+          "title": "Cart and checkout flow",
+          "startLine": 203,
+          "endLine": 232,
+          "bytes": 15533
+        }
+      ]
+    },
+    {
+      "file": "public-shell.css",
+      "blocks": [
+        {
+          "title": "Floating GORISE mascot assistant",
+          "startLine": 233,
+          "endLine": 259,
+          "bytes": 4333
+        },
+        {
+          "title": "Phase 1 mobile experience: bottom navigation, contextual CTA and quick feedback.",
+          "startLine": 496,
+          "endLine": 536,
+          "bytes": 5380
+        },
+        {
+          "title": "Tigori AI: add a chat above the mascot; do not alter mascot-widget/trigger positioning or sizing.",
+          "startLine": 646,
+          "endLine": 687,
+          "bytes": 4676
+        },
+        {
+          "title": "Footer brand emphasis",
+          "startLine": 796,
+          "endLine": 827,
+          "bytes": 1021
+        },
+        {
+          "title": "Header social links",
+          "startLine": 828,
+          "endLine": 836,
+          "bytes": 686
+        },
+        {
+          "title": "Draggable Tigori mascot.",
+          "startLine": 934,
+          "endLine": 939,
+          "bytes": 312
+        },
+        {
+          "title": "Footer board-game cinematic — chỉ áp dụng cho footer, không ảnh hưởng header hay các section khác.",
+          "startLine": 1821,
+          "endLine": 1834,
+          "bytes": 8304
+        },
+        {
+          "title": "TIGORI AI companion — animation nhẹ theo nhịp video tham chiếu, dùng mascot PNG chính thức.",
+          "startLine": 1835,
+          "endLine": 1880,
+          "bytes": 5483
+        },
+        {
+          "title": "Mobile TIGORI hardening: keep every AI surface inside the viewport.",
+          "startLine": 2608,
+          "endLine": 2672,
+          "bytes": 1981
+        },
+        {
+          "title": "Mobile collision fix: lift TIGORI above fixed controls instead of hiding it.",
+          "startLine": 2673,
+          "endLine": 2686,
+          "bytes": 380
+        },
+        {
+          "title": "TIGORI AI Assistant — modern compact chat window; mascot trigger animation remains unchanged.",
+          "startLine": 3038,
+          "endLine": 3096,
+          "bytes": 4949
+        },
+        {
+          "title": "Section 5 final rebuild — full-width copy with corner mascot, no vertical art columns.",
+          "startLine": 3360,
+          "endLine": 3399,
+          "bytes": 3337
+        },
+        {
+          "title": "Section 5 ultra-wide desktop — tận dụng màn hình lớn, giữ mascot nhỏ đúng tỷ lệ.",
+          "startLine": 3400,
+          "endLine": 3464,
+          "bytes": 2302
+        },
+        {
+          "title": "Phase 1 mobile experience: final touch-first overrides.",
+          "startLine": 4791,
+          "endLine": 4826,
+          "bytes": 5148
+        }
+      ]
+    },
+    {
+      "file": "core.css",
+      "blocks": [
+        {
+          "title": "GORISE responsive design system: same brand tokens, touch-first composition.",
+          "startLine": 260,
+          "endLine": 471,
+          "bytes": 14832
+        },
+        {
+          "title": "GORISE typography system — Baloo 2 for expression, Be Vietnam Pro for reading.",
+          "startLine": 537,
+          "endLine": 616,
+          "bytes": 6585
+        },
+        {
+          "title": "Mobile player transition reset: keep the 9:16 video centered without desktop translate offsets.",
+          "startLine": 3159,
+          "endLine": 3168,
+          "bytes": 477
+        },
+        {
+          "title": "Section 05 — reset offset, căn giữa tuyệt đối trong chiều rộng trang.",
+          "startLine": 4187,
+          "endLine": 4213,
+          "bytes": 605
+        }
+      ]
+    },
+    {
+      "file": "admin.css",
+      "blocks": [
+        {
+          "title": "GORISE image studio",
+          "startLine": 688,
+          "endLine": 722,
+          "bytes": 3870
+        },
+        {
+          "title": "Sidebar Tình huống — visual polish theo layout Safe Home mới, QR chỉ quản lý trong Admin.",
+          "startLine": 3003,
+          "endLine": 3037,
+          "bytes": 2507
+        },
+        {
+          "title": "GORISE CMS dashboard",
+          "startLine": 3211,
+          "endLine": 3223,
+          "bytes": 6909
+        },
+        {
+          "title": "GORISE STUDIO 2.0 — Phase 1 Website Builder",
+          "startLine": 4692,
+          "endLine": 4704,
+          "bytes": 8573
+        },
+        {
+          "title": "GORISE STUDIO Phase 1 rebuild: stable dashboard layout",
+          "startLine": 4705,
+          "endLine": 4735,
+          "bytes": 4028
+        },
+        {
+          "title": "GORISE STUDIO Phase 2 — schema editor controls",
+          "startLine": 4736,
+          "endLine": 4753,
+          "bytes": 5699
+        },
+        {
+          "title": "GORISE STUDIO Phase 3 — admin-only workspace",
+          "startLine": 4754,
+          "endLine": 4790,
+          "bytes": 7056
+        }
+      ]
+    },
+    {
+      "file": "video.css",
+      "blocks": [
+        {
+          "title": "The situation illustration is intentionally uncropped inside the component tile.",
+          "startLine": 737,
+          "endLine": 740,
+          "bytes": 253
+        },
+        {
+          "title": "Situation video library",
+          "startLine": 751,
+          "endLine": 795,
+          "bytes": 5267
+        },
+        {
+          "title": "Situation cards replace the generic play button in the public video library.",
+          "startLine": 837,
+          "endLine": 846,
+          "bytes": 696
+        },
+        {
+          "title": "Video Studio thumbnail uploader.",
+          "startLine": 847,
+          "endLine": 852,
+          "bytes": 487
+        },
+        {
+          "title": "Hero video sound control.",
+          "startLine": 884,
+          "endLine": 892,
+          "bytes": 910
+        },
+        {
+          "title": "Situation library — thư viện video chuyên nghiệp, giữ nguyên kho Storage và QR.",
+          "startLine": 1949,
+          "endLine": 1960,
+          "bytes": 14364
+        },
+        {
+          "title": "Redesign trang Tình huống — các lớp giao diện mới, không đụng dữ liệu video/QR.",
+          "startLine": 1961,
+          "endLine": 1996,
+          "bytes": 7101
+        },
+        {
+          "title": "Animation riêng cho trang Tình huống — nhẹ, rõ và không gây rối khi chọn video.",
+          "startLine": 2091,
+          "endLine": 2177,
+          "bytes": 3277
+        },
+        {
+          "title": "Hero trang Tình huống — video thật từ kho lưu trữ.",
+          "startLine": 2178,
+          "endLine": 2194,
+          "bytes": 2503
+        },
+        {
+          "title": "Hero Tình huống đồng bộ banner trang chủ: video phủ nền, nội dung nằm trên lớp gradient.",
+          "startLine": 2195,
+          "endLine": 2223,
+          "bytes": 2769
+        },
+        {
+          "title": "Hero video 16:9 — sân khấu 1920×1080, giữ trọn video dọc và tạo chiều sâu cinematic.",
+          "startLine": 2224,
+          "endLine": 2245,
+          "bytes": 1733
+        },
+        {
+          "title": "Hero Tình huống — bố cục 2 cột 45/55, video dọc nằm riêng bên phải.",
+          "startLine": 2246,
+          "endLine": 2267,
+          "bytes": 3979
+        },
+        {
+          "title": "Tình huống — chuyển video mềm, không chớp khung phát khi chọn thẻ mới.",
+          "startLine": 2790,
+          "endLine": 2849,
+          "bytes": 1743
+        },
+        {
+          "title": "Tình huống — bấm trực tiếp vào thumbnail để chọn video.",
+          "startLine": 2904,
+          "endLine": 2917,
+          "bytes": 1224
+        },
+        {
+          "title": "Safe Home — Collapsible Video Playlist.",
+          "startLine": 2967,
+          "endLine": 2975,
+          "bytes": 3683
+        },
+        {
+          "title": "Safe Home — compact desktop player and internally scrollable sidebar.",
+          "startLine": 2976,
+          "endLine": 3002,
+          "bytes": 3518
+        },
+        {
+          "title": "Safe Home player — final two-column composition based on the reference layout.",
+          "startLine": 3097,
+          "endLine": 3158,
+          "bytes": 2972
+        },
+        {
+          "title": "GORISE CMS — video analytics",
+          "startLine": 3224,
+          "endLine": 3240,
+          "bytes": 1686
+        }
+      ]
+    },
+    {
+      "file": "home.css",
+      "blocks": [
+        {
+          "title": "Homepage hero video banner: the supplied video is the only hero visual.",
+          "startLine": 853,
+          "endLine": 883,
+          "bytes": 2332
+        },
+        {
+          "title": "Section 2 — GORISE story, cinematic and editorial.",
+          "startLine": 940,
+          "endLine": 978,
+          "bytes": 3700
+        },
+        {
+          "title": "Section 2 scroll storytelling motion.",
+          "startLine": 979,
+          "endLine": 992,
+          "bytes": 1146
+        },
+        {
+          "title": "User-provided Section 2 story artwork.",
+          "startLine": 993,
+          "endLine": 998,
+          "bytes": 571
+        },
+        {
+          "title": "Section 2 full-frame artwork and falling leaves.",
+          "startLine": 999,
+          "endLine": 1015,
+          "bytes": 1984
+        },
+        {
+          "title": "Ensure the Section 2 artwork occupies the entire frame, edge to edge.",
+          "startLine": 1016,
+          "endLine": 1019,
+          "bytes": 177
+        },
+        {
+          "title": "Section 3 — Safe Home cinematic story.",
+          "startLine": 1025,
+          "endLine": 1060,
+          "bytes": 3711
+        },
+        {
+          "title": "Section 3 — cinematic Safe Home door reveal.",
+          "startLine": 1061,
+          "endLine": 1114,
+          "bytes": 4844
+        },
+        {
+          "title": "Section 4 — character cards: giữ nguyên toàn bộ mặt thẻ 2:3, không crop.",
+          "startLine": 1115,
+          "endLine": 1133,
+          "bytes": 2031
+        },
+        {
+          "title": "Carousel Section 4 — thẻ giữa lớn nhất, hai bên thu nhỏ nhưng vẫn giữ nguyên tỷ lệ 2:3.",
+          "startLine": 1134,
+          "endLine": 1152,
+          "bytes": 2220
+        },
+        {
+          "title": "Nâng cấp Section 4 — thông tin đồng bộ và lựa chọn nhân vật.",
+          "startLine": 1153,
+          "endLine": 1180,
+          "bytes": 3149
+        },
+        {
+          "title": "GORISE Adventure Character Arena — chỉ áp dụng trong Section 4.",
+          "startLine": 1181,
+          "endLine": 1213,
+          "bytes": 3627
+        },
+        {
+          "title": "Fantasy Board Game Character Selection Arena — background riêng của Section 4.",
+          "startLine": 1214,
+          "endLine": 1249,
+          "bytes": 3491
+        },
+        {
+          "title": "Section 5 — Interactive Adventure Map: năm trạm tình huống an toàn.",
+          "startLine": 1250,
+          "endLine": 1322,
+          "bytes": 7887
+        },
+        {
+          "title": "Section 5 visual reference layer — HTML tương tác phủ trên cảnh Safe Home.",
+          "startLine": 1323,
+          "endLine": 1361,
+          "bytes": 3356
+        },
+        {
+          "title": "Section 5 final layout — asset nhà riêng, card so le quanh visual trung tâm.",
+          "startLine": 1362,
+          "endLine": 1408,
+          "bytes": 3658
+        },
+        {
+          "title": "Section 5 detail map — mini cards, marker đúng khu vực và connector SVG.",
+          "startLine": 1426,
+          "endLine": 1483,
+          "bytes": 4678
+        },
+        {
+          "title": "Section 4 — thẻ lớn và thumbnail dùng chung một trạng thái chọn.",
+          "startLine": 1484,
+          "endLine": 1487,
+          "bytes": 293
+        },
+        {
+          "title": "Section 2 — caption luôn tách khỏi ảnh và hiển thị trọn vẹn.",
+          "startLine": 1488,
+          "endLine": 1494,
+          "bytes": 600
+        },
+        {
+          "title": "Section 3 — khung cửa khớp với artwork cửa, không còn lời nhắc cuộn.",
+          "startLine": 1495,
+          "endLine": 1502,
+          "bytes": 454
+        },
+        {
+          "title": "Section 3 — bảng nền bảo vệ phần chữ khi nội thất đã phủ toàn viewport.",
+          "startLine": 1503,
+          "endLine": 1513,
+          "bytes": 998
+        },
+        {
+          "title": "Section 6 — Board Game Journey: Cách chơi Safe Home.",
+          "startLine": 1514,
+          "endLine": 1595,
+          "bytes": 10371
+        },
+        {
+          "title": "Section 6 nâng cấp — không gian phòng khách và bàn chơi Safe Home.",
+          "startLine": 1596,
+          "endLine": 1625,
+          "bytes": 9280
+        },
+        {
+          "title": "Section 6 — bản full-width theo bố cục cinematic 16:9.",
+          "startLine": 1626,
+          "endLine": 1665,
+          "bytes": 2887
+        },
+        {
+          "title": "Section 4 — nền tối tạo tương phản rõ với Section 5 sáng màu.",
+          "startLine": 1666,
+          "endLine": 1699,
+          "bytes": 1785
+        },
+        {
+          "title": "Section 4 — bầu trời sao nhẹ cho Character Arena.",
+          "startLine": 1700,
+          "endLine": 1726,
+          "bytes": 2236
+        },
+        {
+          "title": "Section 3 — GORISE interactive storybook",
+          "startLine": 2491,
+          "endLine": 2517,
+          "bytes": 5444
+        },
+        {
+          "title": "Section 4 — cinematic space philosophy banner",
+          "startLine": 2573,
+          "endLine": 2582,
+          "bytes": 1247
+        },
+        {
+          "title": "Section 3 — flashcard interaction: one card, one clean 3D turn",
+          "startLine": 2583,
+          "endLine": 2607,
+          "bytes": 2596
+        },
+        {
+          "title": "Section 5 — Vision & Mission: Playful Modern / Cinematic Storytelling",
+          "startLine": 3257,
+          "endLine": 3268,
+          "bytes": 8502
+        },
+        {
+          "title": "Section 5 compact layout — giữ đủ nội dung nhưng giảm chiều cao tổng thể.",
+          "startLine": 3269,
+          "endLine": 3318,
+          "bytes": 3262
+        },
+        {
+          "title": "Section 5 wide desktop composition — card rộng, thấp, cân bằng ngang.",
+          "startLine": 3319,
+          "endLine": 3359,
+          "bytes": 2898
+        },
+        {
+          "title": "Section 5 V2 — banner ngang Tầm nhìn & Sứ mệnh, layout độc lập.",
+          "startLine": 3465,
+          "endLine": 3667,
+          "bytes": 6588
+        },
+        {
+          "title": "Section 5 V2 — chuyển động trang trí nhẹ và tiết kiệm hiệu năng.",
+          "startLine": 3697,
+          "endLine": 3743,
+          "bytes": 1853
+        },
+        {
+          "title": "Section 5 repair — canonical two-card layout; this block intentionally supersedes legacy rules.",
+          "startLine": 3744,
+          "endLine": 3861,
+          "bytes": 3379
+        },
+        {
+          "title": "Section 5 — artwork tham chiếu nguyên bản, không crop và không chồng lớp chữ.",
+          "startLine": 3870,
+          "endLine": 3894,
+          "bytes": 598
+        },
+        {
+          "title": "Section 5 — chỉ hiển thị artwork, phủ full viewport ngang.",
+          "startLine": 3895,
+          "endLine": 3913,
+          "bytes": 368
+        }
+      ]
+    },
+    {
+      "file": "about.css",
+      "blocks": [
+        {
+          "title": "VỀ GORISE — hành trình thương hiệu 10 section.",
+          "startLine": 1727,
+          "endLine": 1800,
+          "bytes": 22216
+        },
+        {
+          "title": "Storybook polish: rainbow world behind the book + softer paper curl",
+          "startLine": 2518,
+          "endLine": 2541,
+          "bytes": 2517
+        },
+        {
+          "title": "Flashcard transition veil: a soft blurred destination image sits underneath the card.",
+          "startLine": 2687,
+          "endLine": 2726,
+          "bytes": 1261
+        },
+        {
+          "title": "About page — unified Vision & Mission section",
+          "startLine": 2727,
+          "endLine": 2789,
+          "bytes": 3797
+        },
+        {
+          "title": "About — nội dung Tầm nhìn & Sứ mệnh mới, giữ nhịp đọc rõ ràng trên mọi màn hình.",
+          "startLine": 3241,
+          "endLine": 3256,
+          "bytes": 855
+        }
+      ]
+    },
+    {
+      "file": "news.css",
+      "blocks": [
+        {
+          "title": "TIN TỨC GORISE",
+          "startLine": 1801,
+          "endLine": 1820,
+          "bytes": 12917
+        },
+        {
+          "title": "Tin tức — Hero banner artwork 2.5:1, không chồng lớp nội dung.",
+          "startLine": 3169,
+          "endLine": 3210,
+          "bytes": 1145
+        }
+      ]
+    },
+    {
+      "file": "shop.css",
+      "blocks": [
+        {
+          "title": "Shop GORISE — Premium Educational Board Game Store.",
+          "startLine": 1890,
+          "endLine": 1948,
+          "bytes": 21549
+        },
+        {
+          "title": "Shop Section 02 — 8 thành phần chính thức của Safe Home Standard.",
+          "startLine": 4214,
+          "endLine": 4319,
+          "bytes": 3009
+        },
+        {
+          "title": "Shop Hero reference banner — giữ artwork nguyên bản, CTA là HTML thật.",
+          "startLine": 4484,
+          "endLine": 4571,
+          "bytes": 3164
+        },
+        {
+          "title": "Shop comparison — Standard vs Premium, data kept as editable HTML fields.",
+          "startLine": 4572,
+          "endLine": 4629,
+          "bytes": 4811
+        },
+        {
+          "title": "Shop Hero — khắc phục full viewport và giữ CTA theo tỷ lệ artwork.",
+          "startLine": 4630,
+          "endLine": 4668,
+          "bytes": 1155
+        },
+        {
+          "title": "Shop Hero: chỉ giữ vùng click trong suốt theo nút đã có sẵn trong artwork.",
+          "startLine": 4669,
+          "endLine": 4691,
+          "bytes": 917
+        }
+      ]
+    },
+    {
+      "file": "contact.css",
+      "blocks": [
+        {
+          "title": "Trang Liên hệ — GORISE Let's Connect & Grow Together.",
+          "startLine": 1997,
+          "endLine": 2009,
+          "bytes": 10368
+        },
+        {
+          "title": "Banner ảnh Hero Liên hệ — giữ nguyên thiết kế ảnh, không chồng nội dung HTML.",
+          "startLine": 2010,
+          "endLine": 2020,
+          "bytes": 1012
+        }
+      ]
+    }
+  ]
+}
