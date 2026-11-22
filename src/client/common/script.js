@@ -999,6 +999,313 @@
   initAboutStorybook();
   initAboutSpaceBanner();
 
+  const initCustomerAuth = () => {
+    // 1. Tự động thêm Modal Đăng nhập / Đăng ký nếu chưa có
+    let modal = document.getElementById('customerAuthModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.className = 'customer-modal-overlay';
+      modal.id = 'customerAuthModal';
+      modal.setAttribute('aria-hidden', 'true');
+      modal.innerHTML = `
+        <div class="customer-modal-card">
+          <button class="customer-modal-close" type="button" aria-label="Đóng" data-auth-close>×</button>
+          <div class="customer-modal-heading">
+            <h3>Tài khoản GORISE</h3>
+            <p>Đăng nhập hoặc tạo tài khoản để trải nghiệm tốt nhất</p>
+          </div>
+          <div class="customer-tabs">
+            <button class="customer-tab-btn is-active" type="button" data-auth-tab="login">Đăng nhập</button>
+            <button class="customer-tab-btn" type="button" data-auth-tab="register">Đăng ký tài khoản</button>
+          </div>
+          <div class="customer-auth-alert" data-auth-alert></div>
+
+          <!-- FORM ĐĂNG NHẬP -->
+          <form class="customer-auth-form" data-form="login">
+            <div class="customer-form-group">
+              <label for="c-login-username">Tên đăng nhập</label>
+              <input type="text" id="c-login-username" name="username" placeholder="Nhập tên đăng nhập của bạn" required autocomplete="username">
+            </div>
+            <div class="customer-form-group">
+              <label for="c-login-password">Mật khẩu</label>
+              <input type="password" id="c-login-password" name="password" placeholder="Nhập mật khẩu" required autocomplete="current-password">
+            </div>
+            <button class="customer-submit-btn" type="submit">Đăng nhập</button>
+            <div class="customer-switch-link">
+              Chưa có tài khoản? <a href="javascript:void(0)" data-switch-to="register">Đăng ký ngay</a>
+            </div>
+          </form>
+
+          <!-- FORM ĐĂNG KÝ -->
+          <form class="customer-auth-form" data-form="register" style="display: none;">
+            <div class="customer-form-group">
+              <label for="c-reg-username">Tên đăng nhập</label>
+              <input type="text" id="c-reg-username" name="username" placeholder="Chọn tên đăng nhập (viết liền, không dấu)" required autocomplete="username">
+            </div>
+            <div class="customer-form-group">
+              <label for="c-reg-fullname">Họ và tên</label>
+              <input type="text" id="c-reg-fullname" name="fullName" placeholder="Ví dụ: Nguyễn Văn An" required autocomplete="name">
+            </div>
+            <div class="customer-form-group">
+              <label for="c-reg-phone">Số điện thoại</label>
+              <input type="tel" id="c-reg-phone" name="phone" placeholder="Ví dụ: 0912345678 (dùng liên hệ giao hàng)" required autocomplete="tel">
+            </div>
+            <div class="customer-form-group">
+              <label for="c-reg-password">Mật khẩu</label>
+              <input type="password" id="c-reg-password" name="password" placeholder="Mật khẩu tối thiểu 6 ký tự" required autocomplete="new-password">
+            </div>
+            <div class="customer-form-group">
+              <label for="c-reg-confirm">Xác nhận mật khẩu</label>
+              <input type="password" id="c-reg-confirm" name="confirmPassword" placeholder="Nhập lại mật khẩu vừa đặt" required autocomplete="new-password">
+            </div>
+            <button class="customer-submit-btn" type="submit">Tạo tài khoản</button>
+            <div class="customer-switch-link">
+              Đã có tài khoản? <a href="javascript:void(0)" data-switch-to="login">Đăng nhập ngay</a>
+            </div>
+          </form>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    // 2. Tự động thêm nút Tài khoản vào Header trên tất cả các trang nếu chưa có
+    const headerActions = document.querySelector('.header-actions');
+    if (headerActions && !headerActions.querySelector('[data-account-btn]')) {
+      const wrapper = document.createElement('div');
+      wrapper.style.position = 'relative';
+      wrapper.style.display = 'inline-block';
+      wrapper.innerHTML = `
+        <button class="account-pill" type="button" aria-label="Tài khoản khách hàng" data-account-btn>
+          <span class="account-icon" aria-hidden="true">👤</span>
+          <span data-account-label>Đăng nhập</span>
+        </button>
+        <div class="customer-dropdown" data-account-dropdown>
+          <div class="user-name" data-dropdown-name>Khách hàng</div>
+          <div class="user-phone" data-dropdown-phone></div>
+          <button type="button" data-customer-logout-btn>Đăng xuất</button>
+        </div>
+      `;
+      const cartPill = headerActions.querySelector('.cart-pill');
+      if (cartPill) {
+        headerActions.insertBefore(wrapper, cartPill);
+      } else {
+        headerActions.prepend(wrapper);
+      }
+    }
+
+    // 3. Quản lý trạng thái và form
+    let currentCustomer = null;
+    const alertBox = modal.querySelector('[data-auth-alert]');
+    const tabBtns = modal.querySelectorAll('[data-auth-tab]');
+    const forms = modal.querySelectorAll('.customer-auth-form');
+    const closeBtn = modal.querySelector('[data-auth-close]');
+
+    const showAlert = (message, isError = true) => {
+      if (!alertBox) return;
+      alertBox.textContent = message;
+      alertBox.className = 'customer-auth-alert ' + (isError ? 'is-error' : 'is-success');
+    };
+
+    const clearAlert = () => {
+      if (!alertBox) return;
+      alertBox.textContent = '';
+      alertBox.className = 'customer-auth-alert';
+    };
+
+    const switchTab = (tabName) => {
+      clearAlert();
+      tabBtns.forEach((btn) => {
+        btn.classList.toggle('is-active', btn.getAttribute('data-auth-tab') === tabName);
+      });
+      forms.forEach((form) => {
+        form.style.display = form.getAttribute('data-form') === tabName ? 'block' : 'none';
+      });
+    };
+
+    const openModal = (tab = 'login') => {
+      switchTab(tab);
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+    };
+
+    const closeModal = () => {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      clearAlert();
+    };
+
+    closeBtn?.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('is-open')) {
+        closeModal();
+      }
+    });
+
+    modal.querySelectorAll('[data-auth-tab]').forEach((btn) => {
+      btn.addEventListener('click', () => switchTab(btn.getAttribute('data-auth-tab')));
+    });
+
+    modal.querySelectorAll('[data-switch-to]').forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        switchTab(link.getAttribute('data-switch-to'));
+      });
+    });
+
+    const updateAuthUI = (customer) => {
+      currentCustomer = customer;
+      const labels = document.querySelectorAll('[data-account-label]');
+      const names = document.querySelectorAll('[data-dropdown-name]');
+      const phones = document.querySelectorAll('[data-dropdown-phone]');
+
+      if (customer) {
+        labels.forEach((l) => (l.textContent = customer.fullName || customer.username));
+        names.forEach((n) => (n.textContent = customer.fullName || customer.username));
+        phones.forEach((p) => (p.textContent = customer.phone ? ('📞 ' + customer.phone) : ('@' + customer.username)));
+      } else {
+        labels.forEach((l) => (l.textContent = 'Đăng nhập'));
+        names.forEach((n) => (n.textContent = 'Khách hàng'));
+        phones.forEach((p) => (p.textContent = ''));
+      }
+    };
+
+    // Click nút tài khoản trên Header
+    document.addEventListener('click', (e) => {
+      const accountBtn = e.target.closest('[data-account-btn]');
+      const dropdown = document.querySelector('[data-account-dropdown]');
+
+      if (accountBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (currentCustomer) {
+          dropdown?.classList.toggle('is-open');
+        } else {
+          openModal('login');
+        }
+        return;
+      }
+
+      if (dropdown && !e.target.closest('[data-account-dropdown]')) {
+        dropdown.classList.remove('is-open');
+      }
+    });
+
+    // Đăng xuất
+    document.addEventListener('click', async (e) => {
+      const logoutBtn = e.target.closest('[data-customer-logout-btn]');
+      if (!logoutBtn) return;
+      e.preventDefault();
+      try {
+        await fetch('/api/customer/logout', { method: 'POST' });
+      } catch (err) {
+        console.error('Logout error:', err);
+      }
+      updateAuthUI(null);
+      const dropdown = document.querySelector('[data-account-dropdown]');
+      dropdown?.classList.remove('is-open');
+    });
+
+    // Kiểm tra phiên đăng nhập đã có qua Cookie
+    fetch('/api/customer/me')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.authenticated && data.customer) {
+          updateAuthUI(data.customer);
+        }
+      })
+      .catch(() => {});
+
+    // Submit Đăng nhập
+    const loginForm = modal.querySelector('form[data-form="login"]');
+    if (loginForm) {
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearAlert();
+        const username = loginForm.username.value.trim();
+        const password = loginForm.password.value;
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
+
+        try {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Đang đăng nhập...';
+          const res = await fetch('/api/customer/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+          });
+          const result = await res.json();
+          if (res.ok && result.success) {
+            showAlert('Đăng nhập thành công! Đang tải dữ liệu...', false);
+            updateAuthUI(result.customer);
+            loginForm.reset();
+            setTimeout(() => {
+              closeModal();
+            }, 600);
+          } else {
+            showAlert(result.error || 'Tên đăng nhập hoặc mật khẩu không chính xác.');
+          }
+        } catch (err) {
+          showAlert('Lỗi kết nối máy chủ: ' + err.message);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Đăng nhập';
+        }
+      });
+    }
+
+    // Submit Đăng ký
+    const regForm = modal.querySelector('form[data-form="register"]');
+    if (regForm) {
+      regForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearAlert();
+        const username = regForm.username.value.trim().toLowerCase();
+        const fullName = regForm.fullName.value.trim();
+        const phone = regForm.phone.value.trim();
+        const password = regForm.password.value;
+        const confirmPassword = regForm.confirmPassword.value;
+        const submitBtn = regForm.querySelector('button[type="submit"]');
+
+        if (password !== confirmPassword) {
+          showAlert('Mật khẩu xác nhận không khớp. Vui lòng nhập lại!');
+          return;
+        }
+
+        try {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Đang tạo tài khoản...';
+          const res = await fetch('/api/customer/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, fullName, phone, password }),
+          });
+          const result = await res.json();
+          if (res.ok && result.success) {
+            showAlert('Đăng ký tài khoản thành công! Tự động đăng nhập...', false);
+            updateAuthUI(result.customer);
+            regForm.reset();
+            setTimeout(() => {
+              closeModal();
+            }, 800);
+          } else {
+            showAlert(result.error || 'Không thể tạo tài khoản lúc này.');
+          }
+        } catch (err) {
+          showAlert('Lỗi kết nối máy chủ: ' + err.message);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Tạo tài khoản';
+        }
+      });
+    }
+  };
+
+  initCustomerAuth();
+
   const reveals = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const observer = new IntersectionObserver((entries, currentObserver) => {
