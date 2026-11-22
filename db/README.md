@@ -16,7 +16,8 @@ db/
 │   ├── 002_20261122_create_admin_users_table.sql
 │   ├── 003_20261122_create_customers_and_addresses_tables.sql
 │   ├── 004_20261122_add_username_to_customers.sql
-│   └── 005_20261122_allow_null_email_for_username_auth.sql
+│   ├── 005_20261122_allow_null_email_for_username_auth.sql
+│   └── 006_20261122_sync_admin_to_customers.sql
 │
 └── README.md                          # Tài liệu hướng dẫn quy ước đặt tên và thực thi
 ```
@@ -40,6 +41,8 @@ db/
    - Gỡ bỏ ràng buộc `UNIQUE` cứng trên cột `email` và `phone`.
    - Tạo `Filtered Unique Index` (chỉ kiểm tra trùng khi có giá trị).
    - Cho phép nhiều khách hàng đăng ký chỉ bằng `username` + `password` (email để trống NULL) mà không bị lỗi trùng khóa trong SQL Server.
+6. **`006_20261122_sync_admin_to_customers.sql`**:
+   - Đồng bộ tài khoản `admin` vào bảng `customers` để tài khoản quản trị có thể đăng nhập xuyên suốt ở cả trang chủ và trang quản trị `/quan-ly/`.
 
 ---
 

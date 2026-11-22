@@ -27,6 +27,7 @@ export function json(res, status, data) {
     'X-Content-Type-Options': 'nosniff',
   });
   res.end(JSON.stringify(data));
+  return true;
 }
 
 export async function readJson(req, maxBytes = 16000) {

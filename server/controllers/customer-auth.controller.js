@@ -237,6 +237,20 @@ export async function handleCustomerAuth(req, res, pathname) {
         return json(res, 401, { error: 'Mật khẩu không chính xác. Vui lòng kiểm tra lại!' });
       }
 
+      // Kiểm tra xem tài khoản này có quyền Quản trị trong admin_users không
+      if (!isAdmin) {
+        const adminCheck = await pool.request()
+          .input('id', sql.NVarChar(64), user.id)
+          .input('username', sql.NVarChar(100), user.username)
+          .query('SELECT TOP 1 id, role, email, full_name FROM admin_users WHERE id = @id OR username = @username');
+        const adminData = adminCheck.recordset?.[0];
+        if (adminData) {
+          isAdmin = true;
+          user.role = adminData.role;
+          user.email = adminData.email;
+        }
+      }
+
       if (isAdmin) {
         // Cập nhật last_login_at cho Admin
         const updateAdminReq = pool.request();

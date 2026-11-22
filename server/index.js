@@ -35,15 +35,25 @@ export async function requestHandler(req, res) {
 
   // Route to controllers
   if (await handleAuth(req, res, pathname, requestUrl)) return;
+  if (res.headersSent) return;
   if (await handleCustomerAuth(req, res, pathname)) return;
+  if (res.headersSent) return;
   if (await handleDashboard(req, res, pathname)) return;
+  if (res.headersSent) return;
   if (await handlePhase3(req, res, pathname)) return;
+  if (res.headersSent) return;
   if (await handleBuilder(req, res, pathname)) return;
+  if (res.headersSent) return;
   if (await handleArticles(req, res, pathname)) return;
+  if (res.headersSent) return;
   if (await handleProducts(req, res, pathname)) return;
+  if (res.headersSent) return;
   if (await handleMedia(req, res, pathname)) return;
+  if (res.headersSent) return;
   if (await handleVideos(req, res, pathname)) return;
+  if (res.headersSent) return;
   if (await handleAssistant(req, res, pathname)) return;
+  if (res.headersSent) return;
 
   // Static files and pages
   return serveStatic(req, res, pathname);

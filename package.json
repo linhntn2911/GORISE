@@ -8,7 +8,7 @@
   },
   "packageManager": "pnpm@11.25.0",
   "scripts": {
-    "dev": "node server/index.js",
+    "dev": "node --watch server/index.js",
     "start": "node server/start.js",
     "db:migrate": "node server/migrate.js"
   },
