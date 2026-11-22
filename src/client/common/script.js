@@ -1000,7 +1000,7 @@
   initAboutSpaceBanner();
 
   const initCustomerAuth = () => {
-    // 1. Tự động thêm Modal Đăng nhập / Đăng ký nếu chưa có
+    // 1. Tự động thêm Modal Đăng nhập / Đăng ký nếu chưa có (Layout 2 cột: Mascot Tigori Video + Form)
     let modal = document.getElementById('customerAuthModal');
     if (!modal) {
       modal = document.createElement('div');
@@ -1010,59 +1010,97 @@
       modal.innerHTML = `
         <div class="customer-modal-card">
           <button class="customer-modal-close" type="button" aria-label="Đóng" data-auth-close>×</button>
-          <div class="customer-modal-heading">
-            <h3>Tài khoản GORISE</h3>
-            <p>Đăng nhập hoặc tạo tài khoản để trải nghiệm tốt nhất</p>
+          
+          <!-- CỘT 1: BÊN TRÁI - VIDEO CHÚ HỔ MASCOT TIGORI -->
+          <div class="customer-modal-media">
+            <div class="tigori-bubble" data-tigori-bubble>
+              <p><span class="bubble-sparkle">✦</span><span data-bubble-text>Chào bạn! Tigori rất vui được đồng hành cùng bạn 🐾</span></p>
+            </div>
+            <div class="tigori-video-wrapper">
+              <video autoplay muted loop playsinline preload="auto" poster="/assets/images/tigori-auth-card.png">
+                <source src="/tigori-assistant.webm" type="video/webm">
+                <source src="/herobanner.mp4" type="video/mp4">
+              </video>
+            </div>
+            <div class="tigori-badge">
+              <span class="badge-star">★</span>
+              <span>GORISE — Học kỹ năng qua từng lượt chơi</span>
+            </div>
           </div>
-          <div class="customer-tabs">
-            <button class="customer-tab-btn is-active" type="button" data-auth-tab="login">Đăng nhập</button>
-            <button class="customer-tab-btn" type="button" data-auth-tab="register">Đăng ký tài khoản</button>
+
+          <!-- CỘT 2: BÊN PHẢI - FORM ĐĂNG NHẬP / ĐĂNG KÝ -->
+          <div class="customer-modal-content">
+            <div class="customer-modal-heading">
+              <h3 data-modal-title>Chào mừng bạn trở lại!</h3>
+              <p data-modal-desc>Đăng nhập để trải nghiệm thế giới an toàn và học tập</p>
+            </div>
+            <div class="customer-tabs">
+              <button class="customer-tab-btn is-active" type="button" data-auth-tab="login">Đăng nhập</button>
+              <button class="customer-tab-btn" type="button" data-auth-tab="register">Đăng ký tài khoản</button>
+            </div>
+            <div class="customer-auth-alert" data-auth-alert></div>
+
+            <!-- FORM ĐĂNG NHẬP -->
+            <form class="customer-auth-form" data-form="login">
+              <div class="customer-form-group">
+                <label for="c-login-username">Tên đăng nhập</label>
+                <div class="input-icon-wrapper">
+                  <span class="field-icon">👤</span>
+                  <input type="text" id="c-login-username" name="username" placeholder="Nhập tên đăng nhập" required autocomplete="username">
+                </div>
+              </div>
+              <div class="customer-form-group">
+                <label for="c-login-password">Mật khẩu</label>
+                <div class="input-icon-wrapper">
+                  <span class="field-icon">🔒</span>
+                  <input type="password" id="c-login-password" name="password" placeholder="Nhập mật khẩu" required autocomplete="current-password">
+                </div>
+              </div>
+              <button class="customer-submit-btn" type="submit">Đăng nhập ngay <span>↗</span></button>
+              <div class="customer-switch-link">
+                Chưa có tài khoản? <a href="javascript:void(0)" data-switch-to="register">Đăng ký thành viên mới</a>
+              </div>
+            </form>
+
+            <!-- FORM ĐĂNG KÝ -->
+            <form class="customer-auth-form" data-form="register" style="display: none;">
+              <div class="customer-form-group">
+                <label for="c-reg-username">Tên đăng nhập</label>
+                <div class="input-icon-wrapper">
+                  <span class="field-icon">👤</span>
+                  <input type="text" id="c-reg-username" name="username" placeholder="Viết liền không dấu (vd: hoanganh)" required autocomplete="username">
+                </div>
+              </div>
+              <div class="customer-form-row">
+                <div class="customer-form-group">
+                  <label for="c-reg-fullname">Họ và tên</label>
+                  <input type="text" id="c-reg-fullname" name="fullName" placeholder="Ví dụ: Hoàng Anh" required autocomplete="name">
+                </div>
+                <div class="customer-form-group">
+                  <label for="c-reg-phone">Số điện thoại</label>
+                  <input type="tel" id="c-reg-phone" name="phone" placeholder="0912345678" required autocomplete="tel">
+                </div>
+              </div>
+              <div class="customer-form-group">
+                <label for="c-reg-password">Mật khẩu</label>
+                <div class="input-icon-wrapper">
+                  <span class="field-icon">🔑</span>
+                  <input type="password" id="c-reg-password" name="password" placeholder="Mật khẩu tối thiểu 6 ký tự" required autocomplete="new-password">
+                </div>
+              </div>
+              <div class="customer-form-group">
+                <label for="c-reg-confirm">Xác nhận mật khẩu</label>
+                <div class="input-icon-wrapper">
+                  <span class="field-icon">✓</span>
+                  <input type="password" id="c-reg-confirm" name="confirmPassword" placeholder="Nhập lại mật khẩu vừa đặt" required autocomplete="new-password">
+                </div>
+              </div>
+              <button class="customer-submit-btn" type="submit">Tạo tài khoản GORISE <span>↗</span></button>
+              <div class="customer-switch-link">
+                Đã có tài khoản? <a href="javascript:void(0)" data-switch-to="login">Đăng nhập ngay</a>
+              </div>
+            </form>
           </div>
-          <div class="customer-auth-alert" data-auth-alert></div>
-
-          <!-- FORM ĐĂNG NHẬP -->
-          <form class="customer-auth-form" data-form="login">
-            <div class="customer-form-group">
-              <label for="c-login-username">Tên đăng nhập</label>
-              <input type="text" id="c-login-username" name="username" placeholder="Nhập tên đăng nhập của bạn" required autocomplete="username">
-            </div>
-            <div class="customer-form-group">
-              <label for="c-login-password">Mật khẩu</label>
-              <input type="password" id="c-login-password" name="password" placeholder="Nhập mật khẩu" required autocomplete="current-password">
-            </div>
-            <button class="customer-submit-btn" type="submit">Đăng nhập</button>
-            <div class="customer-switch-link">
-              Chưa có tài khoản? <a href="javascript:void(0)" data-switch-to="register">Đăng ký ngay</a>
-            </div>
-          </form>
-
-          <!-- FORM ĐĂNG KÝ -->
-          <form class="customer-auth-form" data-form="register" style="display: none;">
-            <div class="customer-form-group">
-              <label for="c-reg-username">Tên đăng nhập</label>
-              <input type="text" id="c-reg-username" name="username" placeholder="Chọn tên đăng nhập (viết liền, không dấu)" required autocomplete="username">
-            </div>
-            <div class="customer-form-group">
-              <label for="c-reg-fullname">Họ và tên</label>
-              <input type="text" id="c-reg-fullname" name="fullName" placeholder="Ví dụ: Nguyễn Văn An" required autocomplete="name">
-            </div>
-            <div class="customer-form-group">
-              <label for="c-reg-phone">Số điện thoại</label>
-              <input type="tel" id="c-reg-phone" name="phone" placeholder="Ví dụ: 0912345678 (dùng liên hệ giao hàng)" required autocomplete="tel">
-            </div>
-            <div class="customer-form-group">
-              <label for="c-reg-password">Mật khẩu</label>
-              <input type="password" id="c-reg-password" name="password" placeholder="Mật khẩu tối thiểu 6 ký tự" required autocomplete="new-password">
-            </div>
-            <div class="customer-form-group">
-              <label for="c-reg-confirm">Xác nhận mật khẩu</label>
-              <input type="password" id="c-reg-confirm" name="confirmPassword" placeholder="Nhập lại mật khẩu vừa đặt" required autocomplete="new-password">
-            </div>
-            <button class="customer-submit-btn" type="submit">Tạo tài khoản</button>
-            <div class="customer-switch-link">
-              Đã có tài khoản? <a href="javascript:void(0)" data-switch-to="login">Đăng nhập ngay</a>
-            </div>
-          </form>
         </div>
       `;
       document.body.appendChild(modal);
@@ -1114,6 +1152,10 @@
       alertBox.className = 'customer-auth-alert';
     };
 
+    const bubbleText = modal.querySelector('[data-bubble-text]');
+    const modalTitle = modal.querySelector('[data-modal-title]');
+    const modalDesc = modal.querySelector('[data-modal-desc]');
+
     const switchTab = (tabName) => {
       clearAlert();
       tabBtns.forEach((btn) => {
@@ -1122,6 +1164,15 @@
       forms.forEach((form) => {
         form.style.display = form.getAttribute('data-form') === tabName ? 'block' : 'none';
       });
+      if (tabName === 'register') {
+        if (bubbleText) bubbleText.textContent = 'Gia nhập đại gia đình GORISE ngay nào bạn ơi! 🌟';
+        if (modalTitle) modalTitle.textContent = 'Đăng ký thành viên';
+        if (modalDesc) modalDesc.textContent = 'Tạo tài khoản chỉ mất 30 giây với Tên đăng nhập và Mật khẩu';
+      } else {
+        if (bubbleText) bubbleText.textContent = 'Chào mừng bạn trở lại! Tigori rất vui được gặp bạn 🐾';
+        if (modalTitle) modalTitle.textContent = 'Chào mừng bạn trở lại!';
+        if (modalDesc) modalDesc.textContent = 'Đăng nhập để trải nghiệm thế giới an toàn và học tập';
+      }
     };
 
     const openModal = (tab = 'login') => {
