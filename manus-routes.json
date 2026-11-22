@@ -1,0 +1,129 @@
+{
+  "routes": [
+    {
+      "path": "/",
+      "title": "GORISE — Mỗi thử thách là một bước tiến"
+    },
+    {
+      "path": "/ve-gorise",
+      "title": "Về GORISE — Board game học cách an toàn"
+    },
+    {
+      "path": "/kham-pha-tro-choi",
+      "title": "Khám phá trò chơi GORISE"
+    },
+    {
+      "path": "/thu-thach",
+      "title": "Thử thách GORISE — Bạn sẽ đối mặt với điều gì?"
+    },
+    {
+      "path": "/gorise-play",
+      "title": "GORISE Play — Sân chơi tương tác"
+    },
+    {
+      "path": "/tin-tuc",
+      "title": "Tin tức GORISE | Kiến thức an toàn và giáo dục trải nghiệm"
+    },
+    {
+      "path": "/lien-he",
+      "title": "Liên hệ GORISE — Cùng tiến về phía trước"
+    },
+    {
+      "path": "/gio-hang",
+      "title": "Giỏ hàng & Thanh toán — GORISE"
+    },
+    {
+      "path": "/quan-ly",
+      "title": "GORISE Studio — Quản trị nội dung",
+      "robots": "noindex,nofollow"
+    },
+    {
+      "path": "/quan-ly-builder",
+      "title": "GORISE Studio — Website Builder",
+      "robots": "noindex,nofollow"
+    },
+    {
+      "path": "/quan-ly-phase3",
+      "title": "GORISE Studio — Phase 3 Advanced Admin",
+      "robots": "noindex,nofollow"
+    },
+    {
+      "path": "/quan-ly-anh",
+      "title": "Quản lý hình ảnh — GORISE Studio",
+      "robots": "noindex,nofollow"
+    },
+    {
+      "path": "/video-tinh-huong",
+      "title": "Video tình huống — GORISE"
+    },
+    {
+      "path": "/quan-ly-video",
+      "title": "Quản lý video tình huống — GORISE Studio",
+      "robots": "noindex,nofollow"
+    },
+    {
+      "path": "/tin-tuc/5-khu-vuc-tiem-an-nguy-hiem-trong-ngoi-nha",
+      "title": "Bài viết Tin tức GORISE"
+    },
+    {
+      "path": "/tin-tuc/con-biet-nguy-hiem-nhung-lieu-con-co-biet-phai-lam-gi",
+      "title": "Bài viết Tin tức GORISE"
+    },
+    {
+      "path": "/tin-tuc/vi-sao-tre-can-hoc-ky-nang-an-toan-tu-som",
+      "title": "Bài viết Tin tức GORISE"
+    },
+    {
+      "path": "/tin-tuc/safe-home-hoc-ky-nang-an-toan-qua-tung-luot-choi",
+      "title": "Bài viết Tin tức GORISE"
+    },
+    {
+      "path": "/tin-tuc/board-game-giao-duc-la-gi",
+      "title": "Bài viết Tin tức GORISE"
+    },
+    {
+      "path": "/tin-tuc/gorise-hanh-trinh-bat-dau-tu-mot-y-tuong",
+      "title": "Bài viết Tin tức GORISE"
+    },
+    {
+      "path": "/tin-tuc/checklist-an-toan-trong-nha-cho-tre-em",
+      "title": "Bài viết Tin tức GORISE"
+    },
+    {
+      "path": "/tin-tuc/phong-tranh-bong-va-tai-nan-trong-nha-bep",
+      "title": "Bài viết Tin tức GORISE"
+    },
+    {
+      "path": "/tin-tuc/an-toan-dien-cho-tre-em",
+      "title": "Bài viết Tin tức GORISE"
+    },
+    {
+      "path": "/tin-tuc/an-toan-phong-tam-cho-tre",
+      "title": "Bài viết Tin tức GORISE"
+    },
+    {
+      "path": "/tin-tuc/day-tre-an-toan-khi-co-nguoi-la-go-cua",
+      "title": "Bài viết Tin tức GORISE"
+    },
+    {
+      "path": "/tin-tuc/ky-nang-ung-pho-khi-phat-hien-khoi-chay",
+      "title": "Bài viết Tin tức GORISE"
+    },
+    {
+      "path": "/tin-tuc/phong-ngua-ngo-doc-thuoc-va-hoa-chat-gia-dung",
+      "title": "Bài viết Tin tức GORISE"
+    },
+    {
+      "path": "/tin-tuc/hoc-qua-choi-va-ky-nang-song-cho-tre",
+      "title": "Bài viết Tin tức GORISE"
+    },
+    {
+      "path": "/tin-tuc/cau-hoi-mo-luyen-lua-chon-an-toan",
+      "title": "Bài viết Tin tức GORISE"
+    },
+    {
+      "path": "/tin-tuc/board-game-giao-duc-giup-tre-hoc-chu-dong",
+      "title": "Bài viết Tin tức GORISE"
+    }
+  ]
+}

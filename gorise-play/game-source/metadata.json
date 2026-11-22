@@ -1,0 +1,6 @@
+{
+  "name": "GORISE Safe Home Digital",
+  "description": "Playable educational board game exploring household safety, hazard awareness, and cooperative missions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

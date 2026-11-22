@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Website Builder — GORISE STUDIO</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="builder-page">
+  <header class="builder-topbar">
+    <a class="builder-brand" href="/quan-ly/" aria-label="Quay lại GORISE Studio"><img src="/gorise-official.png" alt="GORISE" /><span>GORISE <b>STUDIO</b></span></a>
+    <div class="builder-page-picker"><label for="builder-page-select">Trang đang chỉnh</label><select id="builder-page-select"></select></div>
+    <div class="builder-viewport" role="group" aria-label="Kích thước preview"><button type="button" data-viewport="desktop" class="is-active">Desktop</button><button type="button" data-viewport="tablet">Tablet</button><button type="button" data-viewport="mobile">Mobile</button></div>
+    <div class="builder-actions"><span id="builder-status" role="status">Đang tải…</span><button type="button" class="builder-icon-button" id="builder-undo" title="Hoàn tác">↶</button><button type="button" class="builder-icon-button" id="builder-redo" title="Làm lại">↷</button><button type="button" class="builder-button ghost" id="builder-preview">Preview</button><button type="button" class="builder-button light" id="builder-save">Lưu Draft</button><button type="button" class="builder-button primary" id="builder-publish">Publish</button></div>
+  </header>
+  <main class="builder-shell">
+    <aside class="builder-library" aria-label="Component Library">
+      <div class="builder-panel-heading"><span class="eyebrow">01 / COMPONENT LIBRARY</span><h1>Thêm thành phần</h1><p>Kéo component vào canvas hoặc chọn để thêm vào trang.</p><input id="builder-component-search" class="builder-search" type="search" placeholder="Tìm component…" aria-label="Tìm component" /></div>
+      <div class="builder-category-filters" id="builder-category-filters" role="tablist" aria-label="Nhóm component"></div>
+      <div class="builder-component-list" id="builder-component-list"></div>
+      <div class="builder-template-panel"><div class="builder-panel-mini-heading"><b>GORISE Templates</b><span>10 mẫu sẵn sàng</span></div><button type="button" class="builder-template-chip" data-add-type="hero">✦ GORISE Hero Banner</button><button type="button" class="builder-template-chip" data-add-type="product">▣ Safe Home Product</button><button type="button" class="builder-template-chip" data-add-type="comparison">⇄ Safe Home Comparison</button><button type="button" class="builder-template-chip" data-add-type="character">● Character Showcase</button><button type="button" class="builder-template-chip" data-add-type="cta">↗ Product Call to Action</button></div>
+      <div class="builder-help"><strong>Gợi ý</strong><span>Double-click tiêu đề hoặc nội dung trên Live Canvas để sửa trực tiếp. Mọi thay đổi nằm trong Draft.</span></div>
+    </aside>
+    <section class="builder-canvas-area" aria-label="Live Canvas">
+      <div class="builder-canvas-toolbar"><div><span class="eyebrow">LIVE CANVAS</span><strong id="builder-canvas-title">Trang chủ GORISE</strong></div><span id="builder-page-meta"></span><div class="builder-canvas-tools"><button type="button" class="builder-icon-button" id="builder-copy" title="Copy component">⧉</button><button type="button" class="builder-icon-button" id="builder-paste" title="Paste component">⎘</button><span class="builder-canvas-hint">Draft preview · click để chọn</span></div></div>
+      <div class="builder-canvas-frame" id="builder-canvas-frame"><div class="builder-live-preview"><iframe id="builder-live-frame" title="Live preview website GORISE" loading="eager"></iframe><div class="builder-preview-shield" aria-hidden="true"></div></div><div class="builder-canvas" id="builder-canvas" aria-live="polite"></div></div>
+    </section>
+    <aside class="builder-properties" aria-label="Properties Panel">
+      <div class="builder-panel-heading"><span class="eyebrow">02 / INSPECTOR</span><h2 id="builder-properties-title">Chọn component</h2><p id="builder-properties-help">Chọn một element trên canvas để bắt đầu chỉnh sửa.</p></div>
+      <section class="builder-layers-section"><div class="builder-subheading"><h3>Layers</h3><span>Trang</span></div><div id="builder-layers" class="builder-layers"></div></section>
+      <form id="builder-properties-form" hidden>
+        <div class="builder-form-tabs" role="tablist"><span class="is-active">Nội dung</span><span>Style</span><span>Responsive</span></div>
+        <label>Tên component<input id="prop-label" maxlength="160" /></label>
+        <label>Loại component<select id="prop-type"><option value="hero">Hero Banner</option><option value="text-image">Text & Image</option><option value="gallery">Image Gallery</option><option value="video">Video Section</option><option value="product">Product Showcase</option><option value="comparison">Safe Home Comparison</option><option value="cta">Call To Action</option><option value="faq">FAQ</option><option value="contact">Contact Section</option></select></label>
+        <label>Tiêu đề<textarea id="prop-heading" rows="3" maxlength="5000"></textarea></label>
+        <label>Nội dung<textarea id="prop-text" rows="5" maxlength="5000"></textarea></label>
+        <label>Đường dẫn hình ảnh<input id="prop-image" type="url" placeholder="/hero-safe-home.webp" /></label>
+        <div class="builder-form-grid"><label>Nhãn nút<input id="prop-button" maxlength="160" /></label><label>Action<select id="prop-action"><option value="internal">Mở trang nội bộ</option><option value="scroll">Cuộn tới section</option><option value="external">Mở URL ngoài</option><option value="modal">Mở modal</option><option value="video">Phát video</option><option value="product">Mở sản phẩm</option><option value="gallery">Mở gallery</option></select></label></div>
+        <label>Target action<input id="prop-target" placeholder="/kham-pha-tro-choi/ hoặc #contact" /></label>
+        <details class="builder-advanced-details" open><summary>Style & Layout</summary><div class="builder-form-grid"><label>Màu nền<input id="prop-background" type="color" /></label><label>Màu chữ<input id="prop-color" type="color" /></label></div><div class="builder-form-grid"><label>Width<input id="prop-width" placeholder="100%" /></label><label>Min height<input id="prop-min-height" placeholder="0" /></label></div><div class="builder-form-grid"><label>Margin<input id="prop-margin" placeholder="0" /></label><label>Padding<input id="prop-padding" placeholder="64px 6%" /></label></div><div class="builder-form-grid"><label>Radius<input id="prop-radius" placeholder="0" /></label><label>Opacity<input id="prop-opacity" placeholder="1" /></label></div><label>Box shadow<input id="prop-shadow" placeholder="none" /></label></details>
+        <details class="builder-advanced-details"><summary>Responsive <b id="builder-responsive-label">Desktop</b></summary><div class="builder-form-grid"><label>Padding<input id="prop-responsive-padding" placeholder="theo breakpoint" /></label><label>Grid columns<input id="prop-responsive-columns" placeholder="1 / 2 / 3" /></label></div><label>Font size<input id="prop-responsive-font" placeholder="clamp(...)" /></label></details>
+        <details class="builder-advanced-details"><summary>Animation</summary><div class="builder-form-grid"><label>Hiệu ứng<select id="prop-animation"><option value="none">Không</option><option value="fade-in">Fade In</option><option value="slide-up">Slide Up</option><option value="slide-left">Slide Left</option><option value="slide-right">Slide Right</option><option value="zoom-in">Zoom In</option><option value="hover-scale">Hover Scale</option><option value="parallax">Parallax</option></select></label><label>Duration<input id="prop-duration" placeholder="400ms" /></label></div></details>
+        <div class="builder-form-actions"><button type="button" class="builder-button danger" id="builder-delete">Xóa</button><button type="button" class="builder-button light" id="builder-duplicate">Nhân bản</button><button type="button" class="builder-button light" id="builder-toggle-lock">Khóa</button><button type="button" class="builder-button light" id="builder-toggle-visibility">Ẩn/hiện</button><button type="button" class="builder-button light" id="builder-save-template">Lưu Template</button><button type="submit" class="builder-button primary">Áp dụng</button></div>
+      </form>
+      <div id="builder-empty" class="builder-empty">Draft chỉ được lưu khi bạn bấm <b>Lưu Draft</b>. Public site không đổi tới khi bấm <b>Publish</b>.</div>
+      <div class="builder-versions"><div class="builder-versions-heading"><h3>Lịch sử phiên bản</h3><button type="button" id="builder-refresh-versions">↻</button></div><div id="builder-version-list"></div></div>
+    </aside>
+  </main>
+  <script src="/builder-admin.js" defer></script>
+</body>
+</html>

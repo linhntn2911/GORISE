@@ -1,0 +1,49 @@
+{
+  "version": "2026-10-01",
+  "brand": {
+    "definition": "GORISE là board game giáo dục giúp trẻ nhận biết tình huống nguy hiểm, quan sát, suy nghĩ và luyện tập đưa ra lựa chọn an toàn thông qua trải nghiệm chơi.",
+    "story": "GORISE ra đời từ nhu cầu giúp trẻ nhận diện và xử lý những tình huống bất ngờ. Thay vì chỉ ghi nhớ điều nên hay không nên, trẻ được quan sát, thảo luận, lựa chọn và nhìn thấy kết quả trên bàn chơi.",
+    "goals": ["Nhận biết nguy hiểm", "Tư duy trước khi hành động", "Đưa ra lựa chọn phù hợp", "Học từ trải nghiệm và tiến bước"],
+    "audience": ["Trẻ em", "Gia đình", "Trường học"],
+    "educationalValue": "Trò chơi mở cuộc trò chuyện về an toàn, hỗ trợ trẻ luyện quan sát, tư duy, thảo luận và ra quyết định. Đây không phải cam kết về hiệu quả học tập của từng trẻ.",
+    "url": "/ve-gorise"
+  },
+  "play": {
+    "preparation": "Đặt bàn chơi ở giữa, chọn quân cờ, chuẩn bị thẻ bài và xúc xắc.",
+    "steps": ["Gieo xúc xắc và di chuyển", "Rút thẻ khi gặp tình huống", "Quan sát, suy nghĩ, trao đổi và lựa chọn", "Xem kết quả và rút ra bài học", "Tiếp tục hành trình với tình huống khác"],
+    "learningPath": ["Quan sát", "Suy nghĩ", "Lựa chọn", "Kết quả", "Bài học"],
+    "url": "/kham-pha-tro-choi"
+  },
+  "challenges": {
+    "groups": ["An toàn trong nhà", "An toàn giao thông", "Phòng cháy", "Tình huống khẩn cấp"],
+    "sample": "Trang Thử thách có một tình huống mẫu về vật lạ có dấu hiệu nguy hiểm và ba lựa chọn để thảo luận. Đây không phải đáp án hay hướng dẫn xử lý khẩn cấp đầy đủ.",
+    "url": "/thu-thach"
+  },
+  "contact": {
+    "projectLead": "Nguyễn Ánh Dương",
+    "phone": "0979845596",
+    "email": "tremoc4@gmail.com",
+    "advisor": "Vũ Hồng Thái",
+    "url": "/lien-he"
+  },
+  "commerce": {
+    "ordering": "Trang hiện tại cho phép xem GORISE Board Game, thêm vào giỏ, nhập thông tin nhận hàng và xem bước thanh toán mô phỏng.",
+    "checkoutIsDemo": true,
+    "payment": "Trang thanh toán hiện hiển thị mã QR minh họa, tên ngân hàng và số tài khoản placeholder; nút ‘Tôi đã thanh toán’ chỉ chuyển giao diện sang màn hình hoàn tất, không xác minh giao dịch thật. Không hướng dẫn chuyển tiền theo thông tin demo.",
+    "shipping": "Thông tin chưa nhất quán: trang sản phẩm ghi miễn phí giao hàng toàn quốc nhưng giỏ hàng minh họa 30.000₫. Không xác nhận mức phí nào là chính thức; hướng người dùng liên hệ GORISE trước khi thanh toán.",
+    "policies": "Trang sản phẩm có ghi ‘Đổi trả trong 7 ngày’ nhưng trang Liên hệ chưa công bố điều khoản chi tiết. Không tự diễn giải điều kiện đổi trả hay bảo hành.",
+    "inventory": "Chưa có số lượng tồn kho đã xác minh.",
+    "orderingUrl": "/gio-hang",
+    "productUrl": "/kham-pha-tro-choi"
+  },
+  "faq": [
+    { "question": "GORISE là gì?", "topic": "about" },
+    { "question": "Cách chơi như thế nào?", "topic": "play" },
+    { "question": "Trong hộp có gì?", "topic": "components" },
+    { "question": "GORISE dành cho ai?", "topic": "audience" },
+    { "question": "Giá bộ game bao nhiêu?", "topic": "price" },
+    { "question": "Đặt hàng thế nào?", "topic": "order" },
+    { "question": "Chuyển khoản thế nào?", "topic": "payment" },
+    { "question": "Phí vận chuyển bao nhiêu?", "topic": "shipping" }
+  ]
+}

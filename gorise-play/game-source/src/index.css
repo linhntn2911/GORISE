@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@keyframes subtleFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes popScale {
+  0% {
+    transform: scale(0.92);
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes goldSparkle {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(245, 158, 11, 0.65);
+  }
+}
+
+@keyframes dangerWarning {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(244, 63, 94, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(244, 63, 94, 0.7);
+  }
+}
+
+@keyframes diceTumble {
+  0% {
+    transform: rotateX(0deg) rotateY(0deg) scale(0.95);
+  }
+  25% {
+    transform: rotateX(90deg) rotateY(180deg) scale(1.06);
+  }
+  50% {
+    transform: rotateX(180deg) rotateY(270deg) scale(0.95);
+  }
+  75% {
+    transform: rotateX(270deg) rotateY(90deg) scale(1.05);
+  }
+  100% {
+    transform: rotateX(360deg) rotateY(360deg) scale(1);
+  }
+}
+
+.animate-subtle-float {
+  animation: subtleFloat 3s ease-in-out infinite;
+}
+
+.animate-pop-scale {
+  animation: popScale 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.animate-gold-sparkle {
+  animation: goldSparkle 1.2s ease-in-out infinite;
+}
+
+.animate-danger-warning {
+  animation: dangerWarning 0.8s ease-in-out infinite;
+}
+
+.animate-dice-tumble {
+  animation: diceTumble 0.45s linear infinite;
+}

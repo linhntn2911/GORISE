@@ -1,0 +1,16 @@
+[
+  {
+    "id": "gorise-board-game",
+    "productName": "GORISE Board Game",
+    "description": "Bộ trò chơi giáo dục để trẻ và gia đình cùng quan sát, suy nghĩ, lựa chọn và học cách nhận biết tình huống nguy hiểm.",
+    "price": 299000,
+    "category": "Board game giáo dục kỹ năng",
+    "ageRange": "8+ (thông số dự kiến trên trang sản phẩm)",
+    "components": ["Bàn chơi", "Thẻ tình huống", "Thẻ vật phẩm", "Quân cờ", "Xúc xắc", "Hộp trò chơi"],
+    "availability": null,
+    "shipping": null,
+    "payment": null,
+    "images": ["/product-safe-home.webp"],
+    "productUrl": "/kham-pha-tro-choi"
+  }
+]

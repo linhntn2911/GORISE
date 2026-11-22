@@ -1,0 +1,19 @@
+{
+  "name": "gorise-ai-site",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22 <23"
+  },
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "dev": "node server/index.js",
+    "start": "node server/start.js",
+    "db:migrate": "node server/migrate.js"
+  },
+  "dependencies": {
+    "mysql2": "3.24.5",
+    "qrcode": "1.5.4"
+  }
+}

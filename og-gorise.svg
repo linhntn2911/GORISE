@@ -1,0 +1,14 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#123B72"/>
+  <circle cx="1050" cy="100" r="300" fill="#15B7A1" opacity=".9"/>
+  <circle cx="1100" cy="590" r="230" fill="#2C9BF0" opacity=".8"/>
+  <path d="M80 494C170 350 260 310 380 292C500 274 610 207 790 115" stroke="#B9EAF6" stroke-width="4" stroke-dasharray="10 14"/>
+  <path d="M735 98L794 114L757 155" stroke="#FFD35A" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="82" y="130" fill="#FFD35A" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="5">BOARD GAME GIÁO DỤC</text>
+  <text x="78" y="275" fill="white" font-family="Arial, sans-serif" font-size="106" font-weight="900" letter-spacing="-5">GORISE</text>
+  <text x="84" y="335" fill="#B9EAF6" font-family="Arial, sans-serif" font-size="31" font-weight="700">MỖI THỬ THÁCH LÀ MỘT BƯỚC TIẾN</text>
+  <rect x="875" y="180" width="180" height="180" rx="26" fill="#FFD35A" transform="rotate(9 875 180)"/>
+  <rect x="930" y="240" width="180" height="180" rx="26" fill="#B9EAF6" transform="rotate(-12 930 240)"/>
+  <circle cx="987" cy="302" r="24" fill="#123B72"/><circle cx="1042" cy="351" r="24" fill="#15B7A1"/>
+  <text x="84" y="560" fill="white" opacity=".7" font-family="Arial, sans-serif" font-size="19" letter-spacing="3">VUI VẺ  ·  SUY NGHĨ  ·  AN TOÀN  ·  TIẾN BƯỚC</text>
+</svg>
