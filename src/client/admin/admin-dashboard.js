@@ -25,6 +25,31 @@
   articleForm.addEventListener('submit', async (e) => { e.preventDefault(); const id = $('[data-article-id]').value; const body = { id: id || undefined, title: $('[data-article-title]').value, slug: $('[data-article-slug]').value, category: $('[data-article-category]').value, status: $('[data-article-status]').value, summary: $('[data-article-summary]').value, content: $('[data-article-content]').value, thumbnailUrl: $('[data-article-image]').value, tags: $('[data-article-tags]').value.split(',').map((x) => x.trim()).filter(Boolean), seoTitle: $('[data-article-seo-title]').value, seoDescription: $('[data-article-seo-description]').value }; try { await api('/api/articles', { method: id ? 'PATCH' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) }); toast('Đã lưu bài viết vào database.'); clearArticle(); await loadArticles(); await loadStats(); } catch (error) { toast(error.message); } });
   productForm.addEventListener('submit', async (e) => { e.preventDefault(); const id = $('[data-product-id]').value; const body = { id: id || undefined, productName: $('[data-product-name]').value, sku: $('[data-product-sku]').value, price: Number($('[data-product-price]').value) || null, salePrice: Number($('[data-product-sale]').value) || null, status: $('[data-product-status]').value, stockQuantity: Number($('[data-product-stock]').value) || null, ageRange: $('[data-product-age]').value, shortDescription: $('[data-product-short]').value, description: $('[data-product-description]').value, images: $('[data-product-image]').value ? [$('[data-product-image]').value] : [], gallery: $('[data-product-gallery]').value.split(',').map((x) => x.trim()).filter(Boolean), videoUrl: $('[data-product-video]').value, specs: Object.fromEntries($('[data-product-specs]').value.split(',').map((x) => x.split(':').map((v) => v.trim())).filter((x) => x.length === 2)) }; try { await api('/api/products/admin', { method: id ? 'PATCH' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) }); toast('Đã lưu sản phẩm vào database.'); clearProduct(); await loadProducts(); await loadStats(); } catch (error) { toast(error.message); } });
   document.addEventListener('click', async (e) => { const editA = e.target.closest('[data-edit-article]'); if (editA) fillArticle(window.__articles.find((a) => a.id === editA.dataset.editArticle)); const delA = e.target.closest('[data-delete-article]'); if (delA && confirm('Ẩn bài viết này khỏi website?')) { await api(`/api/articles/${delA.dataset.deleteArticle}`, { method:'DELETE' }); toast('Đã ẩn bài viết.'); await loadArticles(); await loadStats(); } const editP = e.target.closest('[data-edit-product]'); if (editP) fillProduct(window.__products.find((p) => p.id === editP.dataset.editProduct)); const delP = e.target.closest('[data-delete-product]'); if (delP && confirm('Đưa sản phẩm về trạng thái ngừng bán?')) { await api(`/api/products/admin/${delP.dataset.deleteProduct}`, { method:'DELETE' }); toast('Đã cập nhật trạng thái sản phẩm.'); await loadProducts(); await loadStats(); } });
+  const loginForm = $('[data-login-form]');
+  loginForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = $('[data-login-username]').value.trim();
+    const password = $('[data-login-password]').value;
+    const errorEl = $('[data-login-error]');
+    if (errorEl) errorEl.hidden = true;
+    try {
+      await api('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      toast('Đăng nhập thành công!');
+      login.hidden = true;
+      await boot();
+    } catch (err) {
+      if (errorEl) {
+        errorEl.textContent = err.message;
+        errorEl.hidden = false;
+      } else {
+        toast(err.message);
+      }
+    }
+  });
   $$('[data-logout]').forEach((b) => b.addEventListener('click', async () => { await api('/api/auth/logout', { method:'POST' }); location.reload(); }));
   $('[data-refresh-analytics]')?.addEventListener('click', () => loadAnalytics().then(() => toast('Đã cập nhật thống kê video.')).catch((error) => toast(error.message)));
   async function boot() { try { const auth = await api('/api/auth/me'); if (!auth.authenticated) { login.hidden = false; workspace.hidden = true; return; } identity.textContent = `${auth.identity.name} · ${auth.identity.email}`; $('[data-admin-name]').textContent = auth.identity.name || 'Admin'; if (!auth.identity.isAdmin) { denied.hidden = false; denied.querySelector('[data-denied-copy]').textContent = 'Tài khoản hiện tại không trùng email quản trị được cấu hình cho GORISE.'; return; } workspace.hidden = false; await Promise.all([loadStats(), loadAnalytics(), loadArticles(), loadProducts()]); } catch (error) { toast(error.message); login.hidden = false; } }
