@@ -18,7 +18,8 @@ db/
 │   ├── 004_20261122_add_username_to_customers.sql
 │   ├── 005_20261122_allow_null_email_for_username_auth.sql
 │   ├── 006_20261122_sync_admin_to_customers.sql
-│   └── 007_20261122_fix_vietnamese_encoding.sql
+│   ├── 007_20261122_fix_vietnamese_encoding.sql
+│   └── 008_20261122_create_product_reviews_table.sql
 │
 └── README.md                          # Tài liệu hướng dẫn quy ước đặt tên và thực thi
 ```
@@ -46,6 +47,8 @@ db/
    - Đồng bộ tài khoản `admin` vào bảng `customers` để tài khoản quản trị có thể đăng nhập xuyên suốt ở cả trang chủ và trang quản trị `/quan-ly/`.
 7. **`007_20261122_fix_vietnamese_encoding.sql`**:
    - Sửa lỗi mã hóa font tiếng Việt (Mojibake) cho tên Quản trị viên trong `admin_users` và `customers` thành chuẩn Unicode `N'Quản trị viên GORISE'`.
+8. **`008_20261122_create_product_reviews_table.sql`**:
+   - Tạo bảng `product_reviews` quản lý đánh giá của khách hàng, xếp hạng sao (1-5 sao) và phản hồi từ quản trị viên.
 
 ---
 

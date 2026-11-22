@@ -17,6 +17,8 @@
   let mascotMessage;
   let mascotAction;
   let updateMascotCollision = () => {};
+  let currentCustomer = null;
+  let openCustomerAuthModal = null;
   const mascotPositionKey = 'goriseMascotPosition';
   const mascotGreetingKey = 'goriseMascotGreetingV2';
 
@@ -417,6 +419,14 @@
   });
   document.querySelectorAll('[data-add-cart]').forEach((button) => {
     button.addEventListener('click', () => {
+      // Yêu cầu đăng nhập trước khi thêm sản phẩm vào giỏ hàng
+      if (!currentCustomer) {
+        showToast('Vui lòng đăng nhập tài khoản để thêm vào giỏ hàng!');
+        if (typeof openCustomerAuthModal === 'function') {
+          openCustomerAuthModal('login', 'Bạn ơi, hãy đăng nhập để thêm vào giỏ hàng và lưu sản phẩm nhé! 🐾');
+        }
+        return;
+      }
       cartItems += quantity;
       storeCart(cartItems);
       updateCart();
@@ -525,17 +535,79 @@
     });
 
     document.querySelector('[data-go-info]')?.addEventListener('click', () => {
+      // Yêu cầu đăng nhập trước khi tiến hành thanh toán / mua hàng
+      if (!currentCustomer) {
+        showToast('Vui lòng đăng nhập tài khoản để tiến hành mua hàng!');
+        if (typeof openCustomerAuthModal === 'function') {
+          openCustomerAuthModal('login', 'Vui lòng đăng nhập để tiếp tục thanh toán đơn hàng GORISE nhé! 🐾');
+        }
+        return;
+      }
       if (!cartItems) { showToast('Giỏ hàng đang trống. Hãy chọn một bộ GORISE trước nhé.'); return; }
+
+      // Tự động điền họ tên và số điện thoại của tài khoản đã đăng nhập
+      const shippingForm = document.querySelector('[data-shipping-form]');
+      if (shippingForm && currentCustomer) {
+        const nameInput = shippingForm.querySelector('input[name="name"], [data-shipping-name]');
+        const phoneInput = shippingForm.querySelector('input[name="phone"], [data-shipping-phone]');
+        if (nameInput && !nameInput.value) nameInput.value = currentCustomer.fullName || '';
+        if (phoneInput && !phoneInput.value) phoneInput.value = currentCustomer.phone || '';
+      }
+
       setStep('info');
     });
+
     document.querySelector('[data-shipping-form]')?.addEventListener('submit', (event) => {
       event.preventDefault();
+      if (!currentCustomer) {
+        showToast('Vui lòng đăng nhập để tiếp tục đặt hàng.');
+        if (typeof openCustomerAuthModal === 'function') openCustomerAuthModal('login');
+        return;
+      }
       orderTotal = total();
       setStep('payment');
     });
+
     document.querySelectorAll('[data-back-step]').forEach((button) => button.addEventListener('click', () => setStep(button.dataset.backStep)));
-    document.querySelector('[data-go-success]')?.addEventListener('click', () => {
+
+    document.querySelector('[data-go-success]')?.addEventListener('click', async () => {
+      if (!currentCustomer) {
+        showToast('Vui lòng đăng nhập tài khoản để hoàn tất đơn hàng!');
+        if (typeof openCustomerAuthModal === 'function') openCustomerAuthModal('login');
+        return;
+      }
       orderTotal = total();
+
+      // Lưu đơn hàng thật vào CSDL GORISE_DB
+      try {
+        const shippingForm = document.querySelector('[data-shipping-form]');
+        const recipientName = shippingForm?.querySelector('input[name="name"], [data-shipping-name]')?.value || currentCustomer.fullName || 'Khách hàng';
+        const recipientPhone = shippingForm?.querySelector('input[name="phone"], [data-shipping-phone]')?.value || currentCustomer.phone || '0900000000';
+        const shippingAddress = shippingForm?.querySelector('textarea[name="address"], [data-shipping-address]')?.value || 'Giao tại địa chỉ khách hàng';
+        const note = shippingForm?.querySelector('textarea[name="note"], [data-shipping-note]')?.value || '';
+
+        const res = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customerName: recipientName,
+            customerPhone: recipientPhone,
+            shippingAddress: shippingAddress,
+            note: note,
+            quantity: Math.max(1, cartItems),
+            paymentMethod: 'bank_transfer'
+          })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          const codeEl = document.querySelector('[data-order-code]');
+          if (codeEl) codeEl.textContent = data.order.orderCode;
+          showToast(`Đã tạo đơn hàng ${data.order.orderCode} vào hệ thống!`);
+        }
+      } catch (err) {
+        console.error('Order creation error:', err);
+      }
+
       document.querySelectorAll('[data-success-total]').forEach((node) => { node.textContent = formatVnd(orderTotal); });
       cartItems = 0;
       storeCart(cartItems);
@@ -1167,7 +1239,7 @@
     }
 
     // 3. Quản lý trạng thái và form
-    let currentCustomer = null;
+    currentCustomer = null;
     const alertBox = modal.querySelector('[data-auth-alert]');
     const tabBtns = modal.querySelectorAll('[data-auth-tab]');
     const forms = modal.querySelectorAll('.customer-auth-form');
@@ -1208,11 +1280,15 @@
       }
     };
 
-    const openModal = (tab = 'login') => {
+    const openModal = (tab = 'login', speechMessage = null) => {
       switchTab(tab);
+      if (speechMessage && bubbleText) {
+        bubbleText.textContent = speechMessage;
+      }
       modal.classList.add('is-open');
       modal.setAttribute('aria-hidden', 'false');
     };
+    openCustomerAuthModal = openModal;
 
     const closeModal = () => {
       modal.classList.remove('is-open');
