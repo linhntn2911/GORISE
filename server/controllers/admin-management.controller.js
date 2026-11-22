@@ -1,29 +1,6 @@
 import { getSqlPool } from '../db.js';
 import { json, readJson, requireAdmin } from '../utils/http.js';
-import { parseCookies } from '../utils/crypto.js';
-
-// Helper lấy thông tin khách hàng đang đăng nhập từ Cookie customer_session
-async function getAuthenticatedCustomer(req) {
-  const cookies = parseCookies(req.headers.cookie);
-  const sessionToken = cookies.customer_session;
-  if (!sessionToken) return null;
-
-  try {
-    const payload = JSON.parse(Buffer.from(sessionToken, 'base64').toString('utf8'));
-    if (!payload.id || !payload.exp || Date.now() > payload.exp) return null;
-
-    const pool = await getSqlPool();
-    const result = await pool.request()
-      .input('id', payload.id)
-      .query('SELECT id, username, full_name, email, phone, is_active FROM customers WHERE id = @id');
-
-    const customer = result.recordset[0];
-    if (!customer || !customer.is_active) return null;
-    return customer;
-  } catch {
-    return null;
-  }
-}
+import { getCustomerIdentity } from './customer-auth.controller.js';
 
 export async function handleAdminManagement(req, res, pathname) {
   // =========================================================================
@@ -48,14 +25,14 @@ export async function handleAdminManagement(req, res, pathname) {
 
   // POST /api/orders — Khách hàng đặt mua đơn hàng (Bắt buộc phải đăng nhập!)
   if (pathname === '/api/orders' && req.method === 'POST') {
-    const customer = await getAuthenticatedCustomer(req);
+    const customer = await getCustomerIdentity(req);
     if (!customer) {
       return json(res, 401, { error: 'Vui lòng đăng nhập tài khoản để tiến hành đặt mua hàng!' });
     }
 
     try {
       const body = await readJson(req, 100000);
-      const recipientName = (body.customerName || customer.full_name || '').trim();
+      const recipientName = (body.customerName || customer.fullName || '').trim();
       const recipientPhone = (body.customerPhone || customer.phone || '').trim();
       const shippingAddress = (body.shippingAddress || '').trim();
       const note = (body.note || '').trim();
@@ -136,7 +113,7 @@ export async function handleAdminManagement(req, res, pathname) {
 
   // GET /api/customer/orders — Khách hàng xem lịch sử đơn hàng của mình
   if (pathname === '/api/customer/orders' && req.method === 'GET') {
-    const customer = await getAuthenticatedCustomer(req);
+    const customer = await getCustomerIdentity(req);
     if (!customer) {
       return json(res, 401, { error: 'Vui lòng đăng nhập để xem đơn hàng.' });
     }
