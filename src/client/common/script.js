@@ -1051,9 +1051,19 @@
               </div>
               <div class="customer-form-group">
                 <label for="c-login-password">Mật khẩu</label>
-                <div class="input-icon-wrapper">
+                <div class="input-icon-wrapper password-wrapper">
                   <span class="field-icon">🔒</span>
                   <input type="password" id="c-login-password" name="password" placeholder="Nhập mật khẩu" required autocomplete="current-password">
+                  <button class="toggle-password-btn" type="button" aria-label="Hiện mật khẩu" title="Hiện mật khẩu" data-toggle-password>
+                    <svg class="eye-show" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <svg class="eye-hide" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                      <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                  </button>
                 </div>
               </div>
               <button class="customer-submit-btn" type="submit">Đăng nhập ngay <span>↗</span></button>
@@ -1070,6 +1080,7 @@
                   <span class="field-icon">👤</span>
                   <input type="text" id="c-reg-username" name="username" placeholder="Viết liền không dấu (vd: hoanganh)" required autocomplete="username">
                 </div>
+                <div class="field-feedback" data-username-feedback></div>
               </div>
               <div class="customer-form-row">
                 <div class="customer-form-group">
@@ -1079,21 +1090,43 @@
                 <div class="customer-form-group">
                   <label for="c-reg-phone">Số điện thoại</label>
                   <input type="tel" id="c-reg-phone" name="phone" placeholder="0912345678" required autocomplete="tel">
+                  <div class="field-feedback" data-phone-feedback></div>
                 </div>
               </div>
               <div class="customer-form-group">
                 <label for="c-reg-password">Mật khẩu</label>
-                <div class="input-icon-wrapper">
+                <div class="input-icon-wrapper password-wrapper">
                   <span class="field-icon">🔑</span>
                   <input type="password" id="c-reg-password" name="password" placeholder="Mật khẩu tối thiểu 6 ký tự" required autocomplete="new-password">
+                  <button class="toggle-password-btn" type="button" aria-label="Hiện mật khẩu" title="Hiện mật khẩu" data-toggle-password>
+                    <svg class="eye-show" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <svg class="eye-hide" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                      <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                  </button>
                 </div>
               </div>
               <div class="customer-form-group">
                 <label for="c-reg-confirm">Xác nhận mật khẩu</label>
-                <div class="input-icon-wrapper">
+                <div class="input-icon-wrapper password-wrapper">
                   <span class="field-icon">✓</span>
                   <input type="password" id="c-reg-confirm" name="confirmPassword" placeholder="Nhập lại mật khẩu vừa đặt" required autocomplete="new-password">
+                  <button class="toggle-password-btn" type="button" aria-label="Hiện mật khẩu" title="Hiện mật khẩu" data-toggle-password>
+                    <svg class="eye-show" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <svg class="eye-hide" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                      <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                  </button>
                 </div>
+                <div class="field-feedback" data-confirm-feedback></div>
               </div>
               <button class="customer-submit-btn" type="submit">Tạo tài khoản GORISE <span>↗</span></button>
               <div class="customer-switch-link">
@@ -1277,6 +1310,117 @@
       })
       .catch(() => {});
 
+    // Mắt ẩn / hiện mật khẩu
+    modal.querySelectorAll('[data-toggle-password]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const wrapper = btn.closest('.password-wrapper');
+        const input = wrapper?.querySelector('input');
+        if (!input) return;
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        const eyeShow = btn.querySelector('.eye-show');
+        const eyeHide = btn.querySelector('.eye-hide');
+        if (eyeShow && eyeHide) {
+          eyeShow.style.display = isPassword ? 'none' : 'block';
+          eyeHide.style.display = isPassword ? 'block' : 'none';
+        }
+        const label = isPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu';
+        btn.setAttribute('aria-label', label);
+        btn.setAttribute('title', label);
+      });
+    });
+
+    // Real-time Validation cho Form Đăng ký
+    const regForm = modal.querySelector('form[data-form="register"]');
+    const userFeedback = modal.querySelector('[data-username-feedback]');
+    const phoneFeedback = modal.querySelector('[data-phone-feedback]');
+    const confirmFeedback = modal.querySelector('[data-confirm-feedback]');
+
+    let checkTimeout = null;
+    if (regForm && regForm.username) {
+      const checkUsernameAvailability = async () => {
+        const username = regForm.username.value.trim().toLowerCase();
+        if (!userFeedback) return;
+        if (!username) {
+          userFeedback.textContent = '';
+          userFeedback.className = 'field-feedback';
+          return;
+        }
+        if (username.length < 3) {
+          userFeedback.textContent = 'Tên đăng nhập cần tối thiểu 3 ký tự.';
+          userFeedback.className = 'field-feedback is-error';
+          return;
+        }
+        if (!/^[a-z0-9_.-]+$/.test(username)) {
+          userFeedback.textContent = 'Tên đăng nhập chỉ gồm chữ thường, số, dấu gạch nối hoặc chấm.';
+          userFeedback.className = 'field-feedback is-error';
+          return;
+        }
+
+        try {
+          const res = await fetch('/api/customer/check-username?username=' + encodeURIComponent(username));
+          const data = await res.json();
+          if (data && data.exists) {
+            userFeedback.textContent = '⚠️ Tên đăng nhập này đã có người sử dụng. Vui lòng chọn tên khác!';
+            userFeedback.className = 'field-feedback is-error';
+          } else {
+            userFeedback.textContent = '✓ Tên đăng nhập này khả dụng!';
+            userFeedback.className = 'field-feedback is-success';
+          }
+        } catch {
+          // bỏ qua nếu lỗi mạng tạm thời
+        }
+      };
+
+      regForm.username.addEventListener('blur', checkUsernameAvailability);
+      regForm.username.addEventListener('input', () => {
+        clearTimeout(checkTimeout);
+        checkTimeout = setTimeout(checkUsernameAvailability, 500);
+      });
+    }
+
+    if (regForm && regForm.phone) {
+      regForm.phone.addEventListener('input', () => {
+        if (!phoneFeedback) return;
+        const phone = regForm.phone.value.trim();
+        if (!phone) {
+          phoneFeedback.textContent = '';
+          phoneFeedback.className = 'field-feedback';
+          return;
+        }
+        if (!/^0[0-9]{9}$/.test(phone)) {
+          phoneFeedback.textContent = 'Số điện thoại cần đúng 10 số (bắt đầu bằng số 0).';
+          phoneFeedback.className = 'field-feedback is-error';
+        } else {
+          phoneFeedback.textContent = '✓ Số điện thoại hợp lệ';
+          phoneFeedback.className = 'field-feedback is-success';
+        }
+      });
+    }
+
+    if (regForm && regForm.confirmPassword && regForm.password) {
+      const validateMatch = () => {
+        if (!confirmFeedback) return;
+        const p1 = regForm.password.value;
+        const p2 = regForm.confirmPassword.value;
+        if (!p2) {
+          confirmFeedback.textContent = '';
+          confirmFeedback.className = 'field-feedback';
+          return;
+        }
+        if (p1 !== p2) {
+          confirmFeedback.textContent = 'Mật khẩu xác nhận không khớp.';
+          confirmFeedback.className = 'field-feedback is-error';
+        } else {
+          confirmFeedback.textContent = '✓ Mật khẩu trùng khớp';
+          confirmFeedback.className = 'field-feedback is-success';
+        }
+      };
+      regForm.confirmPassword.addEventListener('input', validateMatch);
+      regForm.password.addEventListener('input', validateMatch);
+    }
+
     // Submit Đăng nhập
     const loginForm = modal.querySelector('form[data-form="login"]');
     if (loginForm) {
@@ -1287,9 +1431,20 @@
         const password = loginForm.password.value;
         const submitBtn = loginForm.querySelector('button[type="submit"]');
 
+        if (!username) {
+          showAlert('Vui lòng nhập Tên đăng nhập của bạn.');
+          loginForm.username.focus();
+          return;
+        }
+        if (!password) {
+          showAlert('Vui lòng nhập Mật khẩu.');
+          loginForm.password.focus();
+          return;
+        }
+
         try {
           submitBtn.disabled = true;
-          submitBtn.textContent = 'Đang đăng nhập...';
+          submitBtn.textContent = 'Đang kiểm tra...';
           const res = await fetch('/api/customer/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1297,7 +1452,7 @@
           });
           const result = await res.json();
           if (res.ok && result.success) {
-            showAlert('Đăng nhập thành công! Đang tải dữ liệu...', false);
+            showAlert('Đăng nhập thành công! Đang tải tài khoản...', false);
             updateAuthUI(result.customer);
             loginForm.reset();
             setTimeout(() => {
@@ -1310,13 +1465,12 @@
           showAlert('Lỗi kết nối máy chủ: ' + err.message);
         } finally {
           submitBtn.disabled = false;
-          submitBtn.textContent = 'Đăng nhập';
+          submitBtn.textContent = 'Đăng nhập ngay';
         }
       });
     }
 
     // Submit Đăng ký
-    const regForm = modal.querySelector('form[data-form="register"]');
     if (regForm) {
       regForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -1328,14 +1482,40 @@
         const confirmPassword = regForm.confirmPassword.value;
         const submitBtn = regForm.querySelector('button[type="submit"]');
 
+        if (username.length < 3) {
+          showAlert('Tên đăng nhập cần tối thiểu 3 ký tự (chữ hoặc số).');
+          regForm.username.focus();
+          return;
+        }
+        if (!/^[a-z0-9_.-]+$/.test(username)) {
+          showAlert('Tên đăng nhập không được chứa ký tự đặc biệt hoặc dấu cách.');
+          regForm.username.focus();
+          return;
+        }
+        if (!fullName || fullName.length < 2) {
+          showAlert('Vui lòng nhập họ và tên của bạn.');
+          regForm.fullName.focus();
+          return;
+        }
+        if (phone && !/^0[0-9]{9}$/.test(phone)) {
+          showAlert('Số điện thoại không hợp lệ (cần đúng 10 số, bắt đầu bằng 0).');
+          regForm.phone.focus();
+          return;
+        }
+        if (password.length < 6) {
+          showAlert('Mật khẩu cần tối thiểu 6 ký tự để đảm bảo an toàn.');
+          regForm.password.focus();
+          return;
+        }
         if (password !== confirmPassword) {
-          showAlert('Mật khẩu xác nhận không khớp. Vui lòng nhập lại!');
+          showAlert('Mật khẩu xác nhận không khớp. Vui lòng nhập lại chính xác!');
+          regForm.confirmPassword.focus();
           return;
         }
 
         try {
           submitBtn.disabled = true;
-          submitBtn.textContent = 'Đang tạo tài khoản...';
+          submitBtn.textContent = 'Đang kiểm tra và tạo tài khoản...';
           const res = await fetch('/api/customer/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1346,6 +1526,9 @@
             showAlert('Đăng ký tài khoản thành công! Tự động đăng nhập...', false);
             updateAuthUI(result.customer);
             regForm.reset();
+            if (userFeedback) userFeedback.textContent = '';
+            if (phoneFeedback) phoneFeedback.textContent = '';
+            if (confirmFeedback) confirmFeedback.textContent = '';
             setTimeout(() => {
               closeModal();
             }, 800);
@@ -1356,7 +1539,7 @@
           showAlert('Lỗi kết nối máy chủ: ' + err.message);
         } finally {
           submitBtn.disabled = false;
-          submitBtn.textContent = 'Tạo tài khoản';
+          submitBtn.textContent = 'Tạo tài khoản GORISE ↗';
         }
       });
     }

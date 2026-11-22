@@ -69,6 +69,32 @@ export async function getCustomerIdentity(req) {
 }
 
 export async function handleCustomerAuth(req, res, pathname) {
+  // 0. Kiểm tra trùng username (GET /api/customer/check-username?username=...)
+  if (pathname === '/api/customer/check-username' && req.method === 'GET') {
+    try {
+      const requestUrl = new URL(req.url || '/', 'http://localhost');
+      const username = String(requestUrl.searchParams.get('username') || '').trim().toLowerCase();
+      if (!username || username.length < 3) {
+        return json(res, 200, { available: false, error: 'Tên đăng nhập tối thiểu 3 ký tự.' });
+      }
+      if (!/^[a-z0-9_.-]+$/.test(username)) {
+        return json(res, 200, { available: false, error: 'Tên đăng nhập không được chứa ký tự đặc biệt hoặc dấu cách.' });
+      }
+      const pool = await getSqlPool();
+      const checkReq = pool.request();
+      checkReq.input('username', sql.NVarChar(100), username);
+      const existing = await checkReq.query('SELECT TOP 1 id FROM customers WHERE username = @username');
+      const exists = existing.recordset.length > 0;
+      return json(res, 200, {
+        available: !exists,
+        exists,
+        message: exists ? 'Tên đăng nhập này đã được sử dụng. Vui lòng chọn tên khác!' : 'Tên đăng nhập hợp lệ và có thể dùng!'
+      });
+    } catch (err) {
+      return json(res, 500, { error: err.message });
+    }
+  }
+
   // 1. Đăng ký tài khoản khách hàng (POST /api/customer/register)
   if (pathname === '/api/customer/register' && req.method === 'POST') {
     try {
@@ -165,15 +191,15 @@ export async function handleCustomerAuth(req, res, pathname) {
 
       const user = result.recordset?.[0];
       if (!user) {
-        return json(res, 401, { error: 'Tên đăng nhập không tồn tại. Vui lòng kiểm tra lại hoặc Đăng ký!' });
+        return json(res, 401, { error: 'Tên đăng nhập chưa được đăng ký trong hệ thống. Vui lòng kiểm tra lại hoặc chuyển sang tab Đăng ký!' });
       }
       if (!user.is_active) {
-        return json(res, 403, { error: 'Tài khoản của bạn đã bị tạm khóa.' });
+        return json(res, 403, { error: 'Tài khoản của bạn đã bị tạm khóa. Vui lòng liên hệ ban quản trị.' });
       }
 
       const isValid = verifyPassword(password, user.password_hash, user.password_salt);
       if (!isValid) {
-        return json(res, 401, { error: 'Mật khẩu không chính xác.' });
+        return json(res, 401, { error: 'Mật khẩu không chính xác. Vui lòng kiểm tra lại!' });
       }
 
       // Cập nhật last_login_at

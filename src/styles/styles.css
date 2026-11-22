@@ -5223,6 +5223,47 @@ body.shop-overlay-open { overflow:hidden; }
 .input-icon-wrapper input {
   padding-left: 36px !important;
 }
+.input-icon-wrapper.password-wrapper input {
+  padding-right: 42px !important;
+}
+.toggle-password-btn {
+  position: absolute;
+  right: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted, #6d8497);
+  transition: color 0.2s, transform 0.15s ease;
+  border-radius: 8px;
+  z-index: 2;
+}
+.toggle-password-btn:hover {
+  color: var(--blue, #2c9bf0);
+  background: var(--ice, #eef7fb);
+}
+.toggle-password-btn:active {
+  transform: scale(0.92);
+}
+.field-feedback {
+  font-size: 11px;
+  margin-top: 4px;
+  line-height: 1.3;
+  display: none;
+}
+.field-feedback.is-error {
+  display: block;
+  color: #dc2626;
+  font-weight: 500;
+}
+.field-feedback.is-success {
+  display: block;
+  color: #16a34a;
+  font-weight: 500;
+}
 .customer-form-group input {
   width: 100%;
   padding: 10px 14px;
