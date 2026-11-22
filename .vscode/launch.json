@@ -5,7 +5,9 @@
       "type": "node",
       "request": "launch",
       "name": "Chạy Server GORISE (server/index.js)",
-      "skipFiles": ["<node_internals>/**"],
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
       "program": "${workspaceFolder}/server/index.js",
       "console": "integratedTerminal"
     },
@@ -13,7 +15,9 @@
       "type": "node",
       "request": "launch",
       "name": "Current File",
-      "skipFiles": ["<node_internals>/**"],
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
       "program": "${file}",
       "console": "integratedTerminal"
     }

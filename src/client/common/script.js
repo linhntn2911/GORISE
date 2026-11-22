@@ -1072,14 +1072,16 @@
     const headerActions = document.querySelector('.header-actions');
     if (headerActions && !headerActions.querySelector('[data-account-btn]')) {
       const wrapper = document.createElement('div');
+      wrapper.className = 'account-wrapper';
       wrapper.style.position = 'relative';
-      wrapper.style.display = 'inline-block';
+      wrapper.style.display = 'inline-flex';
+      wrapper.style.alignItems = 'center';
       wrapper.innerHTML = `
         <button class="account-pill" type="button" aria-label="Tài khoản khách hàng" data-account-btn>
           <span class="account-icon" aria-hidden="true">👤</span>
           <span data-account-label>Đăng nhập</span>
         </button>
-        <div class="customer-dropdown" data-account-dropdown>
+        <div class="customer-dropdown" data-account-dropdown style="display: none;">
           <div class="user-name" data-dropdown-name>Khách hàng</div>
           <div class="user-phone" data-dropdown-phone></div>
           <button type="button" data-customer-logout-btn>Đăng xuất</button>
@@ -1181,8 +1183,9 @@
       if (accountBtn) {
         e.preventDefault();
         e.stopPropagation();
-        if (currentCustomer) {
-          dropdown?.classList.toggle('is-open');
+        if (currentCustomer && dropdown) {
+          const isOpen = dropdown.classList.toggle('is-open');
+          dropdown.style.display = isOpen ? 'block' : 'none';
         } else {
           openModal('login');
         }
@@ -1191,6 +1194,7 @@
 
       if (dropdown && !e.target.closest('[data-account-dropdown]')) {
         dropdown.classList.remove('is-open');
+        dropdown.style.display = 'none';
       }
     });
 
@@ -1206,7 +1210,10 @@
       }
       updateAuthUI(null);
       const dropdown = document.querySelector('[data-account-dropdown]');
-      dropdown?.classList.remove('is-open');
+      if (dropdown) {
+        dropdown.classList.remove('is-open');
+        dropdown.style.display = 'none';
+      }
     });
 
     // Kiểm tra phiên đăng nhập đã có qua Cookie

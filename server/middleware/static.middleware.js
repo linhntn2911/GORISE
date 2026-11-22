@@ -29,7 +29,7 @@ export async function serveStatic(req, res, pathname) {
     const compressible = new Set(['.html', '.css', '.js', '.json', '.svg', '.txt']).has(extension);
     const acceptsGzip = /gzip/i.test(String(req.headers['accept-encoding'] || ''));
     const useGzip = compressible && acceptsGzip && info.size > 1024 && req.method !== 'HEAD';
-    const cacheControl = isHtml ? 'no-cache' : 'public, max-age=2592000, stale-while-revalidate=86400';
+    const cacheControl = 'no-cache, no-store, must-revalidate';
 
     const headers = {
       'Content-Type': MIME_TYPES[extension] || 'application/octet-stream',
