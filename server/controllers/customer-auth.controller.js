@@ -644,24 +644,11 @@ export async function handleCustomerAuth(req, res, pathname) {
     }
     try {
       const pool = await getSqlPool();
-      const custRes = await pool.request()
-        .input('id', sql.NVarChar(64), customer.id)
-        .query('SELECT has_unlocked_play FROM customers WHERE id = @id');
-      const hasUnlockedFlag = Boolean(custRes.recordset?.[0]?.has_unlocked_play);
-
+      // CHỈ mở khóa khi tài khoản đã kích hoạt thành công mã cào (do Admin quản lý)
       const codeRes = await pool.request()
         .input('id', sql.NVarChar(64), customer.id)
-        .query('SELECT id FROM activation_codes WHERE activated_by_customer_id = @id');
-      const hasCode = Boolean(codeRes.recordset && codeRes.recordset.length > 0);
-
-      // Khách hàng có đơn hàng ĐÃ HOÀN THÀNH (completed)
-      const orderRes = await pool.request()
-        .input('id', sql.NVarChar(64), customer.id)
-        .input('username', sql.NVarChar(100), customer.username || '')
-        .query("SELECT id FROM orders WHERE (customer_id = @id OR customer_id = @username) AND order_status = 'completed'");
-      const hasCompletedOrder = Boolean(orderRes.recordset && orderRes.recordset.length > 0);
-
-      const unlocked = hasUnlockedFlag || hasCode || hasCompletedOrder;
+        .query("SELECT id FROM activation_codes WHERE activated_by_customer_id = @id AND status = 'used'");
+      const unlocked = Boolean(codeRes.recordset && codeRes.recordset.length > 0);
 
       return json(res, 200, { authenticated: true, unlocked, customer });
     } catch (err) {

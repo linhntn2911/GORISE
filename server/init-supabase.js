@@ -370,6 +370,17 @@ export async function initSupabaseSchema(connStr = process.env.DATABASE_URL || D
       `, [code]);
     }
 
+    // Đảm bảo chỉ khách hàng đã kích hoạt mã cào mới có has_unlocked_play = 1
+    await client.query(`
+      UPDATE customers 
+      SET has_unlocked_play = 0 
+      WHERE id NOT IN (
+        SELECT activated_by_customer_id 
+        FROM activation_codes 
+        WHERE activated_by_customer_id IS NOT NULL AND status = 'used'
+      );
+    `);
+
     // Seed situation videos if empty
     try {
       const vidCheck = await client.query('SELECT id FROM situation_videos LIMIT 1');

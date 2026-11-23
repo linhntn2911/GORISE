@@ -130,17 +130,6 @@ export async function handleSepayWebhook(req, res, pathname) {
         WHERE id = @id;
       `);
 
-      // Mở khóa GORISE Play cho khách hàng nếu có tài khoản
-      if (order.customer_id) {
-        try {
-          await pool.request()
-            .input('customerId', sql.NVarChar(64), order.customer_id)
-            .query('UPDATE customers SET has_unlocked_play = 1 WHERE id = @customerId');
-        } catch (unlockErr) {
-          console.warn('[SePay Webhook] Không thể cập nhật has_unlocked_play:', unlockErr.message);
-        }
-      }
-
       console.log(`[SePay Webhook] CẬP NHẬT THÀNH CÔNG: Đơn hàng ${order.order_code} đã thanh toán ${transferAmount}đ!`);
 
       return json(res, 200, {

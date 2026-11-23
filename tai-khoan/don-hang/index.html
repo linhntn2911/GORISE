@@ -330,10 +330,9 @@
                   <div class="account-order-footer">
                     <span style="color: var(--muted, #6d8497); font-size: 13px;">Tổng thanh toán</span>
                     <div style="display:flex; align-items:center; justify-content:flex-end; gap:12px; flex-wrap:wrap;">
-                      ${(o.order_status === 'completed' || o.orderStatus === 'completed' || o.status === 'completed') ? `
-                        <a href="/gorise-play/#safe-home-digital" style="background:#eff6ff; color:#0284c7; border:1px solid #bae6fd; font-size:12px; font-weight:700; padding:6px 12px; border-radius:99px; text-decoration:none; display:inline-flex; align-items:center; gap:4px;"><span>🎮</span> Chơi GORISE Play ↗</a>
-                        ${hasReviewed ? `<span style="background:#dcfce7; color:#15803d; font-size:12px; padding:6px 14px; border-radius:99px; font-weight:700; display:inline-flex; align-items:center; gap:4px;"><span>✓</span> Đã đánh giá</span>` : `<button type="button" class="order-review-btn" data-open-review data-order-code="${o.order_code || ''}" data-product-id="gorise-board-game" style="background:#fffbeb; color:#b45309; border:1.5px solid #f59e0b; font-size:12px; font-weight:700; padding:6px 14px; border-radius:99px; cursor:pointer; display:inline-flex; align-items:center; gap:4px; transition:all .2s ease;"><span>★</span> Đánh giá sản phẩm</button>`}
-                      ` : ''}
+                      ${(o.order_status === 'completed' || o.orderStatus === 'completed' || o.status === 'completed') ? (
+                        hasReviewed ? `<span style="background:#dcfce7; color:#15803d; font-size:12px; padding:6px 14px; border-radius:99px; font-weight:700; display:inline-flex; align-items:center; gap:4px;"><span>✓</span> Đã đánh giá</span>` : `<button type="button" class="order-review-btn" data-open-review data-order-code="${o.order_code || ''}" data-product-id="gorise-board-game" style="background:#fffbeb; color:#b45309; border:1.5px solid #f59e0b; font-size:12px; font-weight:700; padding:6px 14px; border-radius:99px; cursor:pointer; display:inline-flex; align-items:center; gap:4px; transition:all .2s ease;"><span>★</span> Đánh giá sản phẩm</button>`
+                      ) : ''}
                       ${canCancel && encodedOrderId ? `<button type="button" data-cancel-order="${encodedOrderId}" style="border:1px solid #ef4444; border-radius:9px; padding:8px 12px; background:#fff; color:#b91c1c; font:inherit; font-size:12px; font-weight:700; cursor:pointer;">Hủy đơn</button>` : ''}
                       <strong class="account-order-total">${formatMoney(o.total_amount)}</strong>
                     </div>

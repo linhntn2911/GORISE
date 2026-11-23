@@ -427,19 +427,6 @@ export async function handleAdminManagement(req, res, pathname) {
         return json(res, 404, { error: 'Không tìm thấy đơn hàng đã thanh toán cần cập nhật.' });
       }
 
-      // Khi đơn hàng chuyển sang 'completed' (Hoàn thành), tự động kích hoạt quyền chơi GORISE Play cho khách hàng
-      if (orderStatus === 'completed') {
-        try {
-          const orderInfo = await pool.request().input('id', id).query('SELECT customer_id FROM orders WHERE id = @id');
-          const custId = orderInfo.recordset?.[0]?.customer_id;
-          if (custId) {
-            await pool.request().input('custId', custId).query('UPDATE customers SET has_unlocked_play = 1 WHERE id = @custId');
-          }
-        } catch (e) {
-          console.warn('Could not auto-unlock play for customer:', e.message);
-        }
-      }
-
       const updated = await pool.request()
         .input('id', id)
         .query(`
