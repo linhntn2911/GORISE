@@ -27,19 +27,19 @@ export async function seedVideos() {
     req.input('createdBy', sql.NVarChar(255), v.createdBy || 'system');
     req.input('createdAt', sql.DateTime2, new Date(v.createdAt || Date.now()));
 
-    await req.query(`
-      IF EXISTS (SELECT 1 FROM situation_videos WHERE id = @id)
-      BEGIN
+    const check = await pool.request().input('id', sql.NVarChar(64), v.id).query('SELECT id FROM situation_videos WHERE id = @id');
+    if (check.recordset && check.recordset.length > 0) {
+      await req.query(`
         UPDATE situation_videos 
         SET title = @title, description = @description, stable_url = @stableUrl, is_active = 1, deleted_at = NULL
-        WHERE id = @id;
-      END
-      ELSE
-      BEGIN
+        WHERE id = @id
+      `);
+    } else {
+      await req.query(`
         INSERT INTO situation_videos (id, title, description, original_name, content_type, size_bytes, storage_key, stable_url, thumbnail_url, is_active, created_by, created_at)
-        VALUES (@id, @title, @description, @originalName, @contentType, @sizeBytes, @storageKey, @stableUrl, @thumbnailUrl, 1, @createdBy, @createdAt);
-      END
-    `);
+        VALUES (@id, @title, @description, @originalName, @contentType, @sizeBytes, @storageKey, @stableUrl, @thumbnailUrl, 1, @createdBy, @createdAt)
+      `);
+    }
   }
 
   const result = await pool.request().query('SELECT count(*) as count FROM situation_videos WHERE deleted_at IS NULL AND is_active = 1');

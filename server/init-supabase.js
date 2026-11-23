@@ -1,4 +1,7 @@
 import pg from 'pg';
+import { readFileSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 const { Client } = pg;
 
 export const DEFAULT_SUPABASE_URL = 'postgres://postgres.mkmdvuknltnpgtobxcan:Nguyenlinh291104.@aws-1-ap-northeast-1.pooler.supabase.com:5432/postgres';
@@ -365,6 +368,24 @@ export async function initSupabaseSchema(connStr = process.env.DATABASE_URL || D
         VALUES (gen_random_uuid(), $1, 'Đợt khởi tạo Supabase', 'unused', NOW())
         ON CONFLICT (code) DO NOTHING;
       `, [code]);
+    }
+
+    // Seed situation videos if empty
+    try {
+      const vidCheck = await client.query('SELECT id FROM situation_videos LIMIT 1');
+      if (vidCheck.rowCount === 0) {
+        const seedPath = resolve(dirname(fileURLToPath(import.meta.url)), 'video-seed.json');
+        const seed = JSON.parse(readFileSync(seedPath, 'utf8'));
+        for (const v of seed.videos || []) {
+          await client.query(`
+            INSERT INTO situation_videos (id, title, description, original_name, content_type, size_bytes, storage_key, stable_url, thumbnail_url, is_active, created_by, created_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 1, $10, $11)
+            ON CONFLICT (id) DO NOTHING;
+          `, [v.id, v.title, v.description || '', v.originalName || 'video.mp4', v.contentType || 'video/mp4', v.sizeBytes || 0, v.storageKey || '', v.stableUrl, v.thumbnailUrl || null, v.createdBy || 'system', new Date(v.createdAt || Date.now())]);
+        }
+      }
+    } catch (e) {
+      console.warn('Video seeding skipped:', e.message);
     }
   } finally {
     await client.end();

@@ -126,8 +126,11 @@ export function translateTsqlToPg(sqlText, inputs = {}) {
   q = q.replace(/ISNULL\(/gi, 'COALESCE(');
 
   // 3. DATEADD translations
-  q = q.replace(/DATEADD\(day,\s*([+-]?\d+),\s*(GETDATE\(\)|NOW\(\))\)/gi, `(NOW() + ($1 * INTERVAL '1 day'))`);
-  q = q.replace(/DATEADD\(day,\s*-@days,\s*(GETDATE\(\)|NOW\(\))\)/gi, `(NOW() - (@days * INTERVAL '1 day'))`);
+  q = q.replace(/DATEADD\(day,\s*(-?\d+),\s*(GETDATE\(\)|NOW\(\))\)/gi, (m, days) => {
+    const d = parseInt(days, 10);
+    return d < 0 ? `(NOW() - INTERVAL '${Math.abs(d)} days')` : `(NOW() + INTERVAL '${d} days')`;
+  });
+  q = q.replace(/DATEADD\(day,\s*-@days,\s*(GETDATE\(\)|NOW\(\))\)/gi, `(NOW() - (INTERVAL '1 day' * @days))`);
 
   // 4. CONVERT(VARCHAR(10), CAST(created_at AS DATE), 120) and CAST(... AS DATE) -> ($1::date)
   q = q.replace(/CONVERT\(VARCHAR\(\d+\),\s*CAST\(([^)]+)\s+AS\s+DATE\),\s*120\)/gi, `($1::date)`);
@@ -135,7 +138,7 @@ export function translateTsqlToPg(sqlText, inputs = {}) {
 
   // 5. Convert FOR JSON PATH subquery for order_items
   q = q.replace(
-    /\(\s*SELECT\s+product_name,\s*quantity,\s*unit_price,\s*total_price\s+FROM\s+order_items\s+WHERE\s+order_id\s*=\s*o\.id\s+FOR\s+JSON\s+PATH\s*\)\s*AS\s+items_json/gi,
+    /\(\s*SELECT[\s\S]*?FROM\s+order_items\s+WHERE\s+order_id\s*=\s*o\.id\s+FOR\s+JSON\s+PATH\s*\)\s*AS\s+items_json/gi,
     `(SELECT COALESCE(json_agg(json_build_object('product_name', product_name, 'quantity', quantity, 'unit_price', unit_price, 'total_price', total_price)), '[]'::json)::text FROM order_items WHERE order_id = o.id) AS items_json`
   );
 
@@ -256,10 +259,24 @@ export async function getSqlPool() {
 export function getPool() {
   if (isPostgres) {
     const pgPool = getPgPool();
+    const adaptPgText = (sqlText) => {
+      let text = sqlText;
+      if (/ON DUPLICATE KEY UPDATE/i.test(text)) {
+        const tableMatch = text.match(/INSERT\s+INTO\s+([a-zA-Z0-9_]+)/i);
+        const tableName = tableMatch ? tableMatch[1].toLowerCase() : '';
+        const conflictCol = tableName === 'cms_page_meta' ? 'slug' :
+                            tableName === 'cms_pages' ? 'id' :
+                            tableName === 'video_analytics' ? 'video_id' : 'id';
+        text = text.replace(/ON DUPLICATE KEY UPDATE/i, `ON CONFLICT (${conflictCol}) DO UPDATE SET`);
+        text = text.replace(/VALUES\(([a-zA-Z0-9_]+)\)/gi, 'EXCLUDED.$1');
+      }
+      let pIdx = 1;
+      return text.replace(/\?/g, () => `$${pIdx++}`);
+    };
+
     return {
       async query(sqlText, params = []) {
-        let pIdx = 1;
-        const pgText = sqlText.replace(/\?/g, () => `$${pIdx++}`);
+        const pgText = adaptPgText(sqlText);
         const result = await pgPool.query(pgText, params);
         const rows = result.rows || [];
         rows.affectedRows = result.rowCount || 0;
@@ -274,8 +291,7 @@ export function getPool() {
         const client = await pgPool.connect();
         return {
           async execute(sqlText, params = []) {
-            let pIdx = 1;
-            const pgText = sqlText.replace(/\?/g, () => `$${pIdx++}`);
+            const pgText = adaptPgText(sqlText);
             const result = await client.query(pgText, params);
             const rows = result.rows || [];
             rows.affectedRows = result.rowCount || 0;

@@ -54,7 +54,31 @@ export async function getVideoAnalyticsSummary() {
     ORDER BY views DESC, interactions DESC, v.created_at DESC
     LIMIT 200
   `);
-  const normalizedTotals = Object.fromEntries(Object.entries(totals || {}).map(([key, value]) => [key, Number(value || 0)]));
+  const getVal = (obj, camel, lower) => Number(obj?.[camel] ?? obj?.[lower] ?? 0);
+  const normalizedTotals = {
+    views: getVal(totals, 'views', 'views'),
+    helpful: getVal(totals, 'helpful', 'helpful'),
+    saves: getVal(totals, 'saves', 'saves'),
+    shares: getVal(totals, 'shares', 'shares'),
+    copies: getVal(totals, 'copies', 'copies'),
+    questionOpens: getVal(totals, 'questionOpens', 'questionopens'),
+    playlistOpens: getVal(totals, 'playlistOpens', 'playlistopens'),
+  };
   normalizedTotals.interactions = normalizedTotals.helpful + normalizedTotals.saves + normalizedTotals.shares + normalizedTotals.copies + normalizedTotals.questionOpens + normalizedTotals.playlistOpens;
-  return { totals: normalizedTotals, videos: rows.map((row) => Object.fromEntries(Object.entries(row).map(([key, value]) => [key, ['views', 'helpful', 'saves', 'shares', 'copies', 'questionOpens', 'playlistOpens', 'interactions'].includes(key) ? Number(value || 0) : value]))) };
+  return {
+    totals: normalizedTotals,
+    videos: rows.map((row) => ({
+      id: row.id,
+      title: row.title,
+      thumbnailUrl: row.thumbnailUrl || row.thumbnail_url || '',
+      views: Number(row.views || 0),
+      helpful: Number(row.helpful || 0),
+      saves: Number(row.saves || 0),
+      shares: Number(row.shares || 0),
+      copies: Number(row.copies || 0),
+      questionOpens: Number(row.questionOpens ?? row.questionopens ?? 0),
+      playlistOpens: Number(row.playlistOpens ?? row.playlistopens ?? 0),
+      interactions: Number(row.interactions || 0),
+    }))
+  };
 }

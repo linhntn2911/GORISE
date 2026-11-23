@@ -889,14 +889,14 @@
   const productForm = $('[data-product-form]');
   function clearProduct() {
     productForm.reset();
-    $('[data-product-id]').value = '';
-    $('[data-product-image]').value = '';
-    $('[data-product-gallery]').value = '';
-    $('[data-product-video]').value = '';
-    $('[data-product-image-name]').textContent = 'Chưa chọn ảnh.';
-    $('[data-product-gallery-name]').textContent = 'Chưa chọn ảnh gallery.';
-    $('[data-product-video-name]').textContent = 'Chưa chọn video.';
-    $('[data-product-status-text]').textContent = '';
+    if ($('[data-product-id]')) $('[data-product-id]').value = '';
+    if ($('[data-product-image]')) $('[data-product-image]').value = '';
+    if ($('[data-product-gallery]')) $('[data-product-gallery]').value = '';
+    if ($('[data-product-video]')) $('[data-product-video]').value = '';
+    if ($('[data-product-image-name]')) $('[data-product-image-name]').textContent = 'Chưa chọn ảnh.';
+    if ($('[data-product-gallery-name]')) $('[data-product-gallery-name]').textContent = 'Chưa chọn ảnh gallery.';
+    if ($('[data-product-video-name]')) $('[data-product-video-name]').textContent = 'Chưa chọn video.';
+    if ($('[data-product-status-text]')) $('[data-product-status-text]').textContent = '';
     productForm.hidden = true;
   }
   function fillProduct(p) {

@@ -122,7 +122,7 @@ export async function handleSepayWebhook(req, res, pathname) {
       await updateReq.query(`
         UPDATE orders
         SET payment_status = 'paid',
-            note = CASE WHEN note IS NULL OR note = '' THEN @note ELSE note + ' | ' + @note END,
+            note = CASE WHEN note IS NULL OR note = '' THEN @note ELSE CONCAT(note, ' | ', @note) END,
             updated_at = GETDATE()
         WHERE id = @id;
       `);
