@@ -107,7 +107,7 @@
       stickyAction = () => { window.location.href = '/kham-pha-tro-choi/'; };
     }
 
-    if (stickyLabel) {
+    if (stickyLabel && !document.querySelector('[data-mobile-sticky-cta]')) {
       document.body.insertAdjacentHTML(
         'beforeend',
         `<button type="button" class="mobile-sticky-cta" data-mobile-sticky-cta>${stickyLabel}<span aria-hidden="true">↗</span></button>`

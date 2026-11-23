@@ -102,6 +102,7 @@
           <div id="reviewsListGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:20px;">
             <div style="grid-column:1/-1; text-align:center; padding:40px; color:#64748b;">Đang tải danh sách đánh giá…</div>
           </div>
+          <div id="reviewsPaginationWrap" style="display:flex; justify-content:center; align-items:center; gap:8px; margin-top:32px;"></div>
         </div>
       </section>
       <section class="shop-section shop-compare" id="compare-versions" aria-labelledby="compare-title" data-builder-section="shop-compare">
@@ -221,51 +222,106 @@
         if (summary) summary.textContent = `${reviews.length} đánh giá thực tế`;
         if (cardReviewsCount) cardReviewsCount.textContent = `(${reviews.length} đánh giá)`;
 
-        if (grid) {
-          grid.innerHTML = reviews.map(r => {
-            const initial = (r.customer_name || 'K').trim().charAt(0).toUpperCase();
-            const stars = Math.min(5, Math.max(1, Number(r.rating) || 5));
-            const starsStr = '★'.repeat(stars) + '☆'.repeat(5 - stars);
-            const dateStr = r.created_at ? new Date(r.created_at).toLocaleDateString('vi-VN', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' }) : '';
+        const PAGE_SIZE = 6;
+        let currentPage = 1;
+        const totalPages = Math.ceil(reviews.length / PAGE_SIZE);
+        const paginationWrap = document.getElementById('reviewsPaginationWrap');
 
-            let replyHtml = '';
-            if (r.admin_reply) {
-              replyHtml = `
-                <div style="margin-top:14px; background:#f0f9ff; border-left:3px solid #0284c7; border-radius:0 12px 12px 0; padding:10px 14px;">
-                  <div style="font-size:12px; font-weight:700; color:#0369a1; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
-                    <span>Phản hồi từ GORISE</span>
-                    <span style="background:#bae6fd; font-size:10px; padding:1px 6px; border-radius:4px;">Official</span>
+        const renderPage = (page) => {
+          currentPage = page;
+          const start = (page - 1) * PAGE_SIZE;
+          const pagedReviews = reviews.slice(start, start + PAGE_SIZE);
+
+          if (grid) {
+            grid.innerHTML = pagedReviews.map(r => {
+              const initial = (r.customer_name || 'K').trim().charAt(0).toUpperCase();
+              const stars = Math.min(5, Math.max(1, Number(r.rating) || 5));
+              const starsStr = '★'.repeat(stars) + '☆'.repeat(5 - stars);
+              const dateStr = r.created_at ? new Date(r.created_at).toLocaleDateString('vi-VN', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' }) : '';
+
+              let replyHtml = '';
+              if (r.admin_reply) {
+                replyHtml = `
+                  <div style="margin-top:14px; background:#f0f9ff; border-left:3px solid #0284c7; border-radius:0 12px 12px 0; padding:10px 14px;">
+                    <div style="font-size:12px; font-weight:700; color:#0369a1; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
+                      <span>Phản hồi từ GORISE</span>
+                      <span style="background:#bae6fd; font-size:10px; padding:1px 6px; border-radius:4px;">Official</span>
+                    </div>
+                    <p style="margin:0; font-size:13px; color:#334155; line-height:1.5;">${String(r.admin_reply).replace(/[&<>'"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' })[c])}</p>
                   </div>
-                  <p style="margin:0; font-size:13px; color:#334155; line-height:1.5;">${String(r.admin_reply).replace(/[&<>'"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' })[c])}</p>
+                `;
+              }
+
+              return `
+                <div style="background:#ffffff; border-radius:20px; padding:22px; border:1px solid #e2e8f0; box-shadow:0 8px 24px rgba(18,59,114,0.04); display:flex; flex-direction:column; justify-content:space-between;">
+                  <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                      <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); color:#0369a1; font-weight:800; font-size:16px; display:flex; align-items:center; justify-content:center;">
+                          ${initial}
+                        </div>
+                        <div>
+                          <strong style="display:block; font-size:14px; color:var(--navy,#123b72);">${String(r.customer_name || 'Khách hàng GORISE').replace(/[&<>'"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' })[c])}</strong>
+                          <span style="font-size:11px; color:#15803d; font-weight:600; display:inline-flex; align-items:center; gap:3px;">
+                            <span>✓</span> Đã mua hàng
+                          </span>
+                        </div>
+                      </div>
+                      <span style="font-size:12px; color:#94a3b8;">${dateStr}</span>
+                    </div>
+                    <div style="color:#f59e0b; font-size:15px; letter-spacing:2px; margin-bottom:8px;">${starsStr}</div>
+                    <p style="margin:0; font-size:14px; line-height:1.6; color:#334155;">${String(r.comment || '').replace(/[&<>'"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' })[c])}</p>
+                  </div>
+                  ${replyHtml}
                 </div>
               `;
-            }
+            }).join('');
+          }
 
-            return `
-              <div style="background:#ffffff; border-radius:20px; padding:22px; border:1px solid #e2e8f0; box-shadow:0 8px 24px rgba(18,59,114,0.04); display:flex; flex-direction:column; justify-content:space-between;">
-                <div>
-                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <div style="display:flex; align-items:center; gap:10px;">
-                      <div style="width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); color:#0369a1; font-weight:800; font-size:16px; display:flex; align-items:center; justify-content:center;">
-                        ${initial}
-                      </div>
-                      <div>
-                        <strong style="display:block; font-size:14px; color:var(--navy,#123b72);">${String(r.customer_name || 'Khách hàng GORISE').replace(/[&<>'"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' })[c])}</strong>
-                        <span style="font-size:11px; color:#15803d; font-weight:600; display:inline-flex; align-items:center; gap:3px;">
-                          <span>✓</span> Đã mua hàng
-                        </span>
-                      </div>
-                    </div>
-                    <span style="font-size:12px; color:#94a3b8;">${dateStr}</span>
-                  </div>
-                  <div style="color:#f59e0b; font-size:15px; letter-spacing:2px; margin-bottom:8px;">${starsStr}</div>
-                  <p style="margin:0; font-size:14px; line-height:1.6; color:#334155;">${String(r.comment || '').replace(/[&<>'"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' })[c])}</p>
-                </div>
-                ${replyHtml}
-              </div>
+          if (paginationWrap) {
+            if (totalPages <= 1) {
+              paginationWrap.innerHTML = '';
+              return;
+            }
+            let btnsHtml = `
+              <button type="button" class="button button-ghost button-small" ${currentPage === 1 ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''} data-rev-prev>← Trước</button>
             `;
-          }).join('');
-        }
+            for (let i = 1; i <= totalPages; i++) {
+              const active = i === currentPage;
+              btnsHtml += `
+                <button type="button" class="button button-small ${active ? 'button-primary' : 'button-ghost'}" style="min-width:38px;height:38px;padding:0;border-radius:10px;font-weight:${active ? '800' : '600'};" data-rev-page="${i}">${i}</button>
+              `;
+            }
+            btnsHtml += `
+              <button type="button" class="button button-ghost button-small" ${currentPage === totalPages ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''} data-rev-next>Sau →</button>
+            `;
+            paginationWrap.innerHTML = btnsHtml;
+
+            paginationWrap.querySelector('[data-rev-prev]')?.addEventListener('click', () => {
+              if (currentPage > 1) {
+                renderPage(currentPage - 1);
+                document.getElementById('customer-reviews')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            });
+            paginationWrap.querySelector('[data-rev-next]')?.addEventListener('click', () => {
+              if (currentPage < totalPages) {
+                renderPage(currentPage + 1);
+                document.getElementById('customer-reviews')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            });
+            paginationWrap.querySelectorAll('[data-rev-page]').forEach(btn => {
+              btn.addEventListener('click', () => {
+                const p = Number(btn.dataset.revPage);
+                if (p && p !== currentPage) {
+                  renderPage(p);
+                  document.getElementById('customer-reviews')?.scrollIntoView({ behavior: 'smooth' });
+                }
+              });
+            });
+          }
+        };
+
+        renderPage(1);
       } catch (err) {
         console.error('Error loading reviews:', err);
       }

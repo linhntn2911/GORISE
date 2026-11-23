@@ -129,9 +129,9 @@ export function translateTsqlToPg(sqlText, inputs = {}) {
   q = q.replace(/DATEADD\(day,\s*([+-]?\d+),\s*(GETDATE\(\)|NOW\(\))\)/gi, `(NOW() + ($1 * INTERVAL '1 day'))`);
   q = q.replace(/DATEADD\(day,\s*-@days,\s*(GETDATE\(\)|NOW\(\))\)/gi, `(NOW() - (@days * INTERVAL '1 day'))`);
 
-  // 4. CONVERT(VARCHAR(10), CAST(created_at AS DATE), 120) and CAST(... AS DATE) -> ($1::date::text)
-  q = q.replace(/CONVERT\(VARCHAR\(\d+\),\s*CAST\(([^)]+)\s+AS\s+DATE\),\s*120\)/gi, `($1::date::text)`);
-  q = q.replace(/CAST\(([^)]+)\s+AS\s+DATE\)/gi, `($1::date::text)`);
+  // 4. CONVERT(VARCHAR(10), CAST(created_at AS DATE), 120) and CAST(... AS DATE) -> ($1::date)
+  q = q.replace(/CONVERT\(VARCHAR\(\d+\),\s*CAST\(([^)]+)\s+AS\s+DATE\),\s*120\)/gi, `($1::date)`);
+  q = q.replace(/CAST\(([^)]+)\s+AS\s+DATE\)/gi, `($1::date)`);
 
   // 5. Convert FOR JSON PATH subquery for order_items
   q = q.replace(
