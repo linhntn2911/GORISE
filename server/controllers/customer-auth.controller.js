@@ -578,19 +578,19 @@ export async function handleCustomerAuth(req, res, pathname) {
 
       const pool = await getSqlPool();
 
-      // Kiểm tra xem khách hàng có đơn hàng đã thanh toán hoặc hoàn thành không
+      // Chỉ khách hàng có đơn hàng ĐÃ HOÀN THÀNH mới được đánh giá sản phẩm
       const checkOrder = await pool.request()
         .input('customerId', sql.NVarChar(64), customer.id)
         .input('username', sql.NVarChar(100), customer.username || '')
         .query(`
-          SELECT TOP 1 id, order_code, payment_status, order_status
+          SELECT id, order_code, payment_status, order_status
           FROM orders
           WHERE (customer_id = @customerId OR customer_id = @username)
-            AND (payment_status = 'paid' OR order_status = 'completed' OR order_status = 'processing')
+            AND order_status = 'completed'
         `);
 
       if (!checkOrder.recordset || checkOrder.recordset.length === 0) {
-        return json(res, 403, { error: 'Bạn cần hoàn tất đơn hàng trước khi gửi đánh giá sản phẩm.' });
+        return json(res, 403, { error: 'Bạn chỉ có thể đánh giá sản phẩm sau khi đơn hàng đã được giao hoàn tất thành công!' });
       }
 
       // Lưu đánh giá mới vào product_reviews (approved để hiển thị ngay trên website)
@@ -644,17 +644,24 @@ export async function handleCustomerAuth(req, res, pathname) {
     }
     try {
       const pool = await getSqlPool();
-      const checkCust = await pool.request()
+      const custRes = await pool.request()
         .input('id', sql.NVarChar(64), customer.id)
-        .query(`
-          SELECT TOP 1 has_unlocked_play FROM customers WHERE id = @id;
-          SELECT TOP 1 id FROM activation_codes WHERE activated_by_customer_id = @id;
-        `);
+        .query('SELECT has_unlocked_play FROM customers WHERE id = @id');
+      const hasUnlockedFlag = Boolean(custRes.recordset?.[0]?.has_unlocked_play);
 
-      const hasUnlockedFlag = Boolean(checkCust.recordsets?.[0]?.[0]?.has_unlocked_play);
-      const hasCode = Boolean(checkCust.recordsets?.[1]?.length > 0);
+      const codeRes = await pool.request()
+        .input('id', sql.NVarChar(64), customer.id)
+        .query('SELECT id FROM activation_codes WHERE activated_by_customer_id = @id');
+      const hasCode = Boolean(codeRes.recordset && codeRes.recordset.length > 0);
 
-      const unlocked = hasUnlockedFlag || hasCode;
+      // Khách hàng có đơn hàng ĐÃ HOÀN THÀNH (completed)
+      const orderRes = await pool.request()
+        .input('id', sql.NVarChar(64), customer.id)
+        .input('username', sql.NVarChar(100), customer.username || '')
+        .query("SELECT id FROM orders WHERE (customer_id = @id OR customer_id = @username) AND order_status = 'completed'");
+      const hasCompletedOrder = Boolean(orderRes.recordset && orderRes.recordset.length > 0);
+
+      const unlocked = hasUnlockedFlag || hasCode || hasCompletedOrder;
 
       return json(res, 200, { authenticated: true, unlocked, customer });
     } catch (err) {
