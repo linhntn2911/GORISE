@@ -1,6 +1,13 @@
 import sql from 'mssql';
+import pg from 'pg';
+
+const { Pool: PgPool } = pg;
+
+const DATABASE_URL = process.env.DATABASE_URL || '';
+const isPostgres = DATABASE_URL.startsWith('postgres://') || DATABASE_URL.startsWith('postgresql://');
 
 let poolPromise = null;
+let pgPoolInstance = null;
 
 export const mssqlConfig = {
   server: process.env.MSSQL_SERVER || '127.0.0.1',
@@ -20,14 +27,16 @@ export const mssqlConfig = {
   },
 };
 
-export async function getSqlPool() {
-  if (!poolPromise) {
-    poolPromise = sql.connect(mssqlConfig).catch((err) => {
-      poolPromise = null;
-      throw err;
+function getPgPool() {
+  if (!pgPoolInstance) {
+    pgPoolInstance = new PgPool({
+      connectionString: DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
+      max: 10,
+      idleTimeoutMillis: 30000,
     });
   }
-  return poolPromise;
+  return pgPoolInstance;
 }
 
 const decodeJson = (value) => {
@@ -100,8 +109,184 @@ function adaptQuery(sqlQuery, params = []) {
   return { transformed, paramCount: paramIdx };
 }
 
-// Emulate [rows, result] signature compatible with existing db calls
+// Translate T-SQL queries (used in controllers) to PostgreSQL
+export function translateTsqlToPg(sqlText, inputs = {}) {
+  let q = sqlText.trim();
+
+  // 1. Convert DECLARE @newId ... INSERT ... SELECT @newId AS id
+  const declareMatch = q.match(/DECLARE\s+@newId\s+NVARCHAR\(\d+\)\s*=\s*NEWID\(\);?\s*INSERT\s+INTO\s+([a-zA-Z0-9_]+)\s*\(([^)]+)\)\s*VALUES\s*\(@newId,\s*([^;]+)\);?\s*SELECT\s+@newId\s+AS\s+id;?/i);
+  if (declareMatch) {
+    const [, table, cols, vals] = declareMatch;
+    q = `INSERT INTO ${table} (${cols}) VALUES (gen_random_uuid()::text, ${vals}) RETURNING id;`;
+  }
+
+  // 2. T-SQL functions to PostgreSQL
+  q = q.replace(/GETDATE\(\)/gi, 'NOW()');
+  q = q.replace(/NEWID\(\)/gi, 'gen_random_uuid()::text');
+  q = q.replace(/ISNULL\(/gi, 'COALESCE(');
+
+  // 3. DATEADD translations
+  q = q.replace(/DATEADD\(day,\s*([+-]?\d+),\s*(GETDATE\(\)|NOW\(\))\)/gi, `(NOW() + ($1 * INTERVAL '1 day'))`);
+  q = q.replace(/DATEADD\(day,\s*-@days,\s*(GETDATE\(\)|NOW\(\))\)/gi, `(NOW() - (@days * INTERVAL '1 day'))`);
+
+  // 4. CONVERT(VARCHAR(10), CAST(created_at AS DATE), 120) -> TO_CHAR(created_at, 'YYYY-MM-DD')
+  q = q.replace(/CONVERT\(VARCHAR\(\d+\),\s*CAST\(([^)]+)\s+AS\s+DATE\),\s*120\)/gi, `TO_CHAR($1, 'YYYY-MM-DD')`);
+  q = q.replace(/CAST\(([^)]+)\s+AS\s+DATE\)/gi, `$1::date`);
+
+  // 5. Convert SELECT TOP N ... to SELECT ... LIMIT N
+  const topMatch = q.match(/SELECT\s+(DISTINCT\s+)?TOP\s+(\d+)\s+/i);
+  if (topMatch && !/\bLIMIT\s+\d+/i.test(q)) {
+    const limitVal = topMatch[2];
+    q = q.replace(/SELECT\s+(DISTINCT\s+)?TOP\s+(\d+)\s+/i, (m, dist) => `SELECT ${dist || ''}`);
+    if (!/UNION/i.test(q)) {
+      q = q.replace(/;?\s*$/, ` LIMIT ${limitVal};`);
+    }
+  }
+
+  // 6. Map @paramName to $1, $2, ...
+  const paramRegex = /@([a-zA-Z0-9_]+)/g;
+  let match;
+  const paramNamesInOrder = [];
+  while ((match = paramRegex.exec(q)) !== null) {
+    paramNamesInOrder.push(match[1]);
+  }
+
+  const values = [];
+  const nameToPlaceholder = {};
+  let idx = 1;
+
+  for (const name of paramNamesInOrder) {
+    if (!nameToPlaceholder[name]) {
+      nameToPlaceholder[name] = `$${idx++}`;
+      values.push(inputs[name] !== undefined ? inputs[name] : null);
+    }
+  }
+
+  q = q.replace(/@([a-zA-Z0-9_]+)/g, (m, name) => {
+    return nameToPlaceholder[name] || m;
+  });
+
+  return { query: q, values };
+}
+
+// PostgreSQL Wrapper implementing MSSQL pool.request() and transaction() API
+function createPgSqlPool() {
+  const pgPool = getPgPool();
+
+  function makeRequest(executor) {
+    const inputs = {};
+    return {
+      input(name, typeOrVal, val) {
+        inputs[name] = val !== undefined ? val : typeOrVal;
+        return this;
+      },
+      async query(sqlText) {
+        const { query, values } = translateTsqlToPg(sqlText, inputs);
+        const result = await executor.query(query, values);
+        return {
+          recordset: result.rows || [],
+          rowsAffected: [result.rowCount || 0],
+        };
+      },
+    };
+  }
+
+  return {
+    request() {
+      return makeRequest(pgPool);
+    },
+    transaction() {
+      let client = null;
+      return {
+        async begin() {
+          client = await pgPool.connect();
+          await client.query('BEGIN');
+        },
+        async commit() {
+          if (client) {
+            await client.query('COMMIT');
+            client.release();
+            client = null;
+          }
+        },
+        async rollback() {
+          if (client) {
+            try {
+              await client.query('ROLLBACK');
+            } finally {
+              client.release();
+              client = null;
+            }
+          }
+        },
+        request() {
+          return makeRequest(client || pgPool);
+        },
+      };
+    },
+  };
+}
+
+export async function getSqlPool() {
+  if (isPostgres) {
+    return createPgSqlPool();
+  }
+
+  if (!poolPromise) {
+    poolPromise = sql.connect(mssqlConfig).catch((err) => {
+      poolPromise = null;
+      throw err;
+    });
+  }
+  return poolPromise;
+}
+
+// Emulate [rows, result] signature compatible with MySQL-style db calls
 export function getPool() {
+  if (isPostgres) {
+    const pgPool = getPgPool();
+    return {
+      async query(sqlText, params = []) {
+        let pIdx = 1;
+        const pgText = sqlText.replace(/\?/g, () => `$${pIdx++}`);
+        const result = await pgPool.query(pgText, params);
+        const rows = result.rows || [];
+        rows.affectedRows = result.rowCount || 0;
+        return [rows, { affectedRows: result.rowCount || 0 }];
+      },
+
+      async execute(sqlText, params = []) {
+        return this.query(sqlText, params);
+      },
+
+      async getConnection() {
+        const client = await pgPool.connect();
+        return {
+          async execute(sqlText, params = []) {
+            let pIdx = 1;
+            const pgText = sqlText.replace(/\?/g, () => `$${pIdx++}`);
+            const result = await client.query(pgText, params);
+            const rows = result.rows || [];
+            rows.affectedRows = result.rowCount || 0;
+            return [rows, { affectedRows: result.rowCount || 0 }];
+          },
+          async beginTransaction() {
+            await client.query('BEGIN');
+          },
+          async commit() {
+            await client.query('COMMIT');
+          },
+          async rollback() {
+            await client.query('ROLLBACK');
+          },
+          release() {
+            client.release();
+          },
+        };
+      },
+    };
+  }
+
   return {
     async query(sqlText, params = []) {
       const pool = await getSqlPool();
@@ -156,7 +341,7 @@ export async function listProducts() {
 export async function getProduct(id = 'gorise-board-game') {
   const pool = await getSqlPool();
   const req = pool.request();
-  req.input('id', sql.NVarChar(64), id);
+  req.input('id', id);
   const result = await req.query('SELECT TOP 1 * FROM products WHERE id = @id');
   return result.recordset[0] ? normalizeProduct(result.recordset[0]) : null;
 }
@@ -182,14 +367,14 @@ export async function listActiveMedia() {
 export async function createMedia(media) {
   const pool = await getSqlPool();
   const req = pool.request();
-  req.input('id', sql.NVarChar(64), media.id);
-  req.input('slot', sql.NVarChar(80), media.slot);
-  req.input('name', sql.NVarChar(255), media.originalName);
-  req.input('type', sql.NVarChar(100), media.contentType);
-  req.input('size', sql.BigInt, media.sizeBytes);
-  req.input('key', sql.NVarChar(255), media.storageKey);
-  req.input('url', sql.NVarChar(500), media.stableUrl);
-  req.input('actor', sql.NVarChar(255), media.createdBy);
+  req.input('id', media.id);
+  req.input('slot', media.slot);
+  req.input('name', media.originalName);
+  req.input('type', media.contentType);
+  req.input('size', media.sizeBytes);
+  req.input('key', media.storageKey);
+  req.input('url', media.stableUrl);
+  req.input('actor', media.createdBy);
 
   await req.query(`
     UPDATE media_assets SET is_active = 0 WHERE slot = @slot AND deleted_at IS NULL;
@@ -202,7 +387,7 @@ export async function createMedia(media) {
 export async function deactivateMedia(id) {
   const pool = await getSqlPool();
   const req = pool.request();
-  req.input('id', sql.NVarChar(64), id);
+  req.input('id', id);
   const result = await req.query('UPDATE media_assets SET is_active = 0, deleted_at = GETDATE() WHERE id = @id AND deleted_at IS NULL');
   return (result.rowsAffected?.[0] || 0) > 0;
 }
@@ -218,6 +403,10 @@ export async function databaseReady() {
 }
 
 export async function closeDatabase() {
+  if (pgPoolInstance) {
+    await pgPoolInstance.end();
+    pgPoolInstance = null;
+  }
   if (poolPromise) {
     const pool = await poolPromise;
     await pool.close();

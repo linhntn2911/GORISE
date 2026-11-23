@@ -3,8 +3,13 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getPool, closeDatabase } from './db.js';
 import { ensureBuilderPages } from './db-builder.js';
+import { initSupabaseSchema } from './init-supabase.js';
 
 export async function migrate() {
+  if (process.env.DATABASE_URL) {
+    await initSupabaseSchema(process.env.DATABASE_URL);
+    return { applied: true, database: 'postgres' };
+  }
   const database = getPool();
   await database.query(`CREATE TABLE IF NOT EXISTS schema_migrations (
     version INT PRIMARY KEY,
