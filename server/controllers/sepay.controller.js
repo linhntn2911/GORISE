@@ -82,7 +82,7 @@ export async function handleSepayWebhook(req, res, pathname) {
         orderReq.input('orderCode', sql.NVarChar(64), searchOrderCode);
         orderReq.input('cleanCode', sql.NVarChar(64), searchCleanCode);
         const orderRes = await orderReq.query(`
-          SELECT TOP 1 id, order_code, customer_name, customer_phone, total_amount, payment_status, order_status
+          SELECT TOP 1 id, order_code, customer_id, customer_name, customer_phone, total_amount, payment_status, order_status, note
           FROM orders
           WHERE order_code = @orderCode OR REPLACE(order_code, '-', '') = @cleanCode
         `);
@@ -92,7 +92,7 @@ export async function handleSepayWebhook(req, res, pathname) {
       // Nếu chưa tìm thấy theo Regex, quét tìm mã đơn hàng xuất hiện trong chuỗi
       if (!order) {
         const scanRes = await pool.request().query(`
-          SELECT TOP 20 id, order_code, customer_name, customer_phone, total_amount, payment_status, order_status
+          SELECT TOP 20 id, order_code, customer_id, customer_name, customer_phone, total_amount, payment_status, order_status, note
           FROM orders
           WHERE payment_status = 'pending'
           ORDER BY created_at DESC
@@ -115,17 +115,31 @@ export async function handleSepayWebhook(req, res, pathname) {
       }
 
       // 4. Cập nhật trạng thái đơn hàng thành 'paid' (Đã thanh toán)
+      const paymentNote = `Thanh toán tự động qua SePay (${gateway || 'Ngân hàng'}) - GD: ${transactionId || referenceCode || 'N/A'}, Số tiền: ${transferAmount}đ`;
+      const finalNote = order.note ? `${order.note} | ${paymentNote}` : paymentNote;
+
       const updateReq = pool.request();
       updateReq.input('id', sql.NVarChar(64), order.id);
-      updateReq.input('note', sql.NVarChar(500), `Thanh toán tự động qua SePay (${gateway || 'Ngân hàng'}) - GD: ${transactionId || referenceCode || 'N/A'}, Số tiền: ${transferAmount}đ`);
+      updateReq.input('note', sql.NVarChar(1000), finalNote);
 
       await updateReq.query(`
         UPDATE orders
         SET payment_status = 'paid',
-            note = CASE WHEN note IS NULL OR note = '' THEN @note ELSE CONCAT(note, ' | ', @note) END,
+            note = @note,
             updated_at = GETDATE()
         WHERE id = @id;
       `);
+
+      // Mở khóa GORISE Play cho khách hàng nếu có tài khoản
+      if (order.customer_id) {
+        try {
+          await pool.request()
+            .input('customerId', sql.NVarChar(64), order.customer_id)
+            .query('UPDATE customers SET has_unlocked_play = 1 WHERE id = @customerId');
+        } catch (unlockErr) {
+          console.warn('[SePay Webhook] Không thể cập nhật has_unlocked_play:', unlockErr.message);
+        }
+      }
 
       console.log(`[SePay Webhook] CẬP NHẬT THÀNH CÔNG: Đơn hàng ${order.order_code} đã thanh toán ${transferAmount}đ!`);
 
