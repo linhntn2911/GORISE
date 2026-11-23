@@ -90,9 +90,9 @@ export async function handleCustomerAuth(req, res, pathname) {
       const checkReq = pool.request();
       checkReq.input('username', sql.NVarChar(100), username);
       const existing = await checkReq.query(`
-        SELECT TOP 1 id FROM customers WHERE username = @username
+        SELECT id FROM customers WHERE username = @username
         UNION ALL
-        SELECT TOP 1 id FROM admin_users WHERE username = @username
+        SELECT id FROM admin_users WHERE username = @username
       `);
       const exists = existing.recordset.length > 0;
       return json(res, 200, {
@@ -133,9 +133,9 @@ export async function handleCustomerAuth(req, res, pathname) {
       const checkReq = pool.request();
       checkReq.input('username', sql.NVarChar(100), username);
       const existing = await checkReq.query(`
-        SELECT TOP 1 id FROM customers WHERE username = @username
+        SELECT id FROM customers WHERE username = @username
         UNION ALL
-        SELECT TOP 1 id FROM admin_users WHERE username = @username
+        SELECT id FROM admin_users WHERE username = @username
       `);
 
       if (existing.recordset.length > 0) {
@@ -452,15 +452,17 @@ export async function handleCustomerAuth(req, res, pathname) {
       updateReq.input('id', sql.NVarChar(64), customer.id);
       updateReq.input('fullName', sql.NVarChar(255), fullName);
       updateReq.input('phone', sql.NVarChar(32), phone);
-      await updateReq.query(`
-        UPDATE customers
-        SET full_name = @fullName, phone = @phone, updated_at = GETDATE()
-        WHERE id = @id;
-        IF EXISTS (SELECT 1 FROM admin_users WHERE id = @id)
-        BEGIN
-          UPDATE admin_users SET full_name = @fullName, phone = @phone WHERE id = @id;
-        END
-      `);
+      await pool.request()
+        .input('id', sql.NVarChar(64), customer.id)
+        .input('fullName', sql.NVarChar(255), fullName)
+        .input('phone', sql.NVarChar(32), phone)
+        .query('UPDATE customers SET full_name = @fullName, phone = @phone, updated_at = GETDATE() WHERE id = @id');
+
+      await pool.request()
+        .input('id', sql.NVarChar(64), customer.id)
+        .input('fullName', sql.NVarChar(255), fullName)
+        .input('phone', sql.NVarChar(32), phone)
+        .query('UPDATE admin_users SET full_name = @fullName, phone = @phone WHERE id = @id');
 
       const updatedProfile = {
         ...customer,
@@ -533,15 +535,17 @@ export async function handleCustomerAuth(req, res, pathname) {
       updatePassReq.input('id', sql.NVarChar(64), customer.id);
       updatePassReq.input('hash', sql.NVarChar(255), newHash);
       updatePassReq.input('salt', sql.NVarChar(64), newSalt);
-      await updatePassReq.query(`
-        UPDATE customers
-        SET password_hash = @hash, password_salt = @salt, updated_at = GETDATE()
-        WHERE id = @id;
-        IF EXISTS (SELECT 1 FROM admin_users WHERE id = @id)
-        BEGIN
-          UPDATE admin_users SET password_hash = @hash, password_salt = @salt WHERE id = @id;
-        END
-      `);
+      await pool.request()
+        .input('id', sql.NVarChar(64), customer.id)
+        .input('hash', sql.NVarChar(255), newHash)
+        .input('salt', sql.NVarChar(64), newSalt)
+        .query('UPDATE customers SET password_hash = @hash, password_salt = @salt, updated_at = GETDATE() WHERE id = @id');
+
+      await pool.request()
+        .input('id', sql.NVarChar(64), customer.id)
+        .input('hash', sql.NVarChar(255), newHash)
+        .input('salt', sql.NVarChar(64), newSalt)
+        .query('UPDATE admin_users SET password_hash = @hash, password_salt = @salt WHERE id = @id');
 
       return json(res, 200, {
         success: true,

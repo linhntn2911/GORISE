@@ -60,9 +60,9 @@ export async function saveProduct(item) {
   request.input('productUrl', sql.NVarChar(255), item.productUrl || '/kham-pha-tro-choi/');
   request.input('seoJson', sql.NVarChar(sql.MAX), JSON.stringify(item.seo || {}));
 
-  await request.query(`
-    IF EXISTS (SELECT 1 FROM products WHERE id = @id)
-    BEGIN
+  const check = await pool.request().input('id', sql.NVarChar(64), id).query('SELECT id FROM products WHERE id = @id');
+  if (check.recordset && check.recordset.length > 0) {
+    await request.query(`
       UPDATE products SET
         product_name = @productName,
         sku = @sku,
@@ -86,10 +86,10 @@ export async function saveProduct(item) {
         product_url = @productUrl,
         seo_json = @seoJson,
         updated_at = GETDATE()
-      WHERE id = @id;
-    END
-    ELSE
-    BEGIN
+      WHERE id = @id
+    `);
+  } else {
+    await request.query(`
       INSERT INTO products (
         id, product_name, sku, description, short_description, price_vnd, sale_price_vnd,
         sale_start, sale_end, category, age_range, components_json, specs_json, availability,
@@ -100,12 +100,16 @@ export async function saveProduct(item) {
         @saleStart, @saleEnd, @category, @ageRange, @componentsJson, @specsJson, @availability,
         @stockQuantity, @status, @versionName, @galleryJson, @videoUrl, @imagesJson,
         @productUrl, @seoJson, GETDATE()
-      );
-    END
-  `);
+      )
+    `);
+  }
 
   return getProductById(id);
 }
-async function getProductById(id) { const [rows] = await getPool().execute(`SELECT ${productColumns} FROM products WHERE id = ? LIMIT 1`, [id]); return rows[0] ? mapProduct(rows[0]) : null; }
+async function getProductById(id) {
+  const pool = await getSqlPool();
+  const res = await pool.request().input('id', sql.NVarChar(64), id).query(`SELECT ${productColumns} FROM products WHERE id = @id`);
+  return res.recordset[0] ? mapProduct(res.recordset[0]) : null;
+}
 export async function deleteProduct(id) { const [result] = await getPool().execute('UPDATE products SET status = \'stopped\', updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id]); return result.affectedRows > 0; }
 export async function dashboardStats() { const db = getPool(); const [[video]] = await db.query('SELECT COUNT(*) count FROM situation_videos WHERE deleted_at IS NULL'); const [[publishedVideos]] = await db.query('SELECT COUNT(*) count FROM situation_videos WHERE deleted_at IS NULL AND is_active = 1'); const [[article]] = await db.query('SELECT COUNT(*) count FROM cms_articles WHERE deleted_at IS NULL'); const [[publishedArticles]] = await db.query("SELECT COUNT(*) count FROM cms_articles WHERE deleted_at IS NULL AND status = 'published'"); const [[product]] = await db.query('SELECT COUNT(*) count FROM products'); const [[drafts]] = await db.query("SELECT (SELECT COUNT(*) FROM cms_articles WHERE deleted_at IS NULL AND status='draft') + (SELECT COUNT(*) FROM products WHERE status='draft') count"); return { videos: Number(video.count), publishedVideos: Number(publishedVideos.count), articles: Number(article.count), publishedArticles: Number(publishedArticles.count), products: Number(product.count), drafts: Number(drafts.count) }; }

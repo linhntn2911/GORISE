@@ -241,15 +241,47 @@ export async function handleAdminManagement(req, res, pathname) {
         ORDER BY CAST(created_at AS DATE) ASC
       `);
 
+      const rev = revRes.recordset[0] || {};
+      const cust = custRes.recordset[0] || {};
+      const revs = revsRes.recordset[0] || {};
+
+      const totalRevenue = Number(rev.totalRevenue ?? rev.totalrevenue ?? 0);
+      const todayRevenue = Number(rev.todayRevenue ?? rev.todayrevenue ?? 0);
+      const weekRevenue = Number(rev.weekRevenue ?? rev.weekrevenue ?? 0);
+      const monthRevenue = Number(rev.monthRevenue ?? rev.monthrevenue ?? 0);
+      const totalOrders = Number(rev.totalOrders ?? rev.totalorders ?? 0);
+      const newOrders = Number(rev.newOrders ?? rev.neworders ?? 0);
+      const processingOrders = Number(rev.processingOrders ?? rev.processingorders ?? 0);
+      const completedOrders = Number(rev.completedOrders ?? rev.completedorders ?? 0);
+      const cancelledOrders = Number(rev.cancelledOrders ?? rev.cancelledorders ?? 0);
+
+      const totalCustomers = Number(cust.totalCustomers ?? cust.totalcustomers ?? 0);
+      const activeCustomers = Number(cust.activeCustomers ?? cust.activecustomers ?? 0);
+
+      const totalReviews = Number(revs.totalReviews ?? revs.totalreviews ?? 0);
+      const rawAvg = Number(revs.avgRating ?? revs.avgrating ?? 5.0);
+      const avgRating = Number((isNaN(rawAvg) ? 5.0 : rawAvg).toFixed(1));
+      const pendingReviews = Number(revs.pendingReviews ?? revs.pendingreviews ?? 0);
+
       return json(res, 200, {
         stats: {
-          ...revRes.recordset[0],
-          ...custRes.recordset[0],
-          ...revsRes.recordset[0],
-          avgRating: Number(revsRes.recordset[0].avgRating.toFixed(1)),
-          recentOrders: recentOrders.recordset,
-          recentReviews: recentReviews.recordset,
-          dailyChart: dailyChart.recordset
+          totalRevenue,
+          todayRevenue,
+          weekRevenue,
+          monthRevenue,
+          totalOrders,
+          newOrders,
+          processingOrders,
+          completedOrders,
+          cancelledOrders,
+          totalCustomers,
+          activeCustomers,
+          totalReviews,
+          avgRating,
+          pendingReviews,
+          recentOrders: recentOrders.recordset || [],
+          recentReviews: recentReviews.recordset || [],
+          dailyChart: dailyChart.recordset || []
         }
       });
     } catch (err) {
@@ -439,14 +471,27 @@ export async function handleAdminManagement(req, res, pathname) {
         ORDER BY created_at DESC
       `);
 
-      const s = summary.recordset[0];
-      const aov = s.successfulTransactions > 0 ? Math.round(s.totalIncome / s.successfulTransactions) : 0;
+      const s = summary.recordset[0] || {};
+      const totalIncome = Number(s.totalIncome ?? s.totalincome ?? 0);
+      const todayIncome = Number(s.todayIncome ?? s.todayincome ?? 0);
+      const weekIncome = Number(s.weekIncome ?? s.weekincome ?? 0);
+      const monthIncome = Number(s.monthIncome ?? s.monthincome ?? 0);
+      const qrBankIncome = Number(s.qrBankIncome ?? s.qrbankincome ?? 0);
+      const codIncome = Number(s.codIncome ?? s.codincome ?? 0);
+      const successfulTransactions = Number(s.successfulTransactions ?? s.successfultransactions ?? 0);
+      const aov = successfulTransactions > 0 ? Math.round(totalIncome / successfulTransactions) : 0;
 
       return json(res, 200, {
         income: {
-          ...s,
+          totalIncome,
+          todayIncome,
+          weekIncome,
+          monthIncome,
+          qrBankIncome,
+          codIncome,
+          successfulTransactions,
           averageOrderValue: aov,
-          transactions: paidOrders.recordset
+          transactions: paidOrders.recordset || []
         }
       });
     } catch (err) {

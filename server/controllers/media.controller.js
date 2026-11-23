@@ -62,7 +62,7 @@ export async function handleMedia(req, res, pathname) {
     } catch (error) {
       if (savedPath) await unlink(savedPath).catch(() => {});
       console.error('Local product media upload failed:', error.message);
-      return json(res, 500, { error: 'Không lưu được file sản phẩm trên server local.' });
+      return json(res, 500, { error: 'Không lưu được file sản phẩm: ' + error.message });
     }
   }
 

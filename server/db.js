@@ -140,11 +140,16 @@ export function translateTsqlToPg(sqlText, inputs = {}) {
   );
 
   // 5. Convert SELECT TOP N ... to SELECT ... LIMIT N
-  const topMatch = q.match(/SELECT\s+(DISTINCT\s+)?TOP\s+(\d+)\s+/i);
-  if (topMatch && !/\bLIMIT\s+\d+/i.test(q)) {
-    const limitVal = topMatch[2];
-    q = q.replace(/SELECT\s+(DISTINCT\s+)?TOP\s+(\d+)\s+/i, (m, dist) => `SELECT ${dist || ''}`);
-    if (!/UNION/i.test(q)) {
+  if (/UNION/i.test(q)) {
+    q = q.replace(/SELECT\s+(DISTINCT\s+)?TOP\s+\d+\s+/gi, (m, dist) => `SELECT ${dist || ''}`);
+    if (!/\bLIMIT\s+\d+/i.test(q)) {
+      q = q.replace(/;?\s*$/, ' LIMIT 1;');
+    }
+  } else {
+    const topMatch = q.match(/SELECT\s+(DISTINCT\s+)?TOP\s+(\d+)\s+/i);
+    if (topMatch && !/\bLIMIT\s+\d+/i.test(q)) {
+      const limitVal = topMatch[2];
+      q = q.replace(/SELECT\s+(DISTINCT\s+)?TOP\s+\d+\s+/gi, (m, dist) => `SELECT ${dist || ''}`);
       q = q.replace(/;?\s*$/, ` LIMIT ${limitVal};`);
     }
   }
@@ -372,21 +377,23 @@ export async function listActiveMedia() {
 
 export async function createMedia(media) {
   const pool = await getSqlPool();
-  const req = pool.request();
-  req.input('id', media.id);
-  req.input('slot', media.slot);
-  req.input('name', media.originalName);
-  req.input('type', media.contentType);
-  req.input('size', media.sizeBytes);
-  req.input('key', media.storageKey);
-  req.input('url', media.stableUrl);
-  req.input('actor', media.createdBy);
+  await pool.request()
+    .input('slot', media.slot)
+    .query('UPDATE media_assets SET is_active = 0 WHERE slot = @slot AND deleted_at IS NULL');
 
-  await req.query(`
-    UPDATE media_assets SET is_active = 0 WHERE slot = @slot AND deleted_at IS NULL;
-    INSERT INTO media_assets (id, slot, original_name, content_type, size_bytes, storage_key, stable_url, is_active, created_by)
-    VALUES (@id, @slot, @name, @type, @size, @key, @url, 1, @actor);
-  `);
+  await pool.request()
+    .input('id', media.id)
+    .input('slot', media.slot)
+    .input('name', media.originalName)
+    .input('type', media.contentType)
+    .input('size', media.sizeBytes)
+    .input('key', media.storageKey)
+    .input('url', media.stableUrl)
+    .input('actor', media.createdBy)
+    .query(`
+      INSERT INTO media_assets (id, slot, original_name, content_type, size_bytes, storage_key, stable_url, is_active, created_by)
+      VALUES (@id, @slot, @name, @type, @size, @key, @url, 1, @actor)
+    `);
   return media;
 }
 
