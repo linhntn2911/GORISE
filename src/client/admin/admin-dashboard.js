@@ -903,19 +903,18 @@
     if (!p) return;
     $('[data-product-id]').value = p.id;
     $('[data-product-name]').value = p.productName;
-    $('[data-product-sku]').value = p.sku;
-    $('[data-product-price]').value = p.price ?? '';
-    $('[data-product-sale]').value = p.salePrice ?? '';
+    if ($('[data-product-sku]')) $('[data-product-sku]').value = p.sku || '';
+    const singlePrice = p.salePrice ?? p.price ?? '';
+    $('[data-product-price]').value = singlePrice;
+    if ($('[data-product-sale]')) $('[data-product-sale]').value = singlePrice;
     $('[data-product-status]').value = p.status;
     $('[data-product-stock]').value = p.stockQuantity ?? '';
     $('[data-product-age]').value = p.ageRange;
     $('[data-product-specs]').value = Object.entries(p.specs || {}).map(([k,v]) => `${k}: ${v}`).join(', ');
     $('[data-product-image]').value = p.images?.[0] || '';
-    $('[data-product-gallery]').value = (p.gallery || []).join(', ');
-    $('[data-product-video]').value = p.videoUrl || '';
+    if ($('[data-product-gallery]')) $('[data-product-gallery]').value = (p.gallery || []).join(', ');
+    if ($('[data-product-video]')) $('[data-product-video]').value = p.videoUrl || '';
     $('[data-product-image-name]').textContent = p.images?.[0] ? `Đang dùng: ${p.images[0]}` : 'Chưa có ảnh chính.';
-    $('[data-product-gallery-name]').textContent = p.gallery?.length ? `Đang dùng ${p.gallery.length} ảnh gallery.` : 'Chưa có ảnh gallery.';
-    $('[data-product-video-name]').textContent = p.videoUrl ? `Đang dùng: ${p.videoUrl}` : 'Chưa có video.';
     $('[data-product-short]').value = p.shortDescription;
     $('[data-product-description]').value = p.description;
     productForm.hidden = false;
@@ -938,7 +937,7 @@
     const target = $('[data-product-list]');
     if (!target) return;
     if (!list.length) {
-      target.innerHTML = '<tr><td colspan="6" class="cms-empty-cell">Chưa có sản phẩm.</td></tr>';
+      target.innerHTML = '<tr><td colspan="5" class="cms-empty-cell">Chưa có sản phẩm.</td></tr>';
       renderPagination('[data-pagination-products]', 0, 1, pagination.products.size, () => {});
       return;
     }
@@ -948,8 +947,7 @@
 
     target.innerHTML = pageItems.map((p) => `
       <tr>
-        <td><b>${esc(p.productName)}</b><small>${esc(p.versionName || p.category)}</small></td>
-        <td>${esc(p.sku || '—')}</td>
+        <td><b>${esc(p.productName)}</b></td>
         <td>${money(p.salePrice ?? p.price)}</td>
         <td><span class="cms-status">${p.status === 'selling' ? 'Đang bán' : p.status === 'out_of_stock' ? 'Hết hàng' : p.status === 'stopped' ? 'Ngừng bán' : 'Bản nháp'}</span></td>
         <td>${date(p.updatedAt)}</td>
@@ -1055,20 +1053,21 @@
     const id = $('[data-product-id]').value;
     const specsText = $('[data-product-specs]').value.trim();
     const specPairs = specsText.split(',').map((x) => x.split(':').map((v) => v.trim())).filter((x) => x.length === 2 && x[0] && x[1]);
+    const priceVal = Number($('[data-product-price]').value) || null;
     const body = {
       id: id || undefined,
       productName: $('[data-product-name]').value,
-      sku: $('[data-product-sku]').value,
-      price: Number($('[data-product-price]').value) || null,
-      salePrice: Number($('[data-product-sale]').value) || null,
+      sku: $('[data-product-sku]') ? $('[data-product-sku]').value : '',
+      price: priceVal,
+      salePrice: priceVal,
       status: $('[data-product-status]').value,
       stockQuantity: Number($('[data-product-stock]').value) || null,
       ageRange: $('[data-product-age]').value,
       shortDescription: $('[data-product-short]').value,
       description: $('[data-product-description]').value,
       images: $('[data-product-image]').value ? [$('[data-product-image]').value] : [],
-      gallery: $('[data-product-gallery]').value.split(',').map((x) => x.trim()).filter(Boolean),
-      videoUrl: $('[data-product-video]').value,
+      gallery: $('[data-product-gallery]')?.value ? $('[data-product-gallery]').value.split(',').map((x) => x.trim()).filter(Boolean) : [],
+      videoUrl: $('[data-product-video]') ? $('[data-product-video]').value : '',
       specs: specPairs.length ? Object.fromEntries(specPairs) : (specsText ? { 'Số người chơi': specsText } : {})
     };
     try {

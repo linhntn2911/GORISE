@@ -430,28 +430,20 @@
           <input type="hidden" data-product-id />
           <div class="cms-form-grid">
             <label>Tên sản phẩm<input required maxlength="255" data-product-name /></label>
-            <label>Mã SKU<input maxlength="120" data-product-sku /></label>
-            <label>Giá chính thức (VNĐ)<input type="number" min="0" data-product-price /></label>
-            <label>Giá khuyến mãi (VNĐ)<input type="number" min="0" data-product-sale /></label>
-            <label>Phiên bản<select data-product-status><option value="selling">Đang bán</option><option value="out_of_stock">Hết hàng</option><option value="stopped">Ngừng bán</option><option value="draft">Bản nháp</option></select></label>
-            <label>Tồn kho<input type="number" min="0" data-product-stock /></label>
-            <label>Độ tuổi phù hợp<input data-product-age /></label>
-            <label>Số người chơi / thông số<input data-product-specs placeholder="Số người chơi: 2–6 người" /></label>
-            <label>Ảnh chính sản phẩm
+            <label>Giá bán (VNĐ)<input type="number" min="0" data-product-price /></label>
+            <label>Trạng thái bán<select data-product-status><option value="selling">Đang bán</option><option value="out_of_stock">Hết hàng</option><option value="stopped">Ngừng bán</option><option value="draft">Bản nháp</option></select></label>
+            <label>Tồn kho (hộp)<input type="number" min="0" data-product-stock /></label>
+            <label>Độ tuổi phù hợp<input data-product-age placeholder="Ví dụ: 6–15 tuổi" /></label>
+            <label>Số người chơi<input data-product-specs placeholder="Ví dụ: 2–6 người" /></label>
+            <label style="grid-column: 1 / -1;">Ảnh sản phẩm (Hộp cờ / Mockup)
               <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-product-image-file />
               <input type="hidden" data-product-image />
               <small data-product-image-name>Chưa chọn ảnh.</small>
             </label>
-            <label>Gallery ảnh
-              <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-product-gallery-files multiple />
-              <input type="hidden" data-product-gallery />
-              <small data-product-gallery-name>Chưa chọn ảnh gallery.</small>
-            </label>
-            <label>Video sản phẩm
-              <input type="file" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo" data-product-video-file />
-              <input type="hidden" data-product-video />
-              <small data-product-video-name>Chưa chọn video.</small>
-            </label>
+            <input type="hidden" data-product-sku />
+            <input type="hidden" data-product-sale />
+            <input type="hidden" data-product-gallery />
+            <input type="hidden" data-product-video />
           </div>
           <label>Mô tả ngắn<textarea rows="2" data-product-short></textarea></label>
           <label>Mô tả chi tiết<textarea rows="7" data-product-description></textarea></label>
@@ -463,8 +455,8 @@
         </form>
         <div class="cms-table-wrap">
           <table class="cms-table">
-            <thead><tr><th>Sản phẩm</th><th>SKU</th><th>Giá</th><th>Trạng thái</th><th>Cập nhật</th><th></th></tr></thead>
-            <tbody data-product-list><tr><td colspan="6">Đang tải…</td></tr></tbody>
+            <thead><tr><th>Sản phẩm</th><th>Giá bán</th><th>Trạng thái</th><th>Cập nhật</th><th></th></tr></thead>
+            <tbody data-product-list><tr><td colspan="5">Đang tải…</td></tr></tbody>
           </table>
         </div>
         <div class="cms-pagination-wrap" data-pagination-products></div>

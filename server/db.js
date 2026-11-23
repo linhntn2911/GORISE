@@ -133,6 +133,12 @@ export function translateTsqlToPg(sqlText, inputs = {}) {
   q = q.replace(/CONVERT\(VARCHAR\(\d+\),\s*CAST\(([^)]+)\s+AS\s+DATE\),\s*120\)/gi, `($1::date::text)`);
   q = q.replace(/CAST\(([^)]+)\s+AS\s+DATE\)/gi, `($1::date::text)`);
 
+  // 5. Convert FOR JSON PATH subquery for order_items
+  q = q.replace(
+    /\(\s*SELECT\s+product_name,\s*quantity,\s*unit_price,\s*total_price\s+FROM\s+order_items\s+WHERE\s+order_id\s*=\s*o\.id\s+FOR\s+JSON\s+PATH\s*\)\s*AS\s+items_json/gi,
+    `(SELECT COALESCE(json_agg(json_build_object('product_name', product_name, 'quantity', quantity, 'unit_price', unit_price, 'total_price', total_price)), '[]'::json)::text FROM order_items WHERE order_id = o.id) AS items_json`
+  );
+
   // 5. Convert SELECT TOP N ... to SELECT ... LIMIT N
   const topMatch = q.match(/SELECT\s+(DISTINCT\s+)?TOP\s+(\d+)\s+/i);
   if (topMatch && !/\bLIMIT\s+\d+/i.test(q)) {
