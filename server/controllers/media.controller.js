@@ -44,7 +44,8 @@ export async function handleMedia(req, res, pathname) {
       const targetDir = resolve(projectRoot, 'public', 'uploads', 'products', slot);
       savedPath = resolve(targetDir, storedName);
       await mkdir(targetDir, { recursive: true });
-      await writeFile(savedPath, Buffer.concat(chunks), { flag: 'wx' });
+      const buffer = Buffer.concat(chunks);
+      await writeFile(savedPath, buffer, { flag: 'wx' });
 
       const stableUrl = `/uploads/products/${slot}/${storedName}`;
       const media = {
@@ -56,6 +57,7 @@ export async function handleMedia(req, res, pathname) {
         storageKey: `local/products/${slot}/${storedName}`,
         stableUrl,
         createdBy: identity.email,
+        dataBase64: isImage ? buffer.toString('base64') : null,
       };
       await createMedia(media);
       return json(res, 201, { media });

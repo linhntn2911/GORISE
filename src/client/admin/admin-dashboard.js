@@ -893,30 +893,31 @@
     if ($('[data-product-image]')) $('[data-product-image]').value = '';
     if ($('[data-product-gallery]')) $('[data-product-gallery]').value = '';
     if ($('[data-product-video]')) $('[data-product-video]').value = '';
-    if ($('[data-product-image-name]')) $('[data-product-image-name]').textContent = 'Chưa chọn ảnh.';
-    if ($('[data-product-gallery-name]')) $('[data-product-gallery-name]').textContent = 'Chưa chọn ảnh gallery.';
-    if ($('[data-product-video-name]')) $('[data-product-video-name]').textContent = 'Chưa chọn video.';
-    if ($('[data-product-status-text]')) $('[data-product-status-text]').textContent = '';
+    const imgName = $('[data-product-image-name]'); if (imgName) imgName.textContent = 'Chưa chọn ảnh.';
+    const galName = $('[data-product-gallery-name]'); if (galName) galName.textContent = 'Chưa chọn ảnh gallery.';
+    const vidName = $('[data-product-video-name]'); if (vidName) vidName.textContent = 'Chưa chọn video.';
+    const statusText = $('[data-product-status-text]'); if (statusText) statusText.textContent = '';
     productForm.hidden = true;
   }
   function fillProduct(p) {
     if (!p) return;
-    $('[data-product-id]').value = p.id;
-    $('[data-product-name]').value = p.productName;
+    if ($('[data-product-id]')) $('[data-product-id]').value = p.id;
+    if ($('[data-product-name]')) $('[data-product-name]').value = p.productName || '';
     if ($('[data-product-sku]')) $('[data-product-sku]').value = p.sku || '';
     const singlePrice = p.salePrice ?? p.price ?? '';
-    $('[data-product-price]').value = singlePrice;
+    if ($('[data-product-price]')) $('[data-product-price]').value = singlePrice;
     if ($('[data-product-sale]')) $('[data-product-sale]').value = singlePrice;
-    $('[data-product-status]').value = p.status;
-    $('[data-product-stock]').value = p.stockQuantity ?? '';
-    $('[data-product-age]').value = p.ageRange;
-    $('[data-product-specs]').value = Object.entries(p.specs || {}).map(([k,v]) => `${k}: ${v}`).join(', ');
-    $('[data-product-image]').value = p.images?.[0] || '';
+    if ($('[data-product-status]')) $('[data-product-status]').value = p.status || 'selling';
+    if ($('[data-product-stock]')) $('[data-product-stock]').value = p.stockQuantity ?? '';
+    if ($('[data-product-age]')) $('[data-product-age]').value = p.ageRange || '';
+    if ($('[data-product-specs]')) $('[data-product-specs]').value = Object.entries(p.specs || {}).map(([k,v]) => `${k}: ${v}`).join(', ');
+    if ($('[data-product-image]')) $('[data-product-image]').value = p.images?.[0] || '';
     if ($('[data-product-gallery]')) $('[data-product-gallery]').value = (p.gallery || []).join(', ');
     if ($('[data-product-video]')) $('[data-product-video]').value = p.videoUrl || '';
-    $('[data-product-image-name]').textContent = p.images?.[0] ? `Đang dùng: ${p.images[0]}` : 'Chưa có ảnh chính.';
-    $('[data-product-short]').value = p.shortDescription;
-    $('[data-product-description]').value = p.description;
+    const imgName = $('[data-product-image-name]');
+    if (imgName) imgName.textContent = p.images?.[0] ? `Đang dùng: ${p.images[0]}` : 'Chưa có ảnh chính.';
+    if ($('[data-product-short]')) $('[data-product-short]').value = p.shortDescription || '';
+    if ($('[data-product-description]')) $('[data-product-description]').value = p.description || '';
     productForm.hidden = false;
     productForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -977,13 +978,14 @@
     if (!file) return;
     const status = $('[data-product-status-text]');
     try {
-      status.textContent = `Đang tải ảnh chính ${file.name}…`;
+      if (status) status.textContent = `Đang tải ảnh chính ${file.name}…`;
       const url = await uploadProductMedia(file, 'product-main');
-      $('[data-product-image]').value = url;
-      $('[data-product-image-name]').textContent = `Đã tải: ${file.name}`;
-      status.textContent = 'Ảnh chính đã tải xong. Nhấn “Lưu sản phẩm” để áp dụng.';
+      if ($('[data-product-image]')) $('[data-product-image]').value = url;
+      const imgName = $('[data-product-image-name]');
+      if (imgName) imgName.textContent = `Đã tải: ${file.name}`;
+      if (status) status.textContent = 'Ảnh chính đã tải xong. Nhấn “Lưu sản phẩm” để áp dụng.';
     } catch (error) {
-      status.textContent = error.message;
+      if (status) status.textContent = error.message;
       toast(error.message);
     }
   });
@@ -995,14 +997,15 @@
     const uploaded = [];
     try {
       for (const [index, file] of files.entries()) {
-        status.textContent = `Đang tải ảnh gallery ${index + 1}/${files.length}: ${file.name}…`;
+        if (status) status.textContent = `Đang tải ảnh gallery ${index + 1}/${files.length}: ${file.name}…`;
         uploaded.push(await uploadProductMedia(file, 'product-gallery'));
       }
-      $('[data-product-gallery]').value = uploaded.join(', ');
-      $('[data-product-gallery-name]').textContent = `Đã tải ${uploaded.length} ảnh gallery.`;
-      status.textContent = 'Gallery đã tải xong. Nhấn “Lưu sản phẩm” để áp dụng.';
+      if ($('[data-product-gallery]')) $('[data-product-gallery]').value = uploaded.join(', ');
+      const galName = $('[data-product-gallery-name]');
+      if (galName) galName.textContent = `Đã tải ${uploaded.length} ảnh gallery.`;
+      if (status) status.textContent = 'Gallery đã tải xong. Nhấn “Lưu sản phẩm” để áp dụng.';
     } catch (error) {
-      status.textContent = error.message;
+      if (status) status.textContent = error.message;
       toast(error.message);
     }
   });
@@ -1012,13 +1015,14 @@
     if (!file) return;
     const status = $('[data-product-status-text]');
     try {
-      status.textContent = `Đang tải video ${file.name}…`;
+      if (status) status.textContent = `Đang tải video ${file.name}…`;
       const url = await uploadProductMedia(file, 'product-video');
-      $('[data-product-video]').value = url;
-      $('[data-product-video-name]').textContent = `Đã tải: ${file.name}`;
-      status.textContent = 'Video đã tải xong. Nhấn “Lưu sản phẩm” để áp dụng.';
+      if ($('[data-product-video]')) $('[data-product-video]').value = url;
+      const vidName = $('[data-product-video-name]');
+      if (vidName) vidName.textContent = `Đã tải: ${file.name}`;
+      if (status) status.textContent = 'Video đã tải xong. Nhấn “Lưu sản phẩm” để áp dụng.';
     } catch (error) {
-      status.textContent = error.message;
+      if (status) status.textContent = error.message;
       toast(error.message);
     }
   });
@@ -1050,22 +1054,23 @@
 
   productForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const id = $('[data-product-id]').value;
-    const specsText = $('[data-product-specs]').value.trim();
+    const id = $('[data-product-id]')?.value;
+    const specsEl = $('[data-product-specs]');
+    const specsText = (specsEl?.value || '').trim();
     const specPairs = specsText.split(',').map((x) => x.split(':').map((v) => v.trim())).filter((x) => x.length === 2 && x[0] && x[1]);
-    const priceVal = Number($('[data-product-price]').value) || null;
+    const priceVal = Number($('[data-product-price]')?.value) || null;
     const body = {
       id: id || undefined,
-      productName: $('[data-product-name]').value,
+      productName: $('[data-product-name]')?.value || '',
       sku: $('[data-product-sku]') ? $('[data-product-sku]').value : '',
       price: priceVal,
       salePrice: priceVal,
-      status: $('[data-product-status]').value,
-      stockQuantity: Number($('[data-product-stock]').value) || null,
-      ageRange: $('[data-product-age]').value,
-      shortDescription: $('[data-product-short]').value,
-      description: $('[data-product-description]').value,
-      images: $('[data-product-image]').value ? [$('[data-product-image]').value] : [],
+      status: $('[data-product-status]')?.value || 'selling',
+      stockQuantity: Number($('[data-product-stock]')?.value) || null,
+      ageRange: $('[data-product-age]')?.value || '',
+      shortDescription: $('[data-product-short]')?.value || '',
+      description: $('[data-product-description]')?.value || '',
+      images: $('[data-product-image]')?.value ? [$('[data-product-image]').value] : [],
       gallery: $('[data-product-gallery]')?.value ? $('[data-product-gallery]').value.split(',').map((x) => x.trim()).filter(Boolean) : [],
       videoUrl: $('[data-product-video]') ? $('[data-product-video]').value : '',
       specs: specPairs.length ? Object.fromEntries(specPairs) : (specsText ? { 'Số người chơi': specsText } : {})
@@ -1180,8 +1185,9 @@
         window.location.replace('/');
         return;
       }
-      identity.textContent = `${auth.identity.name} · ${auth.identity.email}`;
-      $('[data-admin-name]').textContent = auth.identity.name || 'Admin';
+      if (identity) identity.textContent = `${auth.identity.name} · ${auth.identity.email}`;
+      const adminNameEl = $('[data-admin-name]');
+      if (adminNameEl) adminNameEl.textContent = auth.identity.name || 'Admin';
 
       if (workspace) {
         workspace.style.display = '';

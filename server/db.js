@@ -397,7 +397,7 @@ export async function createMedia(media) {
     .input('slot', media.slot)
     .query('UPDATE media_assets SET is_active = 0 WHERE slot = @slot AND deleted_at IS NULL');
 
-  await pool.request()
+  const req = pool.request()
     .input('id', media.id)
     .input('slot', media.slot)
     .input('name', media.originalName)
@@ -405,12 +405,34 @@ export async function createMedia(media) {
     .input('size', media.sizeBytes)
     .input('key', media.storageKey)
     .input('url', media.stableUrl)
-    .input('actor', media.createdBy)
-    .query(`
+    .input('actor', media.createdBy);
+
+  if (media.dataBase64) {
+    req.input('data', media.dataBase64);
+    await req.query(`
+      INSERT INTO media_assets (id, slot, original_name, content_type, size_bytes, storage_key, stable_url, is_active, created_by, data_base64)
+      VALUES (@id, @slot, @name, @type, @size, @key, @url, 1, @actor, @data)
+    `);
+  } else {
+    await req.query(`
       INSERT INTO media_assets (id, slot, original_name, content_type, size_bytes, storage_key, stable_url, is_active, created_by)
       VALUES (@id, @slot, @name, @type, @size, @key, @url, 1, @actor)
     `);
+  }
   return media;
+}
+
+export async function getMediaByUrl(url) {
+  try {
+    const pool = await getSqlPool();
+    const cleanUrl = String(url || '').split('?')[0].split('#')[0];
+    const result = await pool.request()
+      .input('url', cleanUrl)
+      .query('SELECT content_type, data_base64 FROM media_assets WHERE stable_url = @url AND data_base64 IS NOT NULL AND deleted_at IS NULL');
+    return result.recordset?.[0] || null;
+  } catch {
+    return null;
+  }
 }
 
 export async function deactivateMedia(id) {

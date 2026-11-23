@@ -354,11 +354,20 @@ export async function initSupabaseSchema(connStr = process.env.DATABASE_URL || D
           200,
           'selling',
           '/kham-pha-tro-choi',
-          '["/assets/images/box-mockup.png"]',
+          '["/assets/images/product-safe-home.webp"]',
           NOW()
         );
       `);
     }
+
+    // Đồng bộ media_assets data_base64 column và ảnh sản phẩm mặc định
+    await client.query(`
+      ALTER TABLE media_assets ADD COLUMN IF NOT EXISTS data_base64 TEXT;
+      UPDATE products 
+      SET images_json = '["/assets/images/product-safe-home.webp"]' 
+      WHERE id = 'gorise-board-game' 
+        AND (images_json LIKE '%box-mockup%' OR images_json LIKE '%19fda58d%' OR images_json IS NULL);
+    `);
 
     // Seed activation codes
     const demoCodes = ['GORISE-SAFE-8888', 'GORISE-SAFE-9999', 'GORISE-VIP-2026', 'GORISE-TEST-1111', 'GORISE-TEST-2222'];

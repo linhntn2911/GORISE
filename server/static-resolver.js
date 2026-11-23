@@ -129,5 +129,14 @@ export function resolveStaticFile(pathname) {
     }
   }
 
+  // Fallback for missing product images, box-mockup, or ephemeral uploads
+  if (/box-mockup|product-safe-home|\/uploads\/products\//i.test(pathname)) {
+    const fallback = resolve(root, 'public/assets/images/product-safe-home.webp');
+    if (existsSync(fallback)) {
+      fileCache.set(pathname, fallback);
+      return fallback;
+    }
+  }
+
   return null;
 }

@@ -1,9 +1,10 @@
-import { stat } from 'node:fs/promises';
-import { extname } from 'node:path';
-import { createReadStream } from 'node:fs';
+import { stat, writeFile, mkdir } from 'node:fs/promises';
+import { extname, dirname, resolve } from 'node:path';
+import { createReadStream, existsSync } from 'node:fs';
 import { createGzip } from 'node:zlib';
 import { resolveStaticFile } from '../static-resolver.js';
 import { MIME_TYPES, json } from '../utils/http.js';
+import { getMediaByUrl } from '../db.js';
 
 export async function serveStatic(req, res, pathname) {
   if (pathname.startsWith('/manus-storage/')) {
@@ -17,6 +18,36 @@ export async function serveStatic(req, res, pathname) {
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     json(res, 405, { error: 'Method not allowed' });
     return true;
+  }
+
+  // Phục hồi tự động file media tải lên từ PostgreSQL nếu disk ephemeral bị xóa (Render free restart)
+  if (pathname.startsWith('/uploads/')) {
+    try {
+      const mediaRow = await getMediaByUrl(pathname);
+      if (mediaRow && mediaRow.data_base64) {
+        const buffer = Buffer.from(mediaRow.data_base64, 'base64');
+        const contentType = mediaRow.content_type || 'image/jpeg';
+        res.writeHead(200, {
+          'Content-Type': contentType,
+          'Content-Length': buffer.length,
+          'Cache-Control': 'public, max-age=86400, stale-while-revalidate=604800',
+          'X-Content-Type-Options': 'nosniff',
+        });
+        if (req.method === 'HEAD') {
+          res.end();
+          return true;
+        }
+        res.end(buffer);
+        // Lưu tạm lại vào disk cục bộ để phục vụ cực nhanh cho các request tiếp theo
+        const localTarget = resolve('public', pathname.replace(/^\/+/, ''));
+        mkdir(dirname(localTarget), { recursive: true })
+          .then(() => writeFile(localTarget, buffer))
+          .catch(() => {});
+        return true;
+      }
+    } catch (e) {
+      console.warn('[serveStatic] Không tải được media từ DB:', e.message);
+    }
   }
 
   const filepath = resolveStaticFile(pathname);

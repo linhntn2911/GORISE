@@ -26,6 +26,7 @@
       button.dataset.lightbox = url;
       button.setAttribute('aria-label', `Xem ảnh ${index + 1} của ${product.productName}`);
       const image = document.createElement('img');
+      image.onerror = () => { image.onerror = null; image.src = '/assets/images/product-safe-home.webp'; };
       image.src = url;
       image.alt = `${product.productName} — ảnh ${index + 1}`;
       image.loading = 'lazy';
@@ -78,7 +79,11 @@
         if (facts[1]) facts[1].textContent = playerSpec || 'Đang cập nhật';
         if (mainImage) {
           const image = card.querySelector('.product-card-visual img');
-          if (image) { image.src = mainImage; image.alt = product.productName; }
+          if (image) {
+            image.onerror = () => { image.onerror = null; image.src = '/assets/images/product-safe-home.webp'; };
+            image.src = mainImage;
+            image.alt = product.productName;
+          }
         }
         if (button) {
           const unavailable = product.status !== 'selling' || product.stockQuantity === 0;
@@ -92,7 +97,11 @@
       if (compareHeader) {
         const image = compareHeader.querySelector('img');
         const name = compareHeader.querySelector('span');
-        if (image && mainImage) { image.src = mainImage; image.alt = product.productName; }
+        if (image && mainImage) {
+          image.onerror = () => { image.onerror = null; image.src = '/assets/images/product-safe-home.webp'; };
+          image.src = mainImage;
+          image.alt = product.productName;
+        }
         if (name) name.textContent = product.productName;
       }
       const compareRows = document.querySelectorAll('.compare-table tbody tr');
